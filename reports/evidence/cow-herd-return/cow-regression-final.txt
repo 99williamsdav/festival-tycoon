@@ -1,0 +1,7 @@
+  Festival.Simulation -> C:\Projects\festival-tycoon\src\Festival.Simulation\bin\Debug\net8.0\Festival.Simulation.dll
+  Festival.ContentAdapter -> C:\Projects\festival-tycoon\src\Festival.ContentAdapter\bin\Debug\net8.0\Festival.ContentAdapter.dll
+  Festival.Persistence -> C:\Projects\festival-tycoon\src\Festival.Persistence\bin\Debug\net8.0\Festival.Persistence.dll
+  Festival.Tests -> C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll
+  Run tests: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
+  Failed! - Failed: 2, Passed: 49, Skipped: 0, Total: 51, Duration: 55s 707ms - Festival.Tests.dll (net8.0|x64)
+C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll : error run failed: Tests failed: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\TestResults\Festival.Tests_net8.0_x64.log' [net8.0|x64] [C:\Projects\festival-tycoon\tests\Festival.Tests\Festival.Tests.csproj]

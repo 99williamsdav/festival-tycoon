@@ -1,0 +1,101 @@
+{
+  "base": "0d14dd9471682a5a020f7ca8c1fa2d7f77f0f453",
+  "files": [
+    {
+      "path": "src/Festival.Simulation/CowHerdReturn.cs",
+      "sha256": "DF82AC9B75AD545B30FADCA9CB6072342FC82FE2EA89683B43B48A927DDD2FFB"
+    },
+    {
+      "path": "src/Festival.Simulation/Cows.cs",
+      "sha256": "E727013171272EE62E0646A8D317737AF195492DBFCDB30C5C233F279223F4DB"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+      "sha256": "C87AB4A89B0C76D0D67862D49A3B0A23FDD737CC16831BB8DF2100EC464A75D0"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "D510E37E0CBC2D3C92FB766D986FFF050BD4D5408C68340E8D2EEDE8519E43F2"
+    },
+    {
+      "path": "game/Main.CowHerdEvidence.cs",
+      "sha256": "3B50E86773B5DD525603FA3F938EA7151730FFBE7F2509EC1459A33B06B1BF9B"
+    },
+    {
+      "path": "tests/Festival.Tests/CowHerdPacingTests.cs",
+      "sha256": "0108F428AEB2D9E34348879B01B98C8A928A1462001107D6C9FF8740A88BF692"
+    },
+    {
+      "path": "briefs/results/cow-herd-return.md",
+      "sha256": "239D99757DEFCF6E6223D7FCD79DCA35D065D815B7B5E7A03F8319E38028796F"
+    }
+  ],
+  "protected": [
+    {
+      "path": "src/Festival.Simulation/StewardAutopilot.cs",
+      "sha256": "866980535B8469F802EC4F5622E092CA076D45632AD7CB509711A422A5C270DF"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "40CA8AA534C0514A2AB1DDCE58FEB7D5B42934E70073C875CC964E2B9FC7C720"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicWeather.cs",
+      "sha256": "BBD8BAF0D118FADEA266830F0F927A527D1F5E1664B2000A02DF0DDA0508A7E2"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBooking.cs",
+      "sha256": "992247B74D9019F4125FFCE8925B1B02268056A58524140A4C3E07A65ADAC411"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftReport.cs",
+      "sha256": "F415C9103802D3DB6EF6271A205D07F5BC1A3483EE74503934A80BE7BC44813D"
+    },
+    {
+      "path": "tests/Festival.Tests/HandsOnAutopilotTests.cs",
+      "sha256": "D17EC7323703098FBDCDB0A762EDDCABDD8884C56A6C09771E75068739B459DD"
+    }
+  ],
+  "evidence": [
+    {
+      "sha256": "10EE17E1B030B5032A5083B0CD557A32C578AA424E39065D7C6EEFDBBC6D0801",
+      "path": "reports/evidence/cow-herd-return/frame-0000.png"
+    },
+    {
+      "sha256": "395792372E54BA1D4CFFBF6BBCAAD827B5F107F741AA188093F2570F0C8296F4",
+      "path": "reports/evidence/cow-herd-return/frame-0040.png"
+    },
+    {
+      "sha256": "0D61A0A964CF41186E7432B5ED3283DF0ECA8718072C790CB8C3C2F4ACF9B620",
+      "path": "reports/evidence/cow-herd-return/frame-0100.png"
+    },
+    {
+      "sha256": "921D9CD09843AEEC7C512385F334169AFA12853B14E736072F2D241FE6F09620",
+      "path": "reports/evidence/cow-herd-return/frame-0220.png"
+    },
+    {
+      "sha256": "F911FE95B3F8D0365BE4843176D9A14003CBB9180E727ABB3F60A2BD67048314",
+      "path": "reports/evidence/cow-herd-return/frame-0320.png"
+    },
+    {
+      "sha256": "88A96067AE9A5CFB0347FF42D02E84E00C4977EBB2DF87B777D00E407AE08CA7",
+      "path": "reports/evidence/cow-herd-return/frame-0419.png"
+    },
+    {
+      "sha256": "2CED4A330FDA372D4806664FFF372F024E3220FD88C88B58BF9EAB058EE027EB",
+      "path": "reports/evidence/cow-herd-return/herd-return.mp4"
+    },
+    {
+      "sha256": "6CB06790B658EED4D433196670E11B8C670305AE1A6BBDAB4C94954220B62353",
+      "path": "reports/evidence/cow-herd-return/native-summary.json"
+    },
+    {
+      "sha256": "D80E18DCE82532D779295C673645B6A40536B11991B97532710B235FC751CA58",
+      "path": "reports/evidence/cow-herd-return/positions.csv"
+    },
+    {
+      "sha256": "06D1DA06FF00F7D88B7DAC31150C27EFEF35136FACD4DAA0C232E4FE3422B303",
+      "path": "reports/evidence/cow-herd-return/positions.json"
+    }
+  ]
+}

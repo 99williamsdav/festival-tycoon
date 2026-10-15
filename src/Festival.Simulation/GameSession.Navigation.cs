@@ -105,6 +105,7 @@ public sealed partial class GameSession
     private void AdvanceNavigation(List<SessionEvent> events)
     {
         if (_traversalGrid is null) return;
+        RefreshHerdReturnRoutes();
         var moving = _navigationAgents.Values.Where(item => item.Action == AgentNavigationAction.Travelling).ToArray();
         var backups = moving.ToDictionary(item => item.Id, MovementBackup.Capture);
         var arrived = new HashSet<EntityId>();
@@ -172,7 +173,7 @@ public sealed partial class GameSession
                     ScaleDiagnosticProbe?.RecordBlocked(agent.Id);
                 }
                 else if (!arrived.Contains(agent.Id) && destination is { } target && intent is not null &&
-                    TryApplySeparationOffset(agent, backups[agent.Id], occupied, priorMovingOccupancy))
+                    HerdReturnCow(agent) is null && TryApplySeparationOffset(agent, backups[agent.Id], occupied, priorMovingOccupancy))
                 {
                     // The offset is authoritative movement, so rebase route interpolation at
                     // the accepted position instead of snapping back to the old segment next tick.
@@ -198,7 +199,9 @@ public sealed partial class GameSession
             var effectiveCost = checked(terrainCost * GroundSlowPermille(agent.Route[agent.RouteIndex]));
             var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) * StaffGaitPermille(agent.Id.Value) / 1000 *
                 PersonPacePermille(agent.Id.Value) / 1000 + agent.MovementRemainder);
-            var allowance = checked((int)(numerator / effectiveCost));
+            var next = TraversalGrid.CellCentre(agent.Route[agent.RouteIndex]);
+            var allowance = HerdReturnMovementBudget(agent, checked((int)(numerator / effectiveCost)),
+                next.XMillimetres - agent.XMillimetres, next.ZMillimetres - agent.ZMillimetres);
             agent.MovementRemainder = checked((int)(numerator % effectiveCost));
             var arrived = false;
 

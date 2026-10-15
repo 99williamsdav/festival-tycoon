@@ -1,0 +1,18 @@
+# Cow herd return — independent review, 15 October 2026
+
+**PASS for the hired-steward source change and supplied native evidence.** No blocking findings remain at the checkpoint in `reports/evidence/cow-herd-return/checkpoint.json`, based on `0d14dd9471682a5a020f7ca8c1fa2d7f77f0f453`. This is the independent reviewer result required by `docs/WORKING-AGREEMENTS.md`; the reviewer did not implement the product changes. It does not approve an exported EXE that has not yet been reviewed.
+
+The final change applies only to a hired steward with `cow.drive` intent and a matching actively driven cow. It follows a short lead along the existing cow route, limits movement away from the cow, waits at excessive lead, and stands aside at the gate. Fetch, joining from behind and released movement keep ordinary speed. Existing legal pathfinding, terrain sweeps and occupancy still apply; active returns replan instead of using lateral separation displacements. Cow speed, completion, ownership loss, deadlines, priority, needs, economy and save schema remain unchanged. Pacing introduces no saved state.
+
+The initial player-autopilot extension failed the existing full-day grade expectation. The builder isolated that regression to the extension and removed it. Independent inspection confirms `StewardAutopilot.cs`, `StewardShift.cs`, `StewardShiftReport.cs` and `HandsOnAutopilotTests.cs` have no diff against HEAD. The grade assertion is unchanged and independently passes. The separate preexisting player-owned-cow save-validator defect is recorded in the result brief and excluded from this commission.
+
+Independent checks:
+
+- `CowHerdPacingTests`, `CowTests`, and `LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls`: **16/16 passed**, 20.93 seconds. This includes five new pacing tests for gap/step/completion, normal fetch, curved route, pause/save/determinism/reassignment, and blocked-cow waiting/resumption. Log: `reports/evidence/cow-herd-return/independent-tests.txt`.
+- Clean game rebuild with `dotnet build game/Festival.Game.csproj --no-restore -t:Rebuild -m:1 -p:UseSharedCompilation=false -nr:false`: **passed, zero warnings/errors**. Log: `reports/evidence/cow-herd-return/independent-game-build.txt`.
+- Verified checkpoint before and after testing/build. All **33 pins match**: seven scoped files, six protected files, ten native evidence files, and ten immutable Survival references from `reports/evidence/classic-tickets/ui/reviewer-survival-pins.json`. Results: `reports/evidence/cow-herd-return/independent-pins.json`.
+- Builder's broader completed run reports **55/55 passed**, including immutable Classic/Survival parity and retained cow, actions, autopilot and single-bar checks. This broader run was inspected as builder evidence, not represented as independently rerun.
+
+Inspected the native capture implementation, all six supplied PNGs and paired position CSV, and verified the MP4/evidence hashes. The fixture stages starting positions once, issues a real HerdCow command, and uses simulation-owned movement thereafter. The sequence shows fetch, joining, a short lead, completion and ordinary return to post. Driving samples have a 1.373–1.933 metre gap (mean 1.599 metres). The supplied video is a 420-frame, 20fps scripted native fixture; no second native process was launched by this reviewer. Removing the player-only extension does not change this hired-steward BuildCampaign fixture. This evidence does not claim a manual full-day balance playtest.
+
+No product files were edited during review. Unrelated imports, package lock, outfit assets, UID files and old exported binaries were outside the review scope and untouched by the reviewer.

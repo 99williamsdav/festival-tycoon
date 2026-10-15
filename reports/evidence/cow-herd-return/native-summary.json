@@ -1,0 +1,15 @@
+{
+  "frames": 420,
+  "seconds": 21,
+  "complete": true,
+  "fetchFrames": 2,
+  "drivingFrames": 305,
+  "establishedGapMillimetres": {
+    "max": 1786.8522602610435,
+    "mean": 1587.6531116288818,
+    "min": 1372.6037301420974
+  },
+  "exitCode": "0",
+  "stderrBytes": 0,
+  "finalIntent": "staff.return-to-post"
+}

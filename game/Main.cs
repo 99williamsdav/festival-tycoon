@@ -49,7 +49,7 @@ public partial class Main : Node, IHudHost
             _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
             _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag) :
-            _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility,
+            _litterEvidenceOutput is not null || _cowHerdEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility,
             _saveWarningEvidenceOutput is null ? null : _ => { if (_saveWarningInjectFailure) throw new IOException("Injected native save failure before replacement"); });
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_cowHerdEvidenceOutput is not null){ProcessCowHerdEvidence();return;}
         if(_ticketEvidenceOutput is not null){ProcessTicketEvidence();return;}
         if(_weatherEvidenceOutput is not null){ProcessWeatherEvidence();return;}
         if(_classicEvidenceOutput is not null){ProcessClassicEvidence();return;}
@@ -633,6 +634,7 @@ public partial class Main : Node, IHudHost
             else if(args[i]=="--weather-start-case"&&i+1<args.Length&&int.TryParse(args[++i],out var weatherCase))_weatherEvidenceFrame=48*Math.Clamp(weatherCase,0,5);
             else if(args[i]=="--capture-classic-tickets"&&i+1<args.Length){_ticketEvidenceOutput=args[++i];_architectureEvidenceOutput=_ticketEvidenceOutput;}
             else if(args[i]=="--capture-classic-weather"&&i+1<args.Length){_weatherEvidenceOutput=args[++i];_architectureEvidenceOutput=_weatherEvidenceOutput;}
+            else if(args[i]=="--capture-cow-herd"&&i+1<args.Length){_cowHerdEvidenceOutput=args[++i];_architectureEvidenceOutput=_cowHerdEvidenceOutput;}
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)
             { _saveWarningEvidenceOutput = args[++i]; _architectureEvidenceOutput = _saveWarningEvidenceOutput; }

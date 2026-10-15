@@ -42,6 +42,7 @@ public static class CowRules
     public const int ChewChancePer10k = 200;
     /// <summary>How close a steward must get before the cow walks on ahead of them (a cow keeps people a body's width off).</summary>
     public const int HerdReachCells = 3;
+    public const int HerdLeadMillimetres = 2_000, HerdMaxLeadMillimetres = 3_000, HerdReplanTicks = 40;
     /// <summary>A cow's bulk, for people stepping round it: its centre and four points this far out.</summary>
     public const int BodyMillimetres = 650;
     /// <summary>
@@ -383,8 +384,9 @@ public sealed partial class GameSession
             var stewardCell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
             if (Math.Max(Math.Abs(stewardCell.X - cowCell.X), Math.Abs(stewardCell.Z - cowCell.Z)) > CowRules.HerdReachCells) return cow;
             var home = DeterministicPathfinder.FindPath(_traversalGrid!, cowCell, CowRules.GateInside);
-            ApplyAgentDestination(new(herder), new(WalkableNear(new(CowRules.GateInside.X - 2, CowRules.GateInside.Z)), "cow.drive"));
-            return cow with { Driving = true, Route = home.Found && home.Path.All(CowOnSite) ? home.Path.ToArray() : [CowRules.GateInside], RouteIndex = 0 };
+            var driving = cow with { Driving = true, Route = home.Found && home.Path.All(CowOnSite) ? home.Path.ToArray() : [CowRules.GateInside], RouteIndex = 0 };
+            SetHerdLeadGoal(driving, nav);
+            return driving;
         }
         var (moved, blocker) = StepCowApart(herd, index, CowRules.DrivenMillimetresPerTick);
         // Two driven cows each in the other's way (driven from different sides to the one gate) would both wait until their
