@@ -337,6 +337,6 @@ public sealed partial class GameSession
         if (PersonIn(PersonView.Consumption, id) is { ToiletStage: ToiletVisitStage.Using or ToiletVisitStage.Entering }) return true;
         if (!_navigationAgents.TryGetValue(new(id), out var nav)) return false;
         var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-        return CoveredCell(cell) || LivePerformerStage(id) == 0 && HasClaim(id, PersonClaim.Performing);
+        return CoveredCell(cell) || LivePerformerStage(id) is var stage and >=0 && Stages[stage].Id==FestivalStages.MainId && HasClaim(id, PersonClaim.Performing);
     }
 }

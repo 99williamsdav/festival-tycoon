@@ -37,7 +37,7 @@ public static class StaffCatalogue
     public static string RoleName(StaffRole role) => role switch { StaffRole.Sound => "sound engineer", StaffRole.Medic => "medic", _ => "steward" };
     /// <summary>The offer category for hiring into a role's main slot or its perk-granted second slot.</summary>
     public static string Category(StaffRole role, bool extra) => extra ? "extra-" + Key(role) : role == StaffRole.Sound ? "staff" : Key(role);
-    public static bool IsWorkCategory(string category) => category is "staff" or "medic" or "steward" or "maintenance" or "extra-medic" or "extra-steward" or "extra-sound";
+    public static bool IsWorkCategory(string category) => category is "staff" or "medic" or "steward" or "maintenance" or "extra-medic" or "extra-steward" or "extra-sound" or "extra-sound-2";
     public static bool IsVacancy(string name) => name == PondSoundVacancy || name == "Barn Stage sound engineer (unhired)" || Enum.GetValues<StaffRole>().Any(role => Vacancy(role) == name);
     public static string SecondSoundVacancy(FestivalStage stage) => stage.ShortName + " sound engineer (unhired)";
     /// <summary>The Pond Stage's own engineer slot, before anyone is hired into it (its offers are the sound extras).</summary>
@@ -47,9 +47,11 @@ public static class StaffCatalogue
     /// <summary>The candidate an offer id hires, whether into the main slot or the extra one.</summary>
     public static StaffCandidate? ForOffer(IEnumerable<StaffCandidate> candidates, string offerId)
     {
-        var id = offerId.Replace("staff.extra-", "staff.", StringComparison.Ordinal);
+        var id = CandidateIdForOffer(offerId);
         return candidates.SingleOrDefault(candidate => candidate.Id == id);
     }
+    public static string CandidateIdForOffer(string offerId)=>offerId.Replace("staff.extra-sound-2.","staff.sound.",StringComparison.Ordinal)
+        .Replace("staff.extra-","staff.",StringComparison.Ordinal);
 
     /// <summary>The candidate hired into a role's main or extra slot among accepted offers.</summary>
     public static StaffCandidate? Hired(IEnumerable<StaffCandidate> candidates, IEnumerable<string> offerIds, StaffRole role, bool extra)

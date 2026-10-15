@@ -51,7 +51,7 @@ public sealed partial class GameSession
         (p.Plan is { Committed: false } ? PreparationPlanCost - PlannedPitchFeePennies : 0) : 0;
     public int ExpectedPreparedPeopleCount => _preparation is not { } p ? 0 : PeopleIn(PersonView.Roster).Length +
         (p.Plan is { Committed: false } plan ? plan.OfferIds.Count(id => id == "maintenance.worker" ||
-            id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound.", StringComparison.Ordinal)) : 0);
+            id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound", StringComparison.Ordinal)) : 0);
     private CommandResult? ValidatePlanEdit(EntityId? target, SessionCommand command)
     {
         if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
@@ -138,13 +138,13 @@ public sealed partial class GameSession
                 !SavedClassic(s) && vanTraders.Select(item => item.TraderId).Append(plan.TraderId).Distinct().Count() != vanTraders.Length + 1) ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
         var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial, identity: s.Identity,
-            classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null).WithPaymentStanding(p);
+            classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null,classicDevelopment:s.ClassicDevelopment).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||
             plan.OfferIds.Any(id => id.StartsWith("staff.extra-medic.", StringComparison.Ordinal)) && !p.ExtraMedicSlotOwned ||
             plan.OfferIds.Any(id => id.StartsWith("staff.extra-steward.", StringComparison.Ordinal)) && !p.ExtraStewardSlotOwned ||
-            plan.OfferIds.Select(id => id.Replace("staff.extra-", "staff.", StringComparison.Ordinal)).Distinct().Count() != plan.OfferIds.Length ||
+            plan.OfferIds.Select(StaffCatalogue.CandidateIdForOffer).Distinct().Count() != plan.OfferIds.Length ||
             !plan.Committed && plan.OfferIds.Any(id => id.StartsWith("equipment.")) && p.OwnedEquipment.Length > 0)
             return "Preparation plan offers or slots invalid.";
         if (!plan.Committed && (p.AcceptedOffers.Length != 0 || p.WorkContracts.Length != 0 || p.Rentals.Length != 0 || s.Immersion.StockPurchased ||

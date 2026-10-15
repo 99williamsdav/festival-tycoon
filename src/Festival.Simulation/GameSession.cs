@@ -512,6 +512,7 @@ public sealed partial class GameSession
             PerformanceRecords = _performanceRecords is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerformanceRecord[]>(PerformanceRecordsCanonicalJson!),
             PondStageTrial = _pondStageTrial,
             Identity = _identity,
+            ClassicDevelopment = _classicDevelopment,
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
@@ -579,6 +580,7 @@ public sealed partial class GameSession
         session._pondStageTrial = snapshot.PondStageTrial;
         session._identity = snapshot.Identity!;
         session._classicHistory = snapshot.ClassicHistory is {} classicHistory?CloneClassicHistory(classicHistory):null;
+        session._classicDevelopment = snapshot.ClassicDevelopment;
         session._stageGenerators = snapshot.StageGenerators?.ToArray();
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
@@ -613,6 +615,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
         if(CampaignIdentity.Issue(snapshot.Identity) is {} identityIssue)return identityIssue;
+        if(ValidateClassicDevelopment(snapshot) is {} developmentIssue)return developmentIssue;
         if(SavedClassic(snapshot)&&(snapshot.Preparation is not{Tier:1,Attempt:1}||snapshot.CampaignPlanning is not{EditionNumber:>=1}||
             snapshot.ClassicHistory is not{CompletedFestivals:not null,DeathPenalties:not null}))return "Classic current festival identity or history is invalid.";
         if(SavedClassic(snapshot)&&snapshot.Preparation?.CarriedIn is{OwnedEquipment:null})return "Classic carried equipment collections are invalid.";

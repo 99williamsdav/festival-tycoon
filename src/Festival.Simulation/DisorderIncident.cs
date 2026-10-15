@@ -627,7 +627,7 @@ public sealed partial class GameSession
                 // An untreated injury turns critical after the medical delay, like any collapse.
                 item.Stage == DisorderStage.Injured && (item.InjuryTick < 0 ||
                     medical.Needs.Single(need => need.AgentId == item.AgentId).Stage is not (MedicalStage.Collapsed or MedicalStage.Critical))) ||
-            d.Evidence.Length > (SavedClassic(s)?96+MaxActivePeople:96) || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
+            d.Evidence.Length > (SavedClassic(s)?96+SavedPeopleSafetyBound(s):96) || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
                 !p.People.Any(person => person.AgentId == item.PersonId) || string.IsNullOrWhiteSpace(item.Id) ||
                 string.IsNullOrWhiteSpace(item.Description) || item.Pressure is < 0 or > 10_000) ||
             d.Incidents.Any(item => item is null || !d.People.Any(person => person.AgentId == item.InitiatorId) ||

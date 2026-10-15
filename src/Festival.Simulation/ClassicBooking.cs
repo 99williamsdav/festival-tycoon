@@ -21,7 +21,7 @@ public sealed partial class GameSession
     public ClassicBookingSnapshot? CaptureClassicBooking() => _preparation?.ClassicBooking is { } state ? ClassicBookingLedger.Clone(state) : null;
     public ClassicBookingView? CaptureClassicBookingDetails() => ClassicBookings is not { } view ? null : view with
     { Announced = view.Announced.ToArray(), Contracts = view.Contracts.ToArray(), Money = view.Money.ToArray() };
-    public int ClassicSiteCapacity => ClassicTicketDemand.InheritedCapacity;
+    public int ClassicSiteCapacity => IsClassicDevelopment?ClassicDevelopmentCapacity:ClassicTicketDemand.InheritedCapacity;
     public ClassicBookingGuidance? ClassicBookingEstimate
     {
         get
@@ -29,9 +29,10 @@ public sealed partial class GameSession
             if (!IsClassicCampaign || ClassicBookings is not { Phase: ClassicBookingPhase.Booking } || _preparation?.Plan is not { } plan) return null;
             var acts = plan.ActIds.Where(id => id != "").Select(id => FestivalActs.Single(a => a.Id == id)).ToArray();
             var sales = ClassicTicketDemand.Estimate(new(ClassicSiteCapacity, _preparation.Reputation,
-                _preparation.ClassicBooking!.DraftTicketPricePennies, acts.Select(a => a.Popularity).ToArray()));
+                _preparation.ClassicBooking!.DraftTicketPricePennies, acts.Select(a => a.Popularity).OrderDescending().Take(3).ToArray()));
+            if(_classicDevelopment?.GuaranteeHundred==true)sales=sales with {MinimumSales=ClassicDevelopmentCapacity,MaximumSales=ClassicDevelopmentCapacity};
             var fees = acts.Sum(a => (long)ActFee(a));
-            var minimum = GetStaffCandidates().GroupBy(c => c.Role).Sum(g => (long)g.Min(c => c.WagePennies)) +
+            var minimum = GetStaffCandidates().GroupBy(c => c.Role).Sum(g => g.OrderBy(c=>c.WagePennies).Take(g.Key==StaffRole.Sound?Stages.Count:1).Sum(c=>(long)c.WagePennies)) +
                 new[] { BuildServiceKind.WaterTap, BuildServiceKind.Toilet, BuildServiceKind.FirstAid, BuildServiceKind.StewardPost }
                     .Sum(kind => (long)RuleProfile.BuildFee(kind));
             var budget = sales.ConservativeSetupCash(_festivalFinances[new(_preparation.FinanceOwnerId)].CashPennies,
@@ -43,13 +44,17 @@ public sealed partial class GameSession
     private void InitializeClassicBooking()
     {
         if (!IsClassicCampaign || _preparation is not { } p) return;
-        var opening = p.CarriedIn?.CashPennies ?? CampaignDefaults.OpeningLoanPrincipalPennies;
+        var grant=DevelopmentGrant(_classicDevelopment,FestivalNumber);
+        var opening = (p.CarriedIn?.CashPennies ?? CampaignDefaults.OpeningLoanPrincipalPennies)+grant;
         var owner = new EntityId(p.FinanceOwnerId);
         _festivalFinances[owner].CashPennies = opening;
-        _preparation = p with { OpeningCashPennies = opening, ClassicBooking = ClassicBookingLedger.Create(p.Reputation) };
-        _campaignPlanning!.LedgerTransactions[0] = ClassicPrebookingOpening(owner, p.CarriedIn);
+        _preparation = p with { OpeningCashPennies = opening, ClassicBooking = NewClassicBooking(p.Reputation,_classicDevelopment) };
+        _campaignPlanning!.LedgerTransactions[0] = ClassicPrebookingOpening(owner, p.CarriedIn,grant);
     }
-    private static PlanningLedgerTransactionSnapshot ClassicPrebookingOpening(EntityId owner, FestivalCarryOver? carry) => carry is null
+    private static PlanningLedgerTransactionSnapshot ClassicPrebookingOpening(EntityId owner, FestivalCarryOver? carry,long grant=0) => grant>0
+        ?new(1,"Recorded Classic carry plus explicit development cash grant",8,
+            [..ClassicPrebookingOpening(owner,carry).Entries,new(owner,LedgerAccountType.CashAsset,grant),new(owner,LedgerAccountType.CarriedBalance,-grant)])
+        :carry is null
         ? new(1, "Starter loan before ticket sales", 8,
             [new(owner, LedgerAccountType.CashAsset, CampaignDefaults.OpeningLoanPrincipalPennies),
              new(owner, LedgerAccountType.LoanPrincipalLiability, -CampaignDefaults.OpeningLoanPrincipalPennies)])
@@ -60,9 +65,9 @@ public sealed partial class GameSession
 
     private ClassicAnnouncedAct[] ClassicQuote(string[] ids, bool allowEmpty = false)
     {
-        if (ids is null || ids.Length != 3 || ids.Any(id => id is null || !allowEmpty && id == "") ||
+        if (ids is null || ids.Length != Stages.Sum(s=>s.SlotCount) || ids.Any(id => id is null || !allowEmpty && id == "") ||
             ids.Where(id => id != "").Distinct().Count() != ids.Count(id => id != ""))
-            throw new ArgumentException("Choose three distinct acts before confirming.");
+            throw new ArgumentException("Choose three distinct acts for every open stage before confirming.");
         var quotes = new List<ClassicAnnouncedAct>();
         foreach (var id in ids)
         {
@@ -118,7 +123,7 @@ public sealed partial class GameSession
     private void SetClassicTicketRoster(int count, ClassicAnnouncedAct[] announced)
     {
         var p = PreparationView!; var currentIds = p.People.Where(a => a.Role == ProtectedPersonRole.Guest).Select(a => a.AgentId).ToHashSet();
-        var baseline = CreateBuildCampaign(CampaignSeed, 1, p.CarriedIn, CampaignId, identity: _identity, classicFestivalNumber: FestivalNumber);
+        var baseline = CreateBuildCampaign(CampaignSeed, 1, p.CarriedIn, CampaignId, identity: _identity, classicFestivalNumber: FestivalNumber,classicDevelopment:_classicDevelopment);
         var candidates = baseline.PreparationView!.People.Where(a => a.Role == ProtectedPersonRole.Guest).OrderBy(a => a.AgentId).ToArray();
         var selected = candidates.Take(count).Select(a => a.AgentId).ToHashSet();
         var existing = p.People.Where(a => a.Role == ProtectedPersonRole.Guest).ToDictionary(a => a.AgentId);
@@ -159,23 +164,23 @@ public sealed partial class GameSession
     private static ClassicBookingView? SavedBookings(SessionPersistenceSnapshot s) => s.Preparation?.ClassicBooking is not { } state
         ? null : ClassicBookingLedger.Evaluate(s.CampaignSeed, s.CampaignPlanning!.EditionNumber, state);
     private static int SavedGuestCount(SessionPersistenceSnapshot s) => SavedBookings(s) is { } booking
-        ? booking.Phase == ClassicBookingPhase.Booking ? ClassicTicketDemand.InheritedCapacity : booking.TicketHolders
+        ? booking.Phase == ClassicBookingPhase.Booking ? s.Preparation!.ClassicBooking!.Capacity : booking.TicketHolders
         : FestivalTickets.Sold(s.Preparation!.Tier);
     private static int SavedTicketPrice(SessionPersistenceSnapshot s) => SavedBookings(s)?.TicketPricePennies ?? FestivalTickets.PricePennies(s.Preparation!.Tier);
     private static long SavedOpeningCash(SessionPersistenceSnapshot s) => s.Preparation!.ClassicBooking is not null
-        ? s.Preparation.CarriedIn?.CashPennies ?? CampaignDefaults.OpeningLoanPrincipalPennies : OpeningCashFor(s.Preparation.Tier, s.Preparation.CarriedIn);
+        ? (s.Preparation.CarriedIn?.CashPennies ?? CampaignDefaults.OpeningLoanPrincipalPennies)+SavedDevelopmentGrant(s) : OpeningCashFor(s.Preparation.Tier, s.Preparation.CarriedIn);
     private static long SavedBookingCashChange(SessionPersistenceSnapshot s) => SavedBookings(s)?.CashChangePennies ?? 0;
-    private (int Tickets, int Price) ClassicTicketFactsAt(int number)
+    private (int Tickets, int Price,int Stages) ClassicTicketFactsAt(int number)
     {
         var view = number == FestivalNumber ? ClassicBookings! : ClassicBookingLedger.Evaluate(CampaignSeed, number,
             _classicHistory!.CompletedFestivals.Single(r => r.Number == number).Booking!);
-        return (view.TicketHolders, view.TicketPricePennies);
+        return (view.TicketHolders, view.TicketPricePennies,Math.Max(1,view.Contracts.Length/3));
     }
-    private static (int Tickets, int Price) SavedClassicTicketFactsAt(SessionPersistenceSnapshot s, int number)
+    private static (int Tickets, int Price,int Stages) SavedClassicTicketFactsAt(SessionPersistenceSnapshot s, int number)
     {
         var view = number == s.CampaignPlanning!.EditionNumber ? SavedBookings(s)! : ClassicBookingLedger.Evaluate(s.CampaignSeed, number,
             s.ClassicHistory!.CompletedFestivals.Single(r => r.Number == number).Booking!);
-        return (view.TicketHolders, view.TicketPricePennies);
+        return (view.TicketHolders, view.TicketPricePennies,Math.Max(1,view.Contracts.Length/3));
     }
     private void FilterClassicReferenceRoster(SessionPersistenceSnapshot s)
     {
@@ -195,6 +200,9 @@ public sealed partial class GameSession
             return "Classic booking journal is required; earlier Classic saves need an explicit migration.";
         try
         {
+            bool Matches(ClassicBookingSnapshot b,ClassicDevelopmentSnapshot? d)=>d is null?b.Development is null:
+                b.Development==new ClassicBookingDevelopment(DevelopmentStages(d).Count*3,d.GuaranteeHundred);
+            if(!Matches(state,s.ClassicDevelopment))return "Classic booking diagnostic policy differs from campaign provenance.";
             var current = ClassicBookingLedger.Evaluate(s.CampaignSeed, planning.EditionNumber, state);
             if (s.Preparation.Status == PreparationStatus.Preparing ? current.Phase == ClassicBookingPhase.Opened : current.Phase != ClassicBookingPhase.Opened)
                 return "Classic booking and preparation phases disagree.";
@@ -202,6 +210,7 @@ public sealed partial class GameSession
                 return "Classic booking history is missing.";
             foreach (var (record, index) in records.Select((r, i) => (r, i)))
                 if (record is null || record.Number != index + 1 || record.Booking is null ||
+                    record.Development!=(record.Number>=ClassicDevelopmentFirstFestival?s.ClassicDevelopment:null)||!Matches(record.Booking,record.Development)||
                     ClassicBookingLedger.Evaluate(s.CampaignSeed, record.Number, record.Booking).Phase != ClassicBookingPhase.Opened)
                     return "A closed Classic festival lacks its opened booking journal.";
             return null;
@@ -214,7 +223,7 @@ public sealed partial class GameSession
         if (!SavedClassic(s)) return null;
         var p = s.Preparation!;
         var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, 1, identity: s.Identity,
-            classicFestivalNumber: s.CampaignPlanning!.EditionNumber).WithPaymentStanding(p);
+            classicFestivalNumber: s.CampaignPlanning!.EditionNumber,classicDevelopment:s.ClassicDevelopment).WithPaymentStanding(p);
         try
         {
             var booking = ClassicBookingLedger.Evaluate(s.CampaignSeed, s.CampaignPlanning.EditionNumber, p.ClassicBooking!, (reputation, quotes) =>
@@ -238,7 +247,7 @@ public sealed partial class GameSession
     {
         var (relationships, popularity) = Replay(s.Preparation!.RelationshipHistory?.Where(g => g.Tier < record.Number), false, true,
             number => SavedClassicTicketFactsAt(s, number));
-        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, 1, identity: s.Identity, classicFestivalNumber: record.Number);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, 1, identity: s.Identity, classicFestivalNumber: record.Number,classicDevelopment:record.Development);
         try
         {
             _ = ClassicBookingLedger.Evaluate(s.CampaignSeed, record.Number, record.Booking!, (reputation, quotes) =>

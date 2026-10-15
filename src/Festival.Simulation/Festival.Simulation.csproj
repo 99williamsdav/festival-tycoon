@@ -6,5 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Development/recorded-tier-one-clear.json" LogicalName="Festival.Simulation.recorded-tier-one-clear.json" />
+    <EmbeddedResource Include="Development/recorded-classic-first-clear.json" LogicalName="Festival.Simulation.recorded-classic-first-clear.json" />
   </ItemGroup>
 </Project>

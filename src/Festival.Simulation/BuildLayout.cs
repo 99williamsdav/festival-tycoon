@@ -169,13 +169,13 @@ public sealed partial class GameSession
     private static (LayoutFitKey Key, BuildPlacement[] Placed, int Skipped)? _lastLayoutFit;
 
     /// <summary>A carried previous layout must be one the festival before could have placed: sorted, and valid there.</summary>
-    private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial,bool classic=false)
+    private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial,bool classic=false,IReadOnlyList<FestivalStage>? previousStages=null)
     {
         if (p.PreviousLayout is not { } previous) return null;
         var before = classic?1:p.Tier - 1;
         return p.CarriedIn is null || before < 1 || previous.Length == 0 ||
             !previous.Select(item => item?.Id).SequenceEqual(previous.Select(item => item?.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(previous, FestivalStages.For(before, pondStageTrial), null, false, before, classic) is not null
+            ValidateBuildLayout(previous, previousStages??FestivalStages.For(before, pondStageTrial), null, false, before, classic) is not null
             ? "Last festival's layout is invalid." : null;
     }
 
@@ -329,7 +329,7 @@ public sealed partial class GameSession
             for (var z = 112; z <= 164; z++)
                 if (FestivalStages.Main.Reserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
         // Any other stage's riser, stair foot, generator and band ground.
-        foreach (var stage in stages.Skip(1))
+        foreach (var stage in stages.Where(stage=>stage.Id!=FestivalStages.MainId))
             for (var x = stage.ReserveBounds.MinX; x <= stage.ReserveBounds.MaxX; x++)
                 for (var z = stage.ReserveBounds.MinZ; z <= stage.ReserveBounds.MaxZ; z++)
                     if (stage.Reserve(new(x, z))) reserved.Add(new(x, z));

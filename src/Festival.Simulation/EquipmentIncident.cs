@@ -167,7 +167,7 @@ public sealed partial class GameSession
                 Response = e.Version == 3 ? "Physical repair completed; the generator is sound again" : "Physical repair completed and load balanced to 80%" };
             // The pool's strain is one strain: a repair settles every generator in it, so they go on warning together.
             if (PowerPooled)
-                for (var stage = 1; stage < Stages.Count; stage++)
+                for (var stage = 0; stage < Stages.Count; stage++)
                     if (StageGenerator(stage) is { } g)
                         SetStageGenerator(stage, g with { Strain = 0, Stage = g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? EquipmentStage.Resolved : g.Stage,
                             Response = g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? "Settled with the farm generator's repair" : g.Response });

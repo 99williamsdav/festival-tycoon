@@ -115,7 +115,7 @@ public sealed partial class GameSession
         foreach (var toilet in EffectiveToilets(_facilities))
             foreach (var cell in ToiletReservedCells(toilet).Append(ToiletQueueCell(toilet, 0)).Append(ToiletExitCell(toilet))) reserved.Add(cell);
         for(var x=90;x<=101;x++)for(var z=140;z<=159;z++)reserved.Add(new(x,z));
-        foreach(var stage in Stages.Skip(1))for(var x=stage.ReserveBounds.MinX;x<=stage.ReserveBounds.MaxX;x++)for(var z=stage.ReserveBounds.MinZ;z<=stage.ReserveBounds.MaxZ;z++)if(stage.Reserve(new(x,z)))reserved.Add(new(x,z));
+        foreach(var stage in Stages.Where(s=>s.Id!=FestivalStages.MainId))for(var x=stage.ReserveBounds.MinX;x<=stage.ReserveBounds.MaxX;x++)for(var z=stage.ReserveBounds.MinZ;z<=stage.ReserveBounds.MaxZ;z++)if(stage.Reserve(new(x,z)))reserved.Add(new(x,z));
         foreach(var cell in ResponsePostReserved(_preparation))reserved.Add(cell);
         // The rest area only exists once first aid is placed; until then nothing is kept clear for it.
         var firstAidPlaced=FirstAidPlacement(_preparation) is not null;
@@ -252,6 +252,7 @@ public sealed partial class GameSession
 
     private void AdvanceImmersion()
     {
+        using var measurement=MeasureWork("consumption-and-vendor-queues");
         if (_immersion is null || !MedicalOperationsActive) return;
         if(!ImmersionDepartureActive)GrowImmersionQueues();
         foreach (var original in PeopleIn(PersonView.Consumption))
@@ -389,7 +390,7 @@ public sealed partial class GameSession
         if (((!vendors.Select(v=>v.Id).SequenceEqual(prep.BuildPlacements.Where(item=>item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar).Select(item=>item.Id).Order(StringComparer.Ordinal)) ||
                  savedToilets.Any(item=>item.Id=="toilet.main") != prep.BuildPlacements.Any(item=>item.Id=="toilet.main"))) ||
             vendors.Any(v=>v.QuarterTurns is <0 or >3))return "Immersion vendor identities invalid.";
-        var geometry=CreateFoodAndDrinkBaseline(s.CampaignSeed, prep.Tier, pondStageTrial:s.PondStageTrial, identity:s.Identity, classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null);geometry.ImmersionView=m;geometry._facilities=f;geometry.PreparationView=prep;geometry.MedicalView=s.Medical;geometry._equipment=s.Equipment;
+        var geometry=CreateFoodAndDrinkBaseline(s.CampaignSeed, prep.Tier, pondStageTrial:s.PondStageTrial, identity:s.Identity, classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null,classicDevelopment:s.ClassicDevelopment);geometry.ImmersionView=m;geometry._facilities=f;geometry.PreparationView=prep;geometry.MedicalView=s.Medical;geometry._equipment=s.Equipment;
         foreach(var vendor in vendors)if(geometry.ImmersionPlacementError(vendor) is { } issue)return issue;
         if (ValidatePersistedToilets(s, m, f, geometry) is { } toiletError) return toiletError;
         var queueGrid=s.TraversalGrid is { } savedTerrain?new TraversalGrid(savedTerrain.Cells.Select(c=>new TerrainCellOverride(new(c.X,c.Z),(GroundSurface)c.Surface,c.IsWalkable))):new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());

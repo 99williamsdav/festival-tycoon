@@ -6,9 +6,9 @@ public sealed partial class GameSession
     // cannot fit this many on the existing field. Never enumerate this value to create catalogue rows.
     public const int ClassicConstructionSafetyBound = 4_096;
     public bool ConstructionQuantitiesUnrestricted => IsClassicCampaign;
-    private static long ClassicClosingCashBound(long opening,IReadOnlyList<BuildPlacement> layout,int capacity) => checked(opening+
+    private static long ClassicClosingCashBound(long opening,IReadOnlyList<BuildPlacement> layout,int capacity,int peopleBound=MaxActivePeople) => checked(opening+
         layout.Count(p=>p.Kind==BuildServiceKind.FoodVan)*(long)FoodTraders.All.Max(t=>t.PitchFeePennies)+
-        (long)capacity*MostGuestBudgetPennies+(long)(MaxActivePeople-capacity)*CrewBudgetPennies);
+        (long)capacity*MostGuestBudgetPennies+(long)(peopleBound-capacity)*CrewBudgetPennies);
     private static int ConstructionLimit(BuildServiceKind kind, int tier, bool classic) =>
         classic ? ClassicConstructionSafetyBound : BuildServiceLimit(kind, tier);
 

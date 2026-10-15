@@ -62,8 +62,9 @@ public sealed partial class GameSession
         var e = _equipment;
         var live = _preparation?.Status is PreparationStatus.Running or PreparationStatus.Departing or PreparationStatus.Failed or PreparationStatus.Finished;
         // The trailer's rig draws its full power only while its set is playing; before opening, the plan shows that peak.
-        var stage = !StagePowered ? 0 :
-            !live || _livePerformances[0]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
+        var trailer=FestivalStages.IndexOf(Stages,FestivalStages.MainId);
+        var stage = trailer<0 || !StagePowered ? 0 :
+            !live || _livePerformances[trailer]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
         // Every bar and every van draws its own share; each switch covers all of its kind.
         int Stalls(Func<string, bool> kind, bool powered) => _immersion is null || live && !powered ? 0 : Vendors.Count(v => kind(v.Id)) * PowerRules.StallDraw;
         var lightsOn = !live || _preparation!.StartedTick >= 0 && tick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
@@ -71,7 +72,7 @@ public sealed partial class GameSession
             lightsOn && (!live || (e?.LightsPowered ?? true)) ? PowerRules.LightsDraw : 0, GeneratorCapacity);
         if (!PowerPooled) return draw;
         // One supply: every stage's rig draws from it, and it holds every generator still running.
-        return draw with { OtherStages = Enumerable.Range(1, Stages.Count - 1).Sum(StageRigDraw), Capacity = PooledCapacity };
+        return draw with { OtherStages = Enumerable.Range(0, Stages.Count).Where(index=>Stages[index].Id!=FestivalStages.MainId).Sum(StageRigDraw), Capacity = PooledCapacity };
     }
 
     /// <summary>Every generator still running: cutting a stage takes off only its rig, never its generator's capacity.</summary>

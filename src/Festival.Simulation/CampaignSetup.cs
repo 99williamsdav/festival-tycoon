@@ -37,9 +37,9 @@ public sealed partial class GameSession
     /// carried forward. The same seed, tier and guest count always give the same identities.
     /// </summary>
     private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null,
-        bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
+        bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null,ClassicDevelopmentSnapshot? classicDevelopment=null)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber);
+        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber,classicDevelopment);
         SetUpPerks(session, session.FestivalSeed, tier);
         // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
         if (session.CurrentFestival.ExtraMedicSlot) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
@@ -52,9 +52,9 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
     private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null,ClassicDevelopmentSnapshot? classicDevelopment=null)
     {
-        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber);
+        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber,classicDevelopment);
         SetUpFoodAndDrink(session, session.FestivalSeed);
         return session;
     }
@@ -63,11 +63,12 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private static GameSession CreateProgrammeBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null,ClassicDevelopmentSnapshot? classicDevelopment=null)
     {
         var session = CreateCampaign(seed, campaignId, tier, carry);
         session._pondStageTrial = pondStageTrial;
         session._identity = identity ?? CampaignIdentity.Management;
+        session._classicDevelopment=classicDevelopment;
         if(session.IsClassicCampaign)
         {
             session._campaignPlanning!.EditionNumber=classicFestivalNumber??1;
@@ -77,12 +78,13 @@ public sealed partial class GameSession
         }
         else if (tier > 1) ReseedForTier(session, seed, tier);
         seed=session.FestivalSeed;
-        SetUpEdition(session, seed, tier, guests ?? CampaignRulesProfile.For(session.Identity.Ruleset).Festival(tier,pondStageTrial).Attendance, carry);
+        SetUpEdition(session, seed, tier, guests ?? (classicDevelopment is not null?ClassicDevelopmentCapacity:CampaignRulesProfile.For(session.Identity.Ruleset).Festival(tier,pondStageTrial).Attendance), carry);
         SetUpStagePower(session);
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
         SetUpProgramme(session, seed);
-        if (session.SecondStageOpen) SetUpSecondStage(session);
+        for(var stage=1;stage<session.Stages.Count;stage++)SetUpSecondStage(session,stage);
+        if(classicDevelopment is not null)session._stageGenerators=session.Stages.Where(s=>s.Id!=FestivalStages.MainId).Select(NewSecondStageGenerator).ToArray() is {Length:>0} generators?generators:null;
         SetUpWeather(session, seed, tier);
         // Last, so a classic campaign's identities never move.
         if (session.IsHandsOn) SetUpHandsOnSteward(session);
@@ -191,21 +193,21 @@ public sealed partial class GameSession
         session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
         session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.Select(need => need.Profile == MedicalNeedProfile.Performer ? need with { Thirst = 2500, HeatExposure = 2500 } : need).OrderBy(need => need.AgentId).ToArray() };
         // Every band plays the main stage, three to a set.
-        session._programme = new(ProgrammeVersion, [new(FestivalStages.MainId, [], people.Where(person => person.Role == ProtectedPersonRole.Performer)
+        session._programme = new(ProgrammeVersion, [new(session.Stages[0].Id, [], people.Where(person => person.Role == ProtectedPersonRole.Performer)
             .Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts")]);
         session._livePerformances = new LivePerformanceSnapshot?[1];
     }
 
     /// <summary>The Pond Stage: its sound engineer's slot, its nine band members and three sets, and its own generator.</summary>
-    private static void SetUpSecondStage(GameSession session)
+    private static void SetUpSecondStage(GameSession session,int stage)
     {
         var p = session.PreparationView!;
         var people = p.People.ToList();
         var engineer = session.NextEntityId++;
         session._wallets.Add(new(engineer), new WalletState { OwnerId = new(engineer), CashPennies = 500 });
-        people.Add(new(engineer, StaffCatalogue.SecondSoundVacancy(session.Stages[1]), ProtectedPersonRole.Staff, 0));
+        people.Add(new(engineer, StaffCatalogue.SecondSoundVacancy(session.Stages[stage]), ProtectedPersonRole.Staff, 0));
         var band = new List<ulong>();
-        foreach (var name in PondBandNames)
+        foreach (var name in stage==1?PondBandNames:ThirdStageBandNames)
         {
             var id = session.NextEntityId++;
             session._wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
@@ -217,13 +219,15 @@ public sealed partial class GameSession
         session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
         session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.OrderBy(need => need.AgentId).ToArray() };
         session._programme = session._programme! with { Stages = [.. session._programme.Stages,
-            new(session.Stages[1].Id, [], band.Select((id, i) => new ProgrammePerformer(id, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts") { EngineerId = engineer }] };
+            new(session.Stages[stage].Id, [], band.Select((id, i) => new ProgrammePerformer(id, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts") { EngineerId = engineer }] };
         session._livePerformances = new LivePerformanceSnapshot?[session.Stages.Count];
-        if (session._equipment?.Version == 3) session._stageGenerators = [NewSecondStageGenerator(session.Stages[1])];
+        if (session._equipment?.Version == 3) session._stageGenerators = [..session._stageGenerators??[],NewSecondStageGenerator(session.Stages[stage])];
     }
 
     private static readonly string[] PondBandNames =
         ["Frankie Wren", "Jordan Pike", "Sam Teal", "Quinn Ashby", "Remy Fox", "Lou Marsh", "Dee Hale", "Nico Bell", "Jo Starling"];
+    private static readonly string[] ThirdStageBandNames =
+        ["Jules Alder","Sid Clover","Alex Fern","Charlie Vale","Drew Oak","Pat Willow","Lee Hazel","Jess Birch","River Finch"];
 
     /// <summary>Vendors, the toilet, stock and each person's tastes and budget.</summary>
     private static void SetUpFoodAndDrink(GameSession session, ulong seed)

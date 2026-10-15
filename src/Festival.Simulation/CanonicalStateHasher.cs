@@ -342,6 +342,7 @@ internal static class CanonicalStateHasher
         if (session.WeatherCanonicalJson is { } weather) { writer.Write("weather-v1"); writer.Write(weather); writer.Flush(); }
         if (session.StewardShiftCanonicalJson is { } shift) { writer.Write("steward-shift-v1"); writer.Write(shift); writer.Flush(); }
         if (session.ClassicHistoryCanonicalJson is { } classic) { writer.Write("classic-history-v1"); writer.Write(classic); writer.Flush(); }
+        if (session.ClassicDevelopmentCanonicalJson is { } development) { writer.Write("classic-development-v1"); writer.Write(development); writer.Flush(); }
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

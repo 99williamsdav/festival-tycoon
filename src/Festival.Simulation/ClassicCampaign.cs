@@ -12,6 +12,8 @@ public sealed record ClassicFestivalRecord(int Number,long OpeningCashPennies,lo
     public ClassicBookingSnapshot? Booking { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? StockPurchasesPennies { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ClassicDevelopmentSnapshot? Development {get;init;}
 }
 public sealed record ClassicHistorySnapshot(ClassicFestivalRecord[] CompletedFestivals,ClassicDeathPenalty[] DeathPenalties);
 
@@ -34,7 +36,9 @@ public sealed partial class GameSession
     private static ulong SavedFestivalSeed(SessionPersistenceSnapshot s)=>s.Identity?.Ruleset==CampaignRuleset.Classic
         ?ClassicFestivalSeed(s.CampaignSeed,s.CampaignPlanning?.EditionNumber??1):s.CampaignSeed;
     private static bool SavedClassic(SessionPersistenceSnapshot s)=>s.Identity?.Ruleset==CampaignRuleset.Classic;
-    private FestivalStanding ClassicOpeningStanding=>_classicHistory?.CompletedFestivals.LastOrDefault()?.ClosingStanding??FestivalStanding.New;
+    private FestivalStanding ClassicOpeningStanding=>IsClassicDevelopment&&FestivalNumber==ClassicDevelopmentFirstFestival
+        ?new(ClassicDevelopmentReputation,_classicHistory!.CompletedFestivals[^1].ClosingStanding.SceneCredibility.ToArray())
+        :_classicHistory?.CompletedFestivals.LastOrDefault()?.ClosingStanding??FestivalStanding.New;
     public static GameSession CreateClassicCampaign(ulong seed)=>CreateBuildCampaign(seed,1,null,null,
         identity:CampaignIdentity.ClassicManagement,classicFestivalNumber:1);
     private GameSession CreateNextClassicFestival()
@@ -44,9 +48,9 @@ public sealed partial class GameSession
             new(ClassicOpeningStanding.Reputation,ClassicOpeningStanding.SceneCredibility.ToArray()),
             new(p.Reputation,p.SceneCredibility.ToArray()),p.Result!,_classicHistory!.DeathPenalties.ToArray(),
             p.SeenActs.ToArray(),p.OwnedEquipment.ToArray(),p.BuildPlacements.OrderBy(b=>b.Id,StringComparer.Ordinal).ToArray())
-            { Booking = CaptureClassicBooking(), StockPurchasesPennies = CompletedFestivalAccounts!.StockPurchasesPennies };
+            { Booking = CaptureClassicBooking(), StockPurchasesPennies = CompletedFestivalAccounts!.StockPurchasesPennies,Development=_classicDevelopment };
         var number=checked(FestivalNumber+1);
-        var next=CreateBuildCampaign(CampaignSeed,1,CarryOverFrom(p),CampaignId,identity:_identity,classicFestivalNumber:number);
+        var next=CreateBuildCampaign(CampaignSeed,1,CarryOverFrom(p),CampaignId,identity:_identity,classicFestivalNumber:number,classicDevelopment:_classicDevelopment);
         next._classicHistory=new([..CaptureClassicHistory()!.CompletedFestivals,record],[]);
         next._campaignPlanning!.FestivalName=_campaignPlanning!.FestivalName;next._campaignPlanning.Palette=_campaignPlanning.Palette;
         next._campaignPlanning.Loan=_campaignPlanning.Loan;
@@ -54,7 +58,7 @@ public sealed partial class GameSession
         var (history,relationships,popularity)=RelationshipsForNextFestival(number);
         next.PreparationView=next.PreparationView! with{Reputation=p.Reputation,SceneCredibility=p.SceneCredibility.ToArray(),SeenActs=p.SeenActs.ToArray(),
             ActRelationships=relationships,ActPopularity=popularity,RelationshipHistory=history,
-            PreviousLayout=record.Layout.Length==0?null:record.Layout.ToArray(),ClassicBooking=ClassicBookingLedger.Create(p.Reputation)};
+            PreviousLayout=record.Layout.Length==0?null:record.Layout.ToArray(),ClassicBooking=NewClassicBooking(p.Reputation,_classicDevelopment)};
         return next;
     }
     private static PlanningLedgerTransactionSnapshot ClassicOpeningTransaction(EntityId owner,int previous,FestivalCarryOver carry)=>
@@ -81,11 +85,13 @@ public sealed partial class GameSession
         var opening=CampaignDefaults.OpeningLoanPrincipalPennies;var standing=FestivalStanding.New;string[] owned=[],seen=[];
         foreach(var (r,index) in h.CompletedFestivals.Select((r,i)=>(r,i)))
         {
+            if(s.ClassicDevelopment is {} dev&&r.Number==ClassicDevelopmentFirstFestival)
+            {opening+=DevelopmentGrant(dev,r.Number);standing=new(ClassicDevelopmentReputation,standing.SceneCredibility);}
             if(r.Layout is null||r.Layout.Any(b=>b is null))return "Classic closed-festival layout is invalid.";
             var booking=ClassicBookingLedger.Evaluate(s.CampaignSeed,r.Number,r.Booking!);
             if(r.Number!=index+1||r.Result is null||r.Result.Attempt!=1||r.OpeningCashPennies!=opening||
                 (decimal)r.ClosingCashPennies!=(decimal)r.OpeningCashPennies+r.Result.NetCashChangePennies||
-                r.ClosingCashPennies<LeastClosingCashPennies||r.ClosingCashPennies>ClassicClosingCashBound(opening,r.Layout, r.Booking!.Capacity)+booking.NetTicketReceiptsPennies||r.Loan!=loan||
+                r.ClosingCashPennies<LeastClosingCashPennies||r.ClosingCashPennies>ClassicClosingCashBound(opening,r.Layout, r.Booking!.Capacity,r.Development is null?MaxActivePeople:ClassicDevelopmentPeopleBound)+booking.NetTicketReceiptsPennies||r.Loan!=loan||
                 !ValidStanding(r.OpeningStanding)||!ValidStanding(r.ClosingStanding)||!StandingEqual(r.OpeningStanding,standing)||
                 r.Booking!.InitialReputation!=standing.Reputation||
                 r.StockPurchasesPennies is null or <0||r.StockPurchasesPennies<r.Result.ConsumedStockCostsPennies||
@@ -94,16 +100,17 @@ public sealed partial class GameSession
                 r.DeathPenalties is null||r.Layout is null||r.Layout.Any(b=>b is null))return "Classic closed-festival carry facts do not reconcile.";
             if(ValidateClassicHistoricalQuotes(s,r) is {} quoteIssue)return quoteIssue;
             if(ValidateClassicPenaltyList(r.DeathPenalties,r.Number,s.CampaignId,booking.Reputation,out var afterDeaths) is {} issue)return issue;
-            if(r.Result.Deaths!=r.DeathPenalties.Length||r.Result.Deaths>MaxActivePeople||r.Result.AdmittedGuests!=booking.TicketHolders||
+            if(r.Result.Deaths!=r.DeathPenalties.Length||r.Result.Deaths>(r.Development is null?MaxActivePeople:ClassicDevelopmentPeopleBound)||r.Result.AdmittedGuests!=booking.TicketHolders||
                 r.Result.GuestCount!=r.Result.AdmittedGuests-r.DeathPenalties.Count(d=>d.Casualty.Role==ProtectedPersonRole.Guest))
                 return "Classic historical deaths and rated guests disagree.";
-            if(r.Result.Tick<DayTicksFor(FestivalStages.For(1,false))||r.Result.SatisfactionTotal<0||r.Result.SatisfactionTotal>10000L*r.Result.GuestCount||
+            var historicalStages=r.Development is {} diagnostic?DevelopmentStages(diagnostic):FestivalStages.For(1,false);
+            if(r.Result.Tick<DayTicksFor(historicalStages)||r.Result.SatisfactionTotal<0||r.Result.SatisfactionTotal>10000L*r.Result.GuestCount||
                 r.Result.RevenuePennies<booking.NetTicketReceiptsPennies||r.Result.ContractCostsPennies<booking.NetBandCostsPennies||r.Result.ConsumedStockCostsPennies<0||
                 r.Result.BeersFinished is null or <0||r.Result.Fights is null or <0||r.Result.MedicalCollapses is null or <0||
-                ValidateBuildLayout(r.Layout,FestivalStages.For(1,false),null,false,1,true) is not null)
+                ValidateBuildLayout(r.Layout,historicalStages,null,false,1,true) is not null)
                 return "Classic closed-festival result or layout is invalid.";
             var gigs=(p.RelationshipHistory??[]).Where(g=>g.Tier==r.Number).ToArray();
-            if(gigs.Length!=3||gigs.Any(g=>ActCatalogue.Find(g.ActId) is null)||
+            if(gigs.Length!=historicalStages.Count*3||gigs.Any(g=>ActCatalogue.Find(g.ActId) is null)||
                 !gigs.Select(g=>g.ActId).Order(StringComparer.Ordinal).SequenceEqual(booking.Contracts.Select(a=>a.ActId).Order(StringComparer.Ordinal)))
                 return "Classic closed festival lacks its actual programme facts.";
             var learned=seen.Concat(gigs.Where(g=>g.Started).Select(g=>g.ActId)).Distinct().Order(StringComparer.Ordinal).ToArray();
@@ -114,6 +121,8 @@ public sealed partial class GameSession
             if(r.Result.CapitalPurchasesPennies!=(r.OwnedEquipment.Length-owned.Length)*12000L)return "Classic carried kit lacks a recorded purchase.";
             owned=r.OwnedEquipment;seen=r.SeenActs;opening=r.ClosingCashPennies;
         }
+        if(s.ClassicDevelopment is {} currentDev&&planning.EditionNumber==ClassicDevelopmentFirstFestival)
+        {opening+=DevelopmentGrant(currentDev,planning.EditionNumber);standing=new(ClassicDevelopmentReputation,standing.SceneCredibility);}
         var carry=p.CarriedIn;
         if(planning.EditionNumber==1?carry is not null:carry is null||carry.FromTier!=1||carry.CashPennies!=h.CompletedFestivals[^1].ClosingCashPennies||
             carry.DebtPennies!=h.CompletedFestivals[^1].Loan.OutstandingPrincipalPennies||!carry.OwnedEquipment.SequenceEqual(owned))

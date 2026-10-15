@@ -55,12 +55,13 @@ public sealed partial class GameSession
     /// </summary>
     public int BandReleaseTicks(ulong id)
     {
-        if (_programme is null || PerformerStage(id) is not (var stage and > 0)) return 0;
+        if (_programme is null || PerformerStage(id) is not (var stage and >= 0) || Stages[stage].Id==FestivalStages.MainId) return 0;
         var def = Stages[stage];
         var q = StageProgramme(stage)!;
         var ordinal = Array.FindIndex(q.Performers, role => role.AgentId == id);
         var role = q.Performers[ordinal];
-        var planned = BandReleaseStartTicks + ((stage - 1) * def.SlotCount + role.SlotIndex) * BandReleaseBandGapTicks + role.RoleIndex * BandReleaseMemberGapTicks;
+        var releaseOrdinal=Stages.Take(stage).Count(s=>s.Id!=FestivalStages.MainId);
+        var planned = BandReleaseStartTicks + (releaseOrdinal * def.SlotCount + role.SlotIndex) * BandReleaseBandGapTicks + role.RoleIndex * BandReleaseMemberGapTicks;
         var latest = def.SlotStarts[role.SlotIndex] - LiveSetStageEntryLeadTicks - BandArrivalSlackTicks - BandWalkTicks(def.ArrivalStart(ordinal), def.AccessCells[role.RoleIndex]);
         return Math.Max(1, Math.Min(planned, latest));
     }
@@ -86,9 +87,9 @@ public sealed partial class GameSession
         else ApplyAgentDestination(new(id), new(IdlePlace(index), "edition.arrival"));
     }
     /// <summary>The stages this festival runs, in stage order.</summary>
-    public IReadOnlyList<FestivalStage> Stages => _diagnosticStages ?? CurrentFestival.Stages;
+    public IReadOnlyList<FestivalStage> Stages => _diagnosticStages ?? (_classicDevelopment is {} d?DevelopmentStages(d):CurrentFestival.Stages);
     private static IReadOnlyList<FestivalStage> SavedStages(SessionPersistenceSnapshot s) =>
-        FestivalStages.For(s.Preparation?.Tier ?? 1, s.PondStageTrial);
+        s.ClassicDevelopment is {} d?DevelopmentStages(d):FestivalStages.For(s.Preparation?.Tier ?? 1, s.PondStageTrial);
 
     // ---- Each stage's power and sound ----
 
@@ -97,11 +98,11 @@ public sealed partial class GameSession
     public IReadOnlyList<StageGeneratorSnapshot> CaptureStageGenerators() => _stageGenerators?.ToArray() ?? [];
     public StageGeneratorSnapshot? CaptureStageGenerator(string stageId) => _stageGenerators?.FirstOrDefault(item => item.StageId == stageId);
     internal IEnumerable<string> StageGeneratorCanonicalJson() => (_stageGenerators ?? []).Select(item => JsonSerializer.Serialize(item));
-    private StageGeneratorSnapshot? StageGenerator(int stage) => stage > 0 && _stageGenerators is { } all && stage - 1 < all.Length ? all[stage - 1] : null;
+    private StageGeneratorSnapshot? StageGenerator(int stage) => stage>=0&&stage<Stages.Count?CaptureStageGenerator(Stages[stage].Id):null;
     private void SetStageGenerator(int stage, StageGeneratorSnapshot generator)
     {
         var all = _stageGenerators!.ToArray();
-        all[stage - 1] = generator;
+        all[Array.FindIndex(all,g=>g.StageId==Stages[stage].Id)] = generator;
         _stageGenerators = all;
     }
     private static StageGeneratorSnapshot NewPondGenerator() => new(StageGeneratorRules.Version, FestivalStages.PondId,
@@ -113,12 +114,12 @@ public sealed partial class GameSession
         : NewPondGenerator();
 
     /// <summary>Whether a stage's rig has power: the trailer's from the farm generator, any other from its own.</summary>
-    public bool StagePoweredAt(int stage) => stage == 0 ? StagePowered :
+    public bool StagePoweredAt(int stage) => Stages[stage].Id==FestivalStages.MainId ? StagePowered :
         StageGenerator(stage)?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
     public bool StagePoweredAt(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && StagePoweredAt(stage);
 
     /// <summary>The sound reaching a stage's crowd: the rig, that stage's engineer, less a straining generator.</summary>
-    public int SoundScoreAt(int stage) => stage == 0 ? SoundScore :
+    public int SoundScoreAt(int stage) => Stages[stage].Id==FestivalStages.MainId ? SoundScore :
         Math.Clamp(PerformanceRules.RigSound(Rig) + SoundMixingBonusAt(stage) * PerformanceRules.MixingStep -
             (StageGenerator(stage)?.Stage switch { EquipmentStage.Warning => PerformanceRules.StrainedSoundPenalty, EquipmentStage.DangerousFault => PerformanceRules.FaultSoundPenalty, _ => 0 }), 0, 100);
     public int SoundScoreAt(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 ? SoundScoreAt(stage) : 0;
@@ -132,6 +133,7 @@ public sealed partial class GameSession
     /// <summary>The stage whose own sound engineer this person is, after the trailer's; -1 for anyone else.</summary>
     private int EngineerStage(ulong id)
     {
+        if(_programme is not null&&StaffSlotId(StaffRole.Sound)==id)return 0;
         for (var stage = 1; stage < (_programme?.Stages.Length ?? 0); stage++)
             if (_programme!.Stages[stage].EngineerId == id) return stage;
         return -1;
@@ -153,7 +155,7 @@ public sealed partial class GameSession
     private PowerDraw? CaptureStagePower(string stageId, long tick)
     {
         var stage = FestivalStages.IndexOf(Stages, stageId);
-        if (stage <= 0 || StageGenerator(stage) is not { } generator) return null;
+        if (stage < 0 || StageGenerator(stage) is not { } generator) return null;
         return PowerPooled ? CapturePower(tick) : new(StageRigDraw(stage), 0, 0, 0, generator.Capacity);
     }
 
@@ -168,9 +170,9 @@ public sealed partial class GameSession
     private void AdvanceStageGenerators()
     {
         if (_stageGenerators is null || _preparation is not { Status: PreparationStatus.Running }) return;
-        for (var stage = 1; stage < Stages.Count; stage++)
+        for (var stage = 0; stage < Stages.Count; stage++)
         {
-            var g = StageGenerator(stage)!;
+            if(StageGenerator(stage) is not {} g)continue;
             var draw = CaptureStagePower(g.StageId)!;
             var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
             // Pooled, the farm generator (advanced first) holds the one strain, and every generator in the pool takes it.
@@ -202,9 +204,9 @@ public sealed partial class GameSession
         get
         {
             if (_stageGenerators is null || _preparation is not { Status: PreparationStatus.Running }) return false;
-            for (var stage = 1; stage < Stages.Count; stage++)
+            for (var stage = 0; stage < Stages.Count; stage++)
             {
-                var g = StageGenerator(stage)!;
+                if(StageGenerator(stage) is not {} g)continue;
                 var draw = CaptureStagePower(g.StageId, CurrentTick + 1)!;
                 var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
                 var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
@@ -221,7 +223,7 @@ public sealed partial class GameSession
         var stage = FestivalStages.IndexOf(Stages, command.StageId ?? "");
         if (target is not null || _preparation?.Status != PreparationStatus.Running || !Enum.IsDefined(command.Action))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "A stage's generator can be cut only while the festival runs.");
-        if (stage <= 0 || StageGenerator(stage) is not { } generator)
+        if (stage < 0 || StageGenerator(stage) is not { } generator)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "That stage has no generator of its own.");
         if (generator.Stage == EquipmentStage.Isolated)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "That stage is already cut off.");
@@ -239,13 +241,14 @@ public sealed partial class GameSession
         var stages = SavedStages(s);
         const string invalid = "Stage generator identity, power or stage invalid.";
         if (s.PondStageTrial && (s.Programme is null || s.Preparation is null)) return "The Pond Stage trial needs a festival programme.";
-        var expected = stages.Count > 1 && s.Equipment?.Version == 3;
+        var ownStages=stages.Where(stage=>stage.Id!=FestivalStages.MainId).ToArray();
+        var expected = ownStages.Length > 0 && s.Equipment?.Version == 3;
         if (s.StageGenerators is not { } generators) return expected ? invalid : null;
-        if (!expected || generators.Length != stages.Count - 1 || s.Preparation is not { } p) return invalid;
+        if (!expected || generators.Length != ownStages.Length || s.Preparation is not { } p) return invalid;
         for (var index = 0; index < generators.Length; index++)
         {
             var g = generators[index];
-            if (g is null || g.Version != StageGeneratorRules.Version || g.StageId != stages[index + 1].Id ||
+            if (g is null || g.Version != StageGeneratorRules.Version || g.StageId != ownStages[index].Id ||
                 g.XMillimetres != (g.StageId == FestivalStages.BarnId ? BarnLayout.GeneratorX : PondRiser.GeneratorXMillimetres) ||
                 g.ZMillimetres != (g.StageId == FestivalStages.BarnId ? BarnLayout.GeneratorZ : PondRiser.GeneratorZMillimetres) ||
                 g.Capacity != StageGeneratorRules.PondCapacity || g.Strain is < 0 or > PowerRules.StrainMaximum || string.IsNullOrWhiteSpace(g.Response) ||

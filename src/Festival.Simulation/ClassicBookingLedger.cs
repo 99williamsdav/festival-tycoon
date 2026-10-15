@@ -6,7 +6,12 @@ public enum ClassicBookingMoneyKind { Tickets, BandFee, BandRelease, TicketRefun
 public sealed record ClassicBookingAction(ClassicBookingActionKind Kind, int TicketPricePennies, ClassicAnnouncedAct[] Contracts);
 /// <summary>Command facts only. Sales, refunds and cash movements are regenerated, never trusted from a second balance.</summary>
 public sealed record ClassicBookingSnapshot(int Version, int Capacity, int InitialReputation, int DraftTicketPricePennies,
-    ClassicBookingAction[] Actions);
+    ClassicBookingAction[] Actions)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ClassicBookingDevelopment? Development {get;init;}
+}
+public sealed record ClassicBookingDevelopment(int Slots,bool GuaranteeHundred);
 public sealed record ClassicBookingMoney(int Sequence, int Attempt, ClassicBookingMoneyKind Kind, string? ActId,
     int Quantity, int UnitPennies)
 {
@@ -38,6 +43,8 @@ public static class ClassicBookingLedger
 {
     public static ClassicBookingSnapshot Create(int reputation) => new(1, ClassicTicketDemand.InheritedCapacity,
         reputation, ClassicTicketDemand.DefaultTicketPricePennies, []);
+    public static ClassicBookingSnapshot CreateDevelopment(int reputation,int slots,bool guaranteeHundred)=>
+        Create(reputation) with {Capacity=GameSession.ClassicDevelopmentCapacity,Development=new(slots,guaranteeHundred)};
     public static ClassicBookingSnapshot Clone(ClassicBookingSnapshot state) => state with
     { Actions = state.Actions.Select(a => a with { Contracts = a.Contracts.ToArray() }).ToArray() };
 
@@ -66,7 +73,9 @@ public static class ClassicBookingLedger
     public static ClassicBookingView Evaluate(ulong seed, int number, ClassicBookingSnapshot state,
         Func<int, IReadOnlyList<ClassicAnnouncedAct>, bool>? validateQuotes = null)
     {
-        if (state is null || state.Version != 1 || state.Capacity != ClassicTicketDemand.InheritedCapacity ||
+        if (state is null || state.Version != 1 || (state.Development is {} dev
+                ?state.Capacity!=GameSession.ClassicDevelopmentCapacity||dev.Slots is not(3 or 6 or 9)
+                :state.Capacity!=ClassicTicketDemand.InheritedCapacity) ||
             state.InitialReputation is < 0 or > 100 || state.DraftTicketPricePennies is < 0 or > ClassicTicketDemand.MaximumTicketPricePennies ||
             state.Actions is null || number < 1) throw new ArgumentException("Invalid Classic booking header.");
         var phase = ClassicBookingPhase.Booking; var attempt = 1; var reputation = state.InitialReputation;
@@ -86,7 +95,8 @@ public static class ClassicBookingLedger
                         throw new InvalidOperationException("Only an unannounced complete booking can resolve sales.");
                     ValidateContracts(action.Contracts, reputation, false);
                     announced = action.Contracts.ToArray(); contracts = announced.ToArray(); price = action.TicketPricePennies;
-                    tickets = ClassicTicketDemand.Resolve(seed, number, new(state.Capacity, reputation, price, announced.Select(a => a.Popularity).ToArray()));
+                    tickets = state.Development?.GuaranteeHundred==true?GameSession.ClassicDevelopmentCapacity:
+                        ClassicTicketDemand.Resolve(seed, number, new(state.Capacity, reputation, price, announced.Select(a => a.Popularity).OrderDescending().Take(3).ToArray()));
                     Add(ClassicBookingMoneyKind.Tickets, null, tickets, price);
                     foreach (var act in contracts) Add(ClassicBookingMoneyKind.BandFee, act.ActId, 1, act.PaidFeePennies);
                     refunded = 0; severity = ClassicLineupChange.None; phase = ClassicBookingPhase.SitePreparation;
@@ -135,7 +145,7 @@ public static class ClassicBookingLedger
         void ValidateContracts(ClassicAnnouncedAct[] quotes, int rep, bool allowEmpty)
         {
             var active = quotes.Where(a => a is not null && a.ActId != "").ToArray();
-            if (quotes.Length != 3 || quotes.Any(a => a is null ||
+            if (quotes.Length != (state.Development?.Slots??3) || quotes.Any(a => a is null ||
                 (a.ActId == "" ? !allowEmpty || a != ClassicAnnouncedAct.EmptySlot :
                     string.IsNullOrWhiteSpace(a.ActId) || a.Genre is < 0 or >= FestivalGenre.Count || a.Popularity is < 0 or > 100 || a.PaidFeePennies < 0)) ||
                 active.Select(a => a.ActId).Distinct().Count() != active.Length || validateQuotes is not null && !validateQuotes(rep, active))

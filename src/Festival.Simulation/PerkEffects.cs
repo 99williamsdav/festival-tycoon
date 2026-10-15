@@ -32,6 +32,7 @@ public sealed partial class GameSession
     /// <summary>Waiting guests chat and cheer up: in a tap, toilet or stall queue, but not once they're being served.</summary>
     private void AdvanceFriendlyQueues()
     {
+        using var measurement=MeasureWork("friendly-water-queues");
         if (!HasPerk(PerkCatalogue.FriendlyQueues) || CurrentTick % FriendlyQueueGainEveryTicks != 0) return;
         var waiting = new HashSet<ulong>();
         foreach (var point in WaterPoints())

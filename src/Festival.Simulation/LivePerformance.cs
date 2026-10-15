@@ -66,7 +66,7 @@ public sealed partial class GameSession
     // One live set per stage, in stage order; empty until the festival opens. Sized when the programme is set up.
     private LivePerformanceSnapshot?[] _livePerformances = new LivePerformanceSnapshot?[1];
     /// <summary>The main stage's set, which the stage panel, audio and band presentation follow.</summary>
-    public LivePerformanceSnapshot? CaptureLivePerformance() => CaptureLivePerformance(FestivalStages.MainId);
+    public LivePerformanceSnapshot? CaptureLivePerformance() => CaptureLivePerformance(PrimaryStageId);
     public LivePerformanceSnapshot? CaptureLivePerformance(string stageId) =>
         FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && stage < _livePerformances.Length && _livePerformances[stage] is { } live ? CopyOf(live) : null;
     /// <summary>Every stage's set, in stage order.</summary>
@@ -353,7 +353,7 @@ public sealed partial class GameSession
             {
                 stageState = LiveSetStage.Interrupted;
                 interrupted = CurrentTick;
-                reaction = (stage == 0 ? _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal || _equipment?.StageCut == true : !StagePoweredAt(stage)) ? "silence" : "performer-unavailable";
+                reaction = (Stages[stage].Id==FestivalStages.MainId ? _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal || _equipment?.StageCut == true : !StagePoweredAt(stage)) ? "silence" : "performer-unavailable";
                 // The power's gone however it went (a cut cable reads as a performer away above); else someone left their mark.
                 if (!StagePoweredAt(stage)) powerCuts++; else stoppages++;
                 sequence++;

@@ -521,7 +521,7 @@ public sealed partial class GameSession
     /// the crowd its act expected at the popularity it had then (moved only by earlier festivals' sets), then moves both.
     /// </summary>
     private static (ActRelationship[]? Relationships, PopularityShift[]? Popularity) Replay(IEnumerable<CarriedGig>? history, bool pondStageTrial,bool classic=false,
-        Func<int,(int Tickets,int Price)>? ticketFacts = null)
+        Func<int,(int Tickets,int Price,int Stages)>? ticketFacts = null)
     {
         var values = new Dictionary<string, int>(StringComparer.Ordinal);
         var shifts = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -531,7 +531,7 @@ public sealed partial class GameSession
             var act = ActCatalogue.WithPopularityShift(catalogue, shifts.GetValueOrDefault(gig.ActId));
             var tier=classic?1:gig.Tier;
             var expected = ticketFacts is null ? ExpectedCrowdAt(tier, StageCountAt(tier, pondStageTrial), act) :
-                GigRules.ExpectedCrowd(ticketFacts(gig.Tier).Tickets,StageCountAt(tier,pondStageTrial),act.Popularity,ActCatalogue.ExpectedPopularity(ticketFacts(gig.Tier).Price));
+                GigRules.ExpectedCrowd(ticketFacts(gig.Tier).Tickets,ticketFacts(gig.Tier).Stages,act.Popularity,ActCatalogue.ExpectedPopularity(ticketFacts(gig.Tier).Price));
             var (_, delta, _) = GigRules.Judge(gig.Facts, expected);
             values[gig.ActId] = GigRules.Apply(values.GetValueOrDefault(gig.ActId), delta);
             shifts[gig.ActId] = GigRules.ApplyPopularity(catalogue.Popularity, act.Popularity, GigRules.PopularityChange(gig.Facts, act.Popularity)) - catalogue.Popularity;
@@ -757,7 +757,8 @@ public sealed partial class GameSession
             return invalid;
         foreach (var festival in history.GroupBy(gig => gig.Tier))
             if (festival.Select(gig => gig.ActId).Distinct().Count() != festival.Count() ||
-                festival.Count() > FestivalStages.For(classic?1:festival.Key, pondStageTrial).Sum(stage => stage.SlotCount))
+                festival.Count() > (classicSnapshot is null?FestivalStages.For(classic?1:festival.Key, pondStageTrial).Sum(stage => stage.SlotCount):
+                    classicSnapshot.ClassicHistory!.CompletedFestivals.Single(r=>r.Number==festival.Key).Booking!.Development?.Slots??3))
                 return invalid;
         // Relationships and popularity both follow from those sets, scored again here.
         var (expected, popularity) = Replay(history, pondStageTrial,classic,classicSnapshot is null?null:number=>SavedClassicTicketFactsAt(classicSnapshot,number));

@@ -27,25 +27,23 @@ public static class ClassicBookingTerms
         IReadOnlyList<FestivalAct?> replacements, ClassicLineupChange previous = ClassicLineupChange.None)
     {
         _ = RefundPercent(previous);
-        if (original is null || replacements is null || original.Count != 3 || replacements.Count != 3 ||
+        if (original is null || replacements is null || original.Count is not(3 or 6 or 9) || replacements.Count != original.Count ||
             original.Any(a => a is null || string.IsNullOrWhiteSpace(a.ActId) || a.Genre is < 0 or >= FestivalGenre.Count ||
                 a.Popularity is < 0 or > 100 || a.PaidFeePennies < 0) ||
             replacements.Any(a => a is not null && (string.IsNullOrWhiteSpace(a.Id) || a.Genre is < 0 or >= FestivalGenre.Count || a.Popularity is < 0 or > 100)) ||
-            original.Select(a => a.ActId).Distinct().Count() != 3 ||
+            original.Select(a => a.ActId).Distinct().Count() != original.Count ||
             replacements.Where(a => a is not null).Select(a => a!.Id).Distinct().Count() != replacements.Count(a => a is not null))
-            throw new ArgumentException("Three distinct announced acts and three replacement slots are required.");
-        var removed = original.Select((act, slot) => (Act: act, Headliner: slot == 2))
+            throw new ArgumentException("Distinct announced acts and matching three-slot stage programmes are required.");
+        var removed = original.Select((act, slot) => (Act: act, Headliner: slot % 3 == 2))
             .Where(a => !replacements.Any(b => b?.Id == a.Act.ActId)).ToArray();
         var added = replacements.Where(a => a is null || !original.Any(b => b.ActId == a.Id)).ToArray();
         if (removed.Length == 0) return previous;
-        // At most six assignments. Retained acts may move slots; match the genuinely new acts against missing ones
-        // rather than mistakenly comparing a moved retained headliner with an absent support act.
-        var best = ClassicLineupChange.Substantial;
-        Search(0, 0, ClassicLineupChange.None);
-        return (ClassicLineupChange)Math.Max((int)previous, (int)best);
-        void Search(int index, int used, ClassicLineupChange worst)
+        // At most 512 masks for nine slots. Retained acts can move stage/slot without becoming a loss.
+        var best=Enumerable.Repeat((int)ClassicLineupChange.Substantial+1,1<<added.Length).ToArray();best[0]=0;
+        for(var used=0;used<best.Length;used++)
         {
-            if (index == removed.Length) { if (worst < best) best = worst; return; }
+            var index=System.Numerics.BitOperations.PopCount((uint)used);
+            if(index==removed.Length)continue;
             for (var i = 0; i < added.Length; i++)
             {
                 if ((used & (1 << i)) != 0) continue;
@@ -53,8 +51,10 @@ public static class ClassicBookingTerms
                 var comparable = next is not null && next.Genre == lost.Act.Genre && next.Popularity >= lost.Act.Popularity - 5;
                 var severity = comparable ? ClassicLineupChange.Comparable :
                     lost.Headliner || lost.Act.Popularity - (next?.Popularity ?? 0) >= 15 ? ClassicLineupChange.Substantial : ClassicLineupChange.Ordinary;
-                Search(index + 1, used | (1 << i), (ClassicLineupChange)Math.Max((int)worst, (int)severity));
+                var nextMask=used|(1<<i);
+                best[nextMask]=Math.Min(best[nextMask],Math.Max(best[used],(int)severity));
             }
         }
+        return (ClassicLineupChange)Math.Max((int)previous,best[^1]);
     }
 }

@@ -249,6 +249,7 @@ public sealed partial class GameSession
 
     private void AdvanceServiceQueues(List<SessionEvent> events)
     {
+        using var measurement=MeasureWork("owned-service-queues");
         foreach (var queue in _serviceQueues.Values)
         {
             var assignedExitIndices = queue.Agents.Values.Select(item => item.ExitIndex).ToArray();

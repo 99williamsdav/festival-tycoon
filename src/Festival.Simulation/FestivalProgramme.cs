@@ -25,7 +25,8 @@ public sealed partial class GameSession
     public const int ProgrammeVersion = 5;
     private ProgrammeSnapshot? _programme;
     /// <summary>The main stage's running order, as the booking sheet and stage panel show it.</summary>
-    public StageProgrammeSnapshot? CaptureProgramme() => CaptureProgramme(FestivalStages.MainId);
+    public string PrimaryStageId=>Stages[0].Id;
+    public StageProgrammeSnapshot? CaptureProgramme() => CaptureProgramme(PrimaryStageId);
     public StageProgrammeSnapshot? CaptureProgramme(string stageId) =>
         FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && StageProgramme(stage) is { } q ? CopyOf(q) : null;
     /// <summary>Every stage's running order.</summary>
@@ -128,7 +129,7 @@ public sealed partial class GameSession
     public FestivalAct? UpcomingFestivalAct => MainProgramme is { } q && q.ActIds.Length == FestivalStages.Main.SlotCount &&
         UpcomingProgrammeSlot(0) is var slot and >= 0 && slot < FestivalStages.Main.SlotCount ? FestivalActs.Single(a => a.Id == q.ActIds[slot]) : null;
     public long UpcomingFestivalTick => UpcomingProgrammeSlot(0) is var slot and >= 0 && slot < FestivalStages.Main.SlotCount && _preparation is { } p
-        ? p.StartedTick + FestivalStages.Main.SlotStarts[slot] : -1;
+        ? p.StartedTick + Stages[0].SlotStarts[slot] : -1;
     /// <summary>A stage's next act, by stage id, once its sets are booked.</summary>
     public FestivalAct? UpcomingStageAct(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && stage < _livePerformances.Length &&
         StageProgramme(stage) is { } q && q.ActIds.Length == Stages[stage].SlotCount && UpcomingProgrammeSlot(stage) is var slot and >= 0 &&

@@ -53,6 +53,7 @@ public sealed partial class GameSession
 
     private void AdvanceActivityChoices()
     {
+        using var measurement=MeasureWork("activity-choice");
         if (_preparation is not { Status: PreparationStatus.Running } || ImmersionDepartureActive || _immersion is null) return;
         foreach (var person in PeopleIn(PersonView.Medical).ToArray())
             if (CurrentTick % ActivityDecisionTicks == (long)(person.Id % ActivityDecisionTicks) && ActivityChooserOwns(person.Id))
