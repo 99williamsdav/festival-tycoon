@@ -1,0 +1,78 @@
+{
+  "base": "07a2cb99",
+  "scope": "Approved Classic booking UI plus navigation and festival-menu stacking repair",
+  "files": [
+    {
+      "path": "game/Hud/BookingPanel.Classic.cs",
+      "sha256": "BAF352D76BB20DAF46C3F3B687C44657ED72ABB79ED52DA484F59E61F715D1C6"
+    },
+    {
+      "path": "game/Hud/BookingPanel.cs",
+      "sha256": "D9C1A8A5B2A5277B36CB45E96D2BFBE01EE886DE60AFFFDA97A2BD2681AEE872"
+    },
+    {
+      "path": "game/Hud/ClassicBookingScreen.cs",
+      "sha256": "1B963F3521B71BEB311AF8F0C7F65C290A6EDDB7AED3C157747D887F143CFB5E"
+    },
+    {
+      "path": "game/Hud/HudKit.cs",
+      "sha256": "B0D6666603BA5CC9A159C743E747FB29FF536070A3BA09B25E0D028DEA5EE5BC"
+    },
+    {
+      "path": "game/Hud/PreparationDock.cs",
+      "sha256": "67A352BCD879CFFB43D3CA7671AE8914BF3013B63B783FD4B9FB97DEB716DD10"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "347F39C3BCF1869CDF4F518C85F91BBBF08CA8C73101C9953908612EC4708B21"
+    },
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "79A835691CE6BA97BEAD978A8539CE8AEDE61F0C9B8D876C689F5AE3EF7C07DA"
+    },
+    {
+      "path": "game/Main.ClassicTickets.cs",
+      "sha256": "85849BB1A00328B97C8810AAB626CBAD700C68D621FE26CA838B11F74F4964FF"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "0ADEC50A18A4CB0DCC590CC14EB2A0A4F3A54EC51FA62E3734948F585C72C75A"
+    },
+    {
+      "path": "game/Main.HudWorkspace.cs",
+      "sha256": "11A9FA5D17562AFF9F945DB4D81CE8AC77C41B61796AC3506830C0C59B253E56"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "7F081C404A5D9FEBA262339952F2DFB0FF627DD18110B8CBED764D09D3A79ADC"
+    },
+    {
+      "path": "game/Main.PreparationDock.cs",
+      "sha256": "6F19BF6E83A4E501F345814B48748ED16843C75C01CF3412D223F4CE258A18B3"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "2400F52196C3659FA97135B2D828C781B677FF79842F9BECC76EBA22B65BDAE4"
+    },
+    {
+      "path": "game/Main.TicketEvidence.cs",
+      "sha256": "44F9071C2B6423D05641E16EA4C2D597AD6976538F41E78386E41DC086D2337E"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs",
+      "sha256": "D3F27A9382EE2C654517EA34C0339F2B6C8DDDDEE066E3432C0814770147C701"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBooking.cs",
+      "sha256": "992247B74D9019F4125FFCE8925B1B02268056A58524140A4C3E07A65ADAC411"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalResults.cs",
+      "sha256": "508F3E287383095B6D4079165B3DDC898F643344C21C7D77C10032A58D64E525"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingIntegrationTests.cs",
+      "sha256": "4D73498EB850002578D39D65FB019D9035F40DA1D90B690006614B74EC6CE563"
+    }
+  ]
+}

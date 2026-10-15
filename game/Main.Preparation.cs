@@ -115,6 +115,7 @@ public partial class Main
 
     private void PreparationLoad()
     {
+        ResetClassicTickets();
         CancelBuildPlacement();
         ResetImmersionHeldVisuals();
         var previousProgrammeMode = _session.CaptureProgramme() is not null;
@@ -136,6 +137,7 @@ public partial class Main
             _foundationPresentation.Reset(_session.CaptureObservation());
             if (previousProgrammeMode != (_session.CaptureProgramme() is not null) || previousImmersionMode != (_session.CaptureImmersion() is not null)) RebuildPreparationOffers();
             _preparationMessage = "Loaded with the same offers, ownership and physical roster.";
+            if (_session.IsClassicCampaign) _hudWorkspaceOpen = _buildDrawerOpen = false;
         }
         else _preparationMessage = loadError!;
         RefreshPreparationHud();
@@ -153,7 +155,7 @@ public partial class Main
         _preparationSummary.Text = (_session.IsClassicCampaign?$"Classic · Festival {_session.FestivalNumber}":$"Tier {p.Tier}")+
             $" • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
             $"{FestivalCurrency.Format(finance.CashPennies)} • {stockDescription}\n" +
-            $"{FestivalTickets.Sold(p.Tier)} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
+            $"{(_session.IsClassicCampaign ? _session.CurrentFestival.Attendance : FestivalTickets.Sold(p.Tier))} guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
             $"8 live minutes + preparation/pauses; provisional pace.\n{_preparationMessage}";
         _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
@@ -214,6 +216,7 @@ public partial class Main
         Perks.Refresh();
         RefreshFestivalPaper();
         RefreshChallengeReveal();
+        RefreshClassicTickets();
     }
 
 private void RebuildPreparationOffers()

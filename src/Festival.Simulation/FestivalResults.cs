@@ -114,6 +114,7 @@ public sealed partial class GameSession
         if (Taps.Any(tap => tap.Queue.Any(ids.Contains) || tap.Overflow.Any(ids.Contains) || Leaving(tap.OwnerId)))
             SetTaps(Taps.Select(tap => tap with { Queue = tap.Queue.Where(id => !ids.Contains(id)).ToArray(),
                 Overflow = tap.Overflow.Where(id => !ids.Contains(id)).ToArray(),
+                QueueCells = IsClassicCampaign ? tap.QueueCells.Take(tap.Queue.Count(id => !ids.Contains(id)) + tap.Overflow.Count(id => !ids.Contains(id)) + 1).ToArray() : tap.QueueCells,
                 OwnerId = Leaving(tap.OwnerId) ? null : tap.OwnerId, DrinkTicks = Leaving(tap.OwnerId) ? 0 : tap.DrinkTicks }).ToArray());
         foreach (var person in leaving)
         {

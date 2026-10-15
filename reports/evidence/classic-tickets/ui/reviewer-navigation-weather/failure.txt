@@ -1,0 +1,5 @@
+System.InvalidOperationException: Sequence contains no matching element
+   at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Festival.Game.Main.SaveWarningClick(String name) in /_/game/Main.SaveWarningEvidence.cs:line 20
+   at Festival.Game.Main.ProcessWeatherEvidence() in /_/game/Main.WeatherEvidence.cs:line 81

@@ -1,0 +1,1 @@
+Medical Hot state, queue ownership or causal stage invalid.

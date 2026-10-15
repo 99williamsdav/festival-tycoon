@@ -213,7 +213,7 @@ internal sealed record PlanCosts(long Services, long Acts, long Staff, long Equi
         var offers = session.GetPreparationOffers().ToDictionary(offer => offer.Id);
         long Sum(Func<PreparationOffer, bool> include) => plan.OfferIds.Select(id => offers[id]).Where(include).Sum(offer => (long)offer.PricePennies);
         return new(session.BuildDraftCost,
-            plan.ActIds.Where(id => id != "").Sum(id => (long)offers[id].PricePennies),
+            session.IsClassicCampaign ? 0 : plan.ActIds.Where(id => id != "").Sum(id => (long)offers[id].PricePennies),
             Sum(offer => StaffCatalogue.IsWorkCategory(offer.Category)),
             Sum(offer => offer.Category == "equipment"),
             plan.SoftDrinks * GameSession.ImmersionCost(ImmersionProduct.SoftDrink) + plan.Beers * GameSession.ImmersionCost(ImmersionProduct.Beer) +

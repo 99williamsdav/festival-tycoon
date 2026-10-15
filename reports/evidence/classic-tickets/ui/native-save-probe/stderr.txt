@@ -1,0 +1,12 @@
+ERROR: System.InvalidOperationException: Architecture native evidence failed: classic-actual-results-save
+   at Festival.Game.Main.ArchitectureCheck(String name, Boolean passed) in /_/game/Main.ArchitectureEvidence.cs:line 23
+   at Festival.Game.Main.ClassicFinish(Boolean injected) in /_/game/Main.ClassicEvidence.cs:line 65
+   at Festival.Game.Main.ProcessTicketEvidence() in /_/game/Main.TicketEvidence.cs:line 140
+   at: void Festival.Game.Main.ProcessTicketEvidence() (/_/game/Main.TicketEvidence.cs:140)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessTicketEvidence() (/_/game/Main.TicketEvidence.cs:140)
+       [2] void Festival.Game.Main._Process(double) (/_/game/Main.cs:81)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [4] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:5540)
+       [5] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

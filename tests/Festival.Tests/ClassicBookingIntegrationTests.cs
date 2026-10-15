@@ -99,6 +99,35 @@ public sealed class ClassicBookingIntegrationTests
     }
 
     [TestMethod]
+    public void EssentialSetupShortfallWarnsBeforeOverdraftAndStillPermitsConfirmation()
+    {
+        var s = GameSession.CreateClassicCampaign(14); ChoosePerk(s);
+        var ids = s.GetFestivalActs().Where(a => s.ActStandingOf(a) != ActStanding.Locked).OrderByDescending(s.ActFee).Take(3).Select(a => a.Id).ToArray();
+        Accept(s, new SetProgrammeCommand(ids)); Accept(s, new SetClassicTicketPriceCommand(10_000));
+        var guidance = s.ClassicBookingEstimate!;
+        Assert.IsTrue(guidance.ConservativeSetupCashPennies < guidance.MinimumRequiredSitePennies);
+        Assert.IsTrue(guidance.ConservativeSetupCashPennies - guidance.MinimumRequiredSitePennies >= -CampaignDefaults.OverdraftPennies);
+        Assert.IsTrue(guidance.Risky);
+        Accept(s, new ConfirmClassicBookingsCommand()); RoundTrip(s);
+    }
+
+    [TestMethod]
+    public void PostSaleReleaseRefillCancellationAndZeroSalesSettlementCanSave()
+    {
+        var s = GameSession.CreateClassicCampaign(14); ChoosePerk(s); var acts = CheapBands(s);
+        Accept(s, new SetProgrammeCommand(acts)); Accept(s, new SetClassicTicketPriceCommand(1125));
+        Accept(s, new ConfirmClassicBookingsCommand());
+        var released = acts.ToArray(); released[2] = "";
+        Accept(s, new RebookClassicProgrammeCommand(released)); Accept(s, new RebookClassicProgrammeCommand(acts));
+        Accept(s, new CancelClassicFestivalCommand());
+        Accept(s, new SetProgrammeCommand(acts)); Accept(s, new SetClassicTicketPriceCommand(10_000));
+        Accept(s, new ConfirmClassicBookingsCommand()); Site(s); Accept(s, new StartPreparedEditionCommand()); Finish(s);
+        Assert.AreEqual(0, s.CompletedFestivalResult!.AdmittedGuests);
+        Assert.IsTrue(s.CompletedFestivalAccounts!.Reconciles);
+        s = RoundTrip(s); RoundTrip(s.CreateNextFestival());
+    }
+
+    [TestMethod]
     public void CompletedStretchContractKeepsOpeningFeeWhenEarnedSceneStandingImproves()
     {
         var s = GameSession.CreateClassicCampaign(14); ChoosePerk(s);
@@ -262,6 +291,7 @@ public sealed class ClassicBookingIntegrationTests
         Assert.AreEqual(0, s.CompletedFestivalResult!.AdmittedGuests);
         Assert.IsNull(s.CompletedFestivalResult.Stars);
         Assert.IsTrue(s.CompletedFestivalAccounts!.Reconciles);
+        s = RoundTrip(s);
         s = RoundTrip(s.CreateNextFestival());
         var opening = s.CapturePersistentCampaignState()!.CashPennies;
         ChoosePerk(s);

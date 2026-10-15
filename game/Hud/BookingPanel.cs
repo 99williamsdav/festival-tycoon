@@ -12,7 +12,8 @@ namespace Festival.Game;
 /// and then a set (or Book), or by dragging; every edit is previewed against the session first.
 /// <c>setStatus</c> shows the booking message in the HUD status line.
 /// </summary>
-internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Action<string> _setStatus)
+internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Action<string> _setStatus,
+    bool compactClassic = false, Action<string[], int>? previewPaidEdit = null)
 {
     private HBoxContainer? _root;
     private Label? _gateTime;
@@ -22,6 +23,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     public string Summary { get; private set; } = "";
     /// <summary>The latest booking outcome to show while the Programme page is open.</summary>
     public string DurableMessage => _bookingDurableMessage;
+    public void ClearSelection() { _bookingSelected = null; _detailOpen = false; Refresh(); }
 
     /// <summary>Forgets the previous campaign's selection, sort and filter.</summary>
     public void Reset()
@@ -154,7 +156,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     {
         if (!ReadBookingPayload(payload, out var id, out var source)) return false;
         var preview = _hud.Session.PreviewLineupEdit(id, source, slot, stageId: Stage.Id);
-        _sets[slot].Detail.Text = preview.Message;
+        _sets[slot].Detail.Text = compactClassic ? "Review change" : preview.Message;
         return preview.IsValid;
     }
     private void CommitBookingDrop(int slot, Variant payload, bool remove = false)
@@ -163,9 +165,11 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         var preview = _hud.Session.PreviewLineupEdit(id, source, slot, remove, Stage.Id);
         if (!preview.IsValid || preview.IsNoOp) { _bookingDurableMessage = preview.Message; Refresh(); return; }
         var priorHash = _hud.Session.CaptureSnapshot().AuthoritativeHash;
+        if (_hud.Session.CaptureClassicBookingDetails()?.Phase == ClassicBookingPhase.SitePreparation)
+        { previewPaidEdit?.Invoke(preview.ActIds, slot); return; }
         _hud.Commit(new SetProgrammeCommand(preview.ActIds) { StageId = Stage.Id });
         var changed = _hud.Session.CaptureSnapshot().AuthoritativeHash != priorHash;
-        _bookingDurableMessage = changed ? preview.Message + " · Unpaid plan updated; next timed save pending." : _hud.Message;
+        _bookingDurableMessage = changed ? preview.Message + (compactClassic ? " · Draft updated; nothing charged." : " · Unpaid plan updated; next timed save pending.") : _hud.Message;
         if (changed) _bookingSelected = null;
         Refresh();
     }
@@ -180,15 +184,15 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         return free >= 0 ? free : null;
     }
 
-    private static float ColumnWidth(int column) => column switch { 1 => Ui.S(84), 2 => Ui.S(44), _ => Ui.S(58) };
+    private float ColumnWidth(int column) => column switch { 1 => Ui.S(compactClassic ? 80 : 84), 2 => Ui.S(compactClassic ? 42 : 44), _ => Ui.S(58) };
     private static Control.SizeFlags ColumnFlags(int column) => column == 0 ? Control.SizeFlags.ExpandFill : Control.SizeFlags.Fill;
-    private static HBoxContainer TableLine()
+    private HBoxContainer TableLine()
     {
         var line = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
-        line.AddThemeConstantOverride("separation", Ui.Px(10));
+        line.AddThemeConstantOverride("separation", Ui.Px(compactClassic ? 6 : 10));
         return line;
     }
-    private static Control Cell(HBoxContainer line, int column, Control content)
+    private Control Cell(HBoxContainer line, int column, Control content)
     {
         content.CustomMinimumSize = new Vector2(column == 0 ? 0 : ColumnWidth(column), content.CustomMinimumSize.Y);
         content.SizeFlagsHorizontal = ColumnFlags(column);
@@ -205,16 +209,17 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         BuildRunningOrder(_root);
         _root.AddChild(new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(1, 0), MouseFilter = Control.MouseFilterEnum.Ignore });
         // The table takes the rest of the width; the selected act's details slide in over its right side.
-        var area = new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Pass };
+        var area = new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Pass, ClipContents = compactClassic };
         _root.AddChild(area);
         var table = BuildActTable(area);
-        area.CustomMinimumSize = new Vector2(Ui.S(420), table.GetCombinedMinimumSize().Y);
+        area.CustomMinimumSize = new Vector2(Ui.S(420), compactClassic ? 0 : table.GetCombinedMinimumSize().Y);
         BuildDetail(area);
         Refresh();
     }
 
     private void BuildRunningOrder(HBoxContainer parent)
     {
+        if (compactClassic) { BuildCompactRunningOrder(parent); return; }
         var column = new VBoxContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0) };
         column.AddThemeConstantOverride("separation", Ui.Px(4)); parent.AddChild(column);
         column.AddChild(Ui.Heading("Running order", 27));
@@ -312,6 +317,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             tab.Text = $"{Main.StageTitle(FestivalStages.Find(id)!)} · {filled}/3";
             Ui.Style(tab, id == stage.Id ? Ui.ButtonKind.Primary : Ui.ButtonKind.Secondary, 13);
         }
+        if (compactClassic) return;
         if(_gateTime is not null)_gateTime.Text=BookingTime(0);
         for (var i = 0; i < 3; i++) _slotStartTimes[i].Text = BookingTime(stage.SlotStarts[i]);
         for (var i = 0; i < 2; i++) _changeovers[i].Text = $"Changeover · {(stage.SlotStarts[i + 1] - stage.SlotEnds[i]) / 80}s";
@@ -327,10 +333,12 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _bookingTableCount = Ui.Text("", 13, Ui.InkMuted); _bookingTableCount.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; heading.AddChild(_bookingTableCount);
         heading.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(40), 0) }); // clear of the sheet's close button
         _standingLine = Ui.Text("", 13, Ui.InkMuted); _standingLine.AutowrapMode = TextServer.AutowrapMode.WordSmart; table.AddChild(_standingLine);
+        _standingLine.Visible = !compactClassic;
         table.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         var filters = new HBoxContainer(); filters.AddThemeConstantOverride("separation", Ui.Px(8)); table.AddChild(filters);
         _bookingGenreFilter = new OptionButton { CustomMinimumSize = new Vector2(Ui.S(150), Ui.S(36)), FocusMode = Control.FocusModeEnum.All };
         _bookingGenreFilter.AddThemeFontSizeOverride("font_size", Ui.Px(13.5f));
+        if (compactClassic) Ui.Style(_bookingGenreFilter, Ui.ButtonKind.Secondary, 16);
         _bookingGenreFilter.AddItem("All genres");
         for (var genre = 0; genre < FestivalGenre.Count; genre++) _bookingGenreFilter.AddItem(FestivalGenre.Name(genre));
         _bookingGenreFilter.ItemSelected += index =>
@@ -370,7 +378,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _bookingTableBody = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _bookingTableBody.AddThemeConstantOverride("separation", 0);
         // About six rows show at once; the rest of the offer, then the acts out of reach, scroll.
-        var tableScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(300)) };
+        var tableScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(compactClassic ? 240 : 300)) };
         Ui.SlimScrollbar(tableScroll); tableScroll.AddChild(_bookingTableBody); table.AddChild(tableScroll);
         SyncRows(_hud.Session.GetFestivalActs());
         table.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
@@ -398,14 +406,14 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     private BookingDragButton ActLine(FestivalAct act)
     {
         var id = act.Id;
-        var card = new BookingDragButton { Text = "", CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        var card = new BookingDragButton { Name = compactClassic ? "ClassicAct_" + act.Id.Replace('.', '_') : "Act", Text = "", CustomMinimumSize = new Vector2(0, Ui.S(compactClassic ? 40 : 30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             FocusMode = Control.FocusModeEnum.All, MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = ExactTooltip(act) };
         card.DragPreviewText = () => $"{act.Name} · {FestivalGenreName(act.Genre)} · {FestivalCurrency.Format(_hud.Session.ActFee(act))}";
         var line = TableLine(); line.SetAnchorsPreset(Control.LayoutPreset.FullRect); line.OffsetLeft = Ui.S(10); line.OffsetRight = -Ui.S(10);
         card.AddChild(line);
         // One line per act: the name, then a small status tag only when there is something to say.
         var name = new HBoxContainer(); name.AddThemeConstantOverride("separation", Ui.Px(8));
-        var title = Ui.Text(act.Name, 14, Ui.Ink, Ui.BodyBold); title.ClipText = true; title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        var title = Ui.Text(act.Name, compactClassic ? 16 : 14, Ui.Ink, Ui.BodyBold); title.ClipText = true; title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         title.CustomMinimumSize = new Vector2(1, 0); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         title.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(title);
         // Their relationship with you, once they've played: a small tag, warm or sour.
@@ -453,7 +461,14 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _detailTab.AnchorLeft = _detailTab.AnchorRight = 1; _detailTab.AnchorTop = _detailTab.AnchorBottom = 0;
         _detailTab.OffsetLeft = -Ui.S(130); _detailTab.OffsetRight = 0; _detailTab.OffsetTop = Ui.S(34); _detailTab.OffsetBottom = Ui.S(64);
         parent.AddChild(_detailTab);
-        _detail = new VBoxContainer(); _detail.AddThemeConstantOverride("separation", 0); panel.AddChild(_detail);
+        _detail = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; _detail.AddThemeConstantOverride("separation", 0);
+        if (compactClassic)
+        {
+            panel.AnchorBottom = 1; panel.OffsetTop = panel.OffsetBottom = 0;
+            var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
+            panel.AddChild(scroll); scroll.AddChild(_detail); Ui.SlimScrollbar(scroll);
+        }
+        else panel.AddChild(_detail);
         _detailEmpty = Ui.Text("Select an act to see its details and book it.", 14, Ui.InkMuted);
         _detailEmpty.AutowrapMode = TextServer.AutowrapMode.WordSmart; _detail.AddChild(_detailEmpty);
         var header = new HBoxContainer(); _detail.AddChild(header);
@@ -540,8 +555,10 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             .OrderBy(act => session.ActStandingOf(act) == ActStanding.Locked ? 1 : 0).ToArray();
         for (var index = 0; index < projected.Length; index++) _bookingTableBody!.MoveChild(_bookingRows[projected[index].Id].Card, index);
         var willPlay = acts.Count(act => session.ActStandingOf(act) != ActStanding.Locked);
-        _bookingTableCount!.Text = $"{willPlay} acts available · sorted by {SortWords[(int)_bookingSort]}{(_bookingDescending ? ", high first" : "")}";
-        _standingLine!.Text = $"Festival reputation {session.Standing.Reputation} · {FestivalCurrency.Format(session.TicketPricePennies)} tickets: guests expect popularity around {session.ExpectedPopularity}";
+        _bookingTableCount!.Text = compactClassic ? $"{willPlay} acts · {SortWords[(int)_bookingSort]} {(_bookingDescending ? "↓" : "↑")}" :
+            $"{willPlay} acts available · sorted by {SortWords[(int)_bookingSort]}{(_bookingDescending ? ", high first" : "")}";
+        _standingLine!.Text = compactClassic ? $"Reputation {session.Standing.Reputation} · popularity draws buyers; talent shapes the day." :
+            $"Festival reputation {session.Standing.Reputation} · {FestivalCurrency.Format(session.TicketPricePennies)} tickets: guests expect popularity around {session.ExpectedPopularity}";
         _standingLine.TooltipText = "Acts more popular than the ticket promises delight guests; less popular acts disappoint them. Reputation decides who will play for you.";
         _standingLine.MouseFilter = Control.MouseFilterEnum.Pass;
         for (var index = 0; index < _bookingHeaders.Length; index++)
@@ -573,6 +590,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             row.Detail.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : elsewhere is { } other ? $"{Main.StageTitle(other.Stage)} · Set {other.Slot + 1}" :
                 standing == ActStanding.Locked ? $"Needs reputation {session.ActReputationNeeded(act)}" :
                 standing == ActStanding.Stretch ? "Stretch booking · fee ×1.5" : ExpectsToHeadline(act) ? "Expects to headline" : "Available";
+            row.Detail.Visible = !compactClassic;
             row.Detail.AddThemeColorOverride("font_color", assigned >= 0 || elsewhere is not null ? Ui.Teal : standing == ActStanding.Locked ? Ui.InkMuted :
                 standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.Link : Ui.InkMuted);
             row.Detail.AddThemeFontOverride("font", assigned >= 0 || standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.BodyBold : Ui.Body);
@@ -593,7 +611,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         for (var i = 0; i < 3; i++) RefreshSet(i, acts.SingleOrDefault(a => a.Id == ids[i]), picked, ids);
         RefreshDetail(picked);
         var everyStage = session.Stages.SelectMany(stage => BookingIdsOf(stage.Id)).Where(id => id != "").ToArray();
-        Summary = $"{everyStage.Length} of {session.Stages.Count * 3} sets filled · Lineup {FestivalCurrency.Format(everyStage.Sum(id => session.ActFee(ActCatalogue.Find(id)!)))} · Paid at Start";
+        Summary = $"{everyStage.Length} of {session.Stages.Count * 3} sets filled · Lineup {FestivalCurrency.Format(everyStage.Sum(id => session.ActFee(ActCatalogue.Find(id)!)))} · " +
+            (session.CaptureClassicBookingDetails() is { Phase: not ClassicBookingPhase.Booking } ? "Bands paid" : compactClassic ? "Paid on confirmation" : "Paid at Start");
         if (!BookingLocked) _setStatus(_bookingDurableMessage);
     }
 
@@ -614,10 +633,11 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             var style = Ui.Box(wash, 6, padX: 12, padY: 10); style.ShadowColor = new Color(0, 0, 0, 0.12f); style.ShadowSize = 1; style.ShadowOffset = new Vector2(0, 1);
             foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) card.Target.AddThemeStyleboxOverride(state, style);
             card.Caption.Text = $"Set {slot + 1} · {SlotTimes(slot)} · {FestivalGenreName(act.Genre)}".ToUpperInvariant();
+            if (compactClassic && headline) card.Caption.Text = $"Headline · {SlotTimes(slot)} · {FestivalGenreName(act.Genre)}".ToUpperInvariant();
             card.Caption.AddThemeColorOverride("font_color", ink);
             card.Title.Text = act.Name; card.Title.AddThemeColorOverride("font_color", Ui.Ink);
             card.Detail.Text = picked is not null && picked.Id != act.Id
-                ? _hud.Session.PreviewLineupEdit(picked.Id, Array.IndexOf(ids, picked.Id), slot, stageId: Stage.Id).Message
+                ? compactClassic ? "Choose this set" : _hud.Session.PreviewLineupEdit(picked.Id, Array.IndexOf(ids, picked.Id), slot, stageId: Stage.Id).Message
                 : FestivalCurrency.Format(_hud.Session.ActFee(act)) + (ExpectsToHeadline(act) && !headline ? " · expects to headline" : "");
             card.Detail.AddThemeColorOverride("font_color", ink);
             card.Remove.Visible = !BookingLocked;
@@ -629,12 +649,13 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             var style = Ui.Box(new Color(Ui.Gold, 0.2f), 6, Ui.GoldShadow, 2, 12, 10);
             foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) card.Target.AddThemeStyleboxOverride(state, style);
             card.Caption.Text = $"Set {slot + 1} · {SlotTimes(slot)}{(headline ? " · Headline slot" : "")}".ToUpperInvariant();
+            if (compactClassic && headline) card.Caption.Text = $"Headline · {SlotTimes(slot)}".ToUpperInvariant();
             card.Caption.AddThemeColorOverride("font_color", Ui.GoldInk);
             card.Title.Text = picked is not null ? $"Drop {picked.Name} here" : "Drop an act here";
             card.Title.AddThemeColorOverride("font_color", Ui.GoldInk);
             card.Detail.Text = picked is not null
                 ? headline && ExpectsToHeadline(picked) ? "They expect to headline — this slot suits them" : _hud.Session.PreviewLineupEdit(picked.Id, Array.IndexOf(ids, picked.Id), slot, stageId: Stage.Id).Message
-                : headline ? "The closing set; acts that expect to headline want it" : "Select an act, then this set";
+                : compactClassic ? "Choose an act" : headline ? "The closing set; acts that expect to headline want it" : "Select an act, then this set";
             card.Detail.AddThemeColorOverride("font_color", Ui.GoldInk);
             card.Remove.Visible = false;
         }
@@ -691,6 +712,9 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             standing == ActStanding.Locked ? $"Needs a festival reputation of {_hud.Session.ActReputationNeeded(act)}" :
             (standing == ActStanding.Stretch ? $"Stretch booking (usually {FestivalCurrency.Format(act.PricePennies)}) · " : "") +
             $"{FestivalCurrency.Format(_hud.Session.PreparationRemainingCash - fee)} left after booking";
+        if (compactClassic && assigned < 0)
+            _detailLeft.Text = _hud.Session.CaptureClassicBookingDetails()!.Phase == ClassicBookingPhase.Booking
+                ? "Draft quote · charged on confirmation" : "Review fees and refunds before applying";
         var relationship = _hud.Session.ActRelationship(act.Id);
         _detailRelation!.Visible = relationship != 0;
         var usual = ActCatalogue.Fee(_hud.Session.Standing, act);

@@ -40,15 +40,15 @@ public partial class Main
             _session.CurrentFestival.Tier==1&&_session.Stages.Count==1&&_session.CurrentFestival.Weather==_session.CaptureClassicForecast()!.Weather&&!_challengeReveal.IsOpen);
         var perk=_session.CapturePerks()!;
         ArchitectureSend(new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
-        ArchitectureSend(new UseDefaultBuildLayoutCommand());
         var acts=_session.GetFestivalActs().Where(a=>_session.ActStandingOf(a)==ActStanding.Available).OrderBy(_session.ActFee)
             .ThenBy(a=>a.Id,StringComparer.Ordinal).Take(3).Select(a=>a.Id).ToArray();
-        ArchitectureSend(new SetProgrammeCommand(acts));ArchitectureSend(new SetPreparationStockCommand(24,16));
+        ArchitectureSend(new SetProgrammeCommand(acts));ArchitectureSend(new ConfirmClassicBookingsCommand());
+        ArchitectureSend(new UseDefaultBuildLayoutCommand());ArchitectureSend(new SetPreparationStockCommand(24,16));
         foreach(var person in _session.GetStaffCandidates().GroupBy(c=>c.Role).Select(g=>g.OrderBy(c=>c.Traits.Length>0)
             .ThenBy(c=>c.Grade>0).ThenBy(c=>Math.Abs(c.Grade)).ThenBy(c=>c.Id,StringComparer.Ordinal).First()))
             ArchitectureSend(new AcceptPreparationOfferCommand(person.Id));
         ArchitectureCheck("classic-normal-plan-ready",_session.GetPreparationStartBlockers().Count==0);
-        ClassicObserve("normal-festival-"+_session.FestivalNumber+"-unpaid-plan");
+        ClassicObserve("normal-festival-"+_session.FestivalNumber+"-bands-paid-site-draft");
         if(!start){RefreshPreparationHud();return;}
         PreparationStart();
         ArchitectureCheck("classic-paid-opening",_session.PreparedStatus==PreparationStatus.Running&&_session.CapturePreparation()!.SetupPayments!.Length==1);
@@ -73,7 +73,7 @@ public partial class Main
         ArchitectureCheck("classic-next-tooltip-no-fixed-tier-advance",button.TooltipText.Contains($"Festival {number+1}:")&&!button.TooltipText.Contains("Barn Stage"));
         button.EmitSignal(Button.SignalName.Pressed);
         ArchitectureCheck("classic-next-canonical-carry",_session.FestivalNumber==number+1&&_session.CampaignId.Value==_classicOriginalId&&
-            _session.CapturePersistentCampaignState()!.CashPennies==closed.CashPennies+25000&&_session.CapturePersistentCampaignState()!.Loan==closed.Loan&&
+            _session.CapturePersistentCampaignState()!.CashPennies==closed.CashPennies&&_session.CapturePersistentCampaignState()!.Loan==closed.Loan&&
             _session.CapturePreparation()!.Reputation==prior.Reputation&&_session.CapturePreparation()!.SceneCredibility.SequenceEqual(prior.SceneCredibility)&&
             _session.CapturePreparation()!.SeenActs.SequenceEqual(prior.SeenActs)&&_session.CapturePreparation()!.OwnedEquipment.SequenceEqual(prior.OwnedEquipment));
         ArchitectureCheck("classic-day-state-reset",_session.CurrentTick==0&&_session.CaptureLifecycleSnapshot() is null&&
@@ -155,7 +155,7 @@ public partial class Main
                 var old=_session.CampaignId;StartClassicCampaign();
                 ArchitectureCheck("classic-new-campaign-resets-own-state",_session.CampaignId!=old&&_session.FestivalNumber==1&&
                     _session.CaptureClassicHistory()!.CompletedFestivals.Length==0&&_session.CapturePreparation()!.CarriedIn is null&&
-                    _session.CapturePersistentCampaignState()!.CashPennies==45000);
+                    _session.CapturePersistentCampaignState()!.CashPennies==20000);
                 File.WriteAllText(Path.Combine(_classicEvidenceOutput!,"checks.json"),JsonSerializer.Serialize(_architectureChecks,new JsonSerializerOptions{WriteIndented=true}));
                 File.WriteAllText(Path.Combine(_classicEvidenceOutput!,"journal.json"),JsonSerializer.Serialize(_classicEvidenceJournal,new JsonSerializerOptions{WriteIndented=true}));
                 GD.Print("CLASSIC_NATIVE_PASS checks="+_architectureChecks.Count);GetTree().Quit();

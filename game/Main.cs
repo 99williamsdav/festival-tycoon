@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_ticketEvidenceOutput is not null){ProcessTicketEvidence();return;}
         if(_weatherEvidenceOutput is not null){ProcessWeatherEvidence();return;}
         if(_classicEvidenceOutput is not null){ProcessClassicEvidence();return;}
         if (_saveWarningEvidenceOutput is not null) { ProcessSaveWarningEvidence(); return; }
@@ -630,6 +631,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-barn-campaign" && i + 1 < args.Length) _barnCampaignEvidenceOutput = args[++i];
             else if(args[i]=="--weather-start-case"&&i+1<args.Length&&int.TryParse(args[++i],out var weatherCase))_weatherEvidenceFrame=48*Math.Clamp(weatherCase,0,5);
+            else if(args[i]=="--capture-classic-tickets"&&i+1<args.Length){_ticketEvidenceOutput=args[++i];_architectureEvidenceOutput=_ticketEvidenceOutput;}
             else if(args[i]=="--capture-classic-weather"&&i+1<args.Length){_weatherEvidenceOutput=args[++i];_architectureEvidenceOutput=_weatherEvidenceOutput;}
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)

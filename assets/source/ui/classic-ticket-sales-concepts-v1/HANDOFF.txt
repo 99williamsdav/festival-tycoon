@@ -1,0 +1,43 @@
+CLASSIC BOOKING / TICKET SALES — DESIGN HANDOFF v1
+15 October 2026. Active user-approved feature; design prepared for coordinator review and Builder implementation. Designer owns visuals/handoff only. No new implementation-approval gate introduced.
+
+FILES
+01-band-booking-1280.png: phase 1, complete draft with ticket price and estimated range.
+02-sales-to-site-prep-1280.png: resolved sales receipt and site-prep transition.
+03-rebook-confirmation-1280.png: post-sale headline change confirmation.
+04-band-booking-1920.png: scaled booking layout.
+screen.html: visual-only source; ?state=sales or ?state=rebook. Controls are illustrative.
+review.html: review gallery. render.cjs: screenshot renderer.
+All figures/ratings/capacity/refund examples are illustrative, not balance decisions. Example annotation is review-only and should not ship.
+
+REUSE / SOURCE
+Read current game/Hud/BookingPanel.cs, PreparationDock.cs, Ui.cs and Main.Programme.cs. Copies of first three are in references. Current BookingPanel has running order left, sortable seven-column act table right, genre filter and act-details overlay. Preserve that arrangement, drag/drop, select-then-book keyboard alternative, scrolling, stage tabs, availability and hidden/unknown talent behavior. Mockup uses compact numeric rating examples; reuse existing rating widgets if legible, never reveal unknown ratings. Keep detail drawer over the table only, so the sales panel stays visible.
+Historical captures in references are visual history, not authoritative current timing or mechanics; current source takes precedence. Approved forecast uses the same green/cream/gold palette and Source Sans 3/Zilla Slab. No forecast redesign or Survival changes.
+No new custom art/icons required. All cards, charts, labels, buttons and separators should be native UI. Reuse existing fonts and icons; do not ship concept screenshots as backgrounds.
+
+FLOW / FINANCIAL CONTRACT
+Approved forecast remains before preparation. Phase 1 BandBooking covers all acts across all active stages plus ticket price. All lineup edits are free drafting; show cost that will be committed on confirmation, not a charge already taken.
+Ticket control supports minus/plus AND accessible direct numeric entry in implementation. Final bounds/step are Builder/coordinator decisions.
+Estimated ticket SALES RANGE is prominent with known maximum capacity. It is not an exact prediction, probability, or guaranteed lower bound. Show concise model-supported cues, not fake causal claims. Popularity attracts buyers; talent affects satisfaction, not an invented ticket-demand multiplier.
+Conservative projected site-prep funds = existing balance + lower estimate of ticket sales * price - total proposed band spend. This low-end estimate is not a promised minimum.
+NO programme-spend cap. Do not clamp selection/fees to an invented allowance. For low/negative projected funds, replace the final estimate note with amber: 'Risk: little left for site prep. You can still confirm.' Allow wrapping to two lines by reclaiming space above the budget; keep confirmation enabled for financial risk alone. For negative amounts say 'Projected shortfall' and show the signed value; do not disguise it as zero. Exact warning threshold and any insolvency handling are not specified here. Existing eligibility/slot-completeness validation can still explain genuine invalid selections.
+Confirmation resolves actual sales without a mandatory waiting simulation. Persist one result; navigation/reload/repeated button activation must not create another sale or another payment. Receipt is immediately dismissible.
+Phase 2 SitePrep funds = prior balance + actual ticket revenue - confirmed band spend. Example: 800 + (124*10) -225 =1815. Label bands paid and exclude those costs from charges at Start. Keep existing Build/Programme/Staff/Supplies, budget and opening checklist. The concept receipt sits over that flow, not a new mandatory checklist or currency. Actual site-prep background can remain the current farm view; the flat green concept background is for graphical clarity.
+After sales, hide editing of ticket price/sales estimate in Programme and replace with actual sold count and current funds. Draft an act change, then show its financial/attendee consequence before applying. Do not rerun ticket sales for this action.
+
+POST-SALE CHANGE CONTRACT
+Compact modal compares old/new act and slot. Show attendee impact in plain language derived from the actual comparison. Major headliner loss has more disappointment than a comparable replacement or minor change. The supplied headline example is an illustrative warning state, not an assertion that a 0.5 rating difference mechanically causes a fixed penalty. For comparable changes use proportionate copy, e.g. 'A comparable replacement; less disruption for attendees.' For minor changes use the actual lower-impact description. Do not add numeric happiness losses until the model supplies them.
+Show exact quoted band refund, replacement fee, net change, resulting site-prep funds before final confirmation. Example refund60 minus fee90 = net cost30; 1815-30=1785. Refund60 is PURELY illustrative, not a policy, rate, deposit, penalty schedule or new contract mechanic. Builder/coordinator must define authoritative numeric/refund rules. If unavailable, do not pretend a quote is final.
+Keep current booking is safe/default focus; Escape/back cancels preview without mutation; Replace headliner commits once. Focus trapped in modal; restore originating row after dismissal. Removal without replacement uses the same consequence pattern and reflects the empty slot/opening requirement.
+Full festival cancellation is a quiet secondary action in post-sale Programme, labeled 'Cancel festival…', last resort. Separate final confirmation must state actual attendee refunds and reputation loss before committing, with 'Keep festival' as default. No invented refund percentages, new currency, loan or contract system. Final numbers pending Builder/coordinator.
+
+LAYOUT / ACCESSIBILITY
+Logical1280x720, scale with existing Ui.S/Ui.Px (1.5x at1080p).
+Header h68. Sheet x24,y88,w1232,h550. Inner padding24 horizontal/22 vertical. Columns:258 running order,550 table,remaining ticket panel; gaps22. Seven table columns remain; body16px, rows40px, six visible rows with native scroll for more. Genre text fits; longer names wrap or use existing detail drawer. Stage tabs retained for multi-stage editions; do not collapse all stages into only these three sample slots.
+Footer y649, 44px controls. Phase1 primary 'Confirm bookings & sell tickets →'. Plain secondary Back to forecast; preserve draft and authoritative forecast.
+Receipt x180,y102,w920,h514, two columns. Existing dock shown below, Start depends on actual checklist, not the illustrative incomplete state forever.
+Rebook modal w660, about514h, centred; no scrolling or wall of copy required for the sample. Essential text16px+, headings24–32px. Preserve clear focus rings, accessible names, numeric-entry announcements, reading order and select/book equivalent for drag/drop. No hover-only demand, money or consequence information.
+All displayed festival times are provisional presentation labels, obtained through shared FestivalTimePresentation formatter/model, including tooltips/accessibility. Current BookingPanel already calls Festival.Presentation.FestivalTimePresentation.Timestamp; reuse shared source. Do not transplant mockup's hardcoded labels, invent real-world clock starts/ends, or alter simulation timing.
+
+VALIDATION / LIMITS
+Rendered and visually inspected all three720p screens plus booking1080p in local Chrome/Playwright with actual project fonts. Fixed first-pass overflow so projected budget, table guidance and actions remain visible. Arithmetic checked above. No runtime implementation, gameplay tests, balancing decisions or independent Builder review claimed. Source/prompts/provenance retained; no generated art used.

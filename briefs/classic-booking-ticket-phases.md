@@ -23,6 +23,8 @@ Exact significance classification must be deterministic and transparent. The imp
 
 ## Delivery boundaries
 
+The user subsequently explicitly selected the supplied `classic-ticket-sales-concepts-v1` layout in the Builder chat: “Use this layout.” This satisfies the specific visual-handoff gate below; no additional build-it approval is required. The numerical terms above were separately approved.
+
 Economic/phase core first, then concept-led UI. Designer is adapting the existing approved UI. Await the coordinator's approved visual handoff before substantial new UI; existing native controls/text may be reused. No invented graphics, broad redesign, Barn growth, unlocks, movable stages, additional weather, audio or coffee work.
 
 Require immutable Survival state/event/RNG parity, focused demand/price/popularity-versus-talent/capacity tests, no-cap warnings, negative-cash/recovery/cancellation tests, exact financial and save validation, three-plus festival carry, actual replay/native checks, fresh Astra MEDIUM review per slice and of the copied Windows EXE. Deliver EXE plus adjacent data, no ZIP or scheduled monitor. Do not message other chats; keep reports here for coordinator retrieval.

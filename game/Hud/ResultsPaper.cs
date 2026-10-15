@@ -677,7 +677,10 @@ void fragment() {
         income.AddChild(ColumnHeading("Income", "Qty · sales"));
         RuledRows(income, list =>
         {
-            MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
+            if (report.TicketLines is { } ticketLines)
+                foreach (var ticket in ticketLines)
+                    MoneyRow(list, $"{ticket.Description} · attempt {ticket.Attempt} · {FestivalCurrency.Format(ticket.UnitPricePennies)} each", ticket.Quantity.ToString(), FestivalCurrency.Format(ticket.AmountPennies));
+            else MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
             // A row for each van's trader.
             if (report.PitchFees.Length > 0 && report.PitchFees.Sum(pitch => pitch.FeePennies) == report.PitchFeePennies)
                 foreach (var pitch in report.PitchFees) MoneyRow(list, $"Pitch fee · {pitch.Trader}", "1", FestivalCurrency.Format(pitch.FeePennies));

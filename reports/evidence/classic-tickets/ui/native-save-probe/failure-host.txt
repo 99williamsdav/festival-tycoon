@@ -1,0 +1,2 @@
+Classic results save failed; any earlier valid slot remains intact. Save failed before replacement; the previous slot was preserved. Temporary save validation failed: Authoritative payload validation failed: Medical Hot state, queue ownership or causal stage invalid.
+Save failed. Keep playing or retry. Earlier valid saves remain intact; these changes are in memory.

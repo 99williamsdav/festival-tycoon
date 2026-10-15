@@ -168,7 +168,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var lines = new List<(string Label, long Pennies)>();
         if (p.BuildPlacements.Length > 0) lines.Add(($"Site services × {p.BuildPlacements.Length}", costs.Services));
         var acts = plan.ActIds.Count(id => id != "");
-        if (acts > 0) lines.Add(($"Acts × {acts}", costs.Acts));
+        if (acts > 0 && !session.IsClassicCampaign) lines.Add(($"Acts × {acts}", costs.Acts));
         foreach (var id in plan.OfferIds)
         {
             var offer = offers[id];
@@ -213,6 +213,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
                 : $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan") +
             (pitch > 0 ? $", plus {FestivalCurrency.Format(pitch)} from {session.PitchingTraders} to pitch." : ".") +
             (left < 0 ? $" Into the £{CampaignDefaults.OverdraftPennies / 100} overdraft." : "");
+        if (session.CaptureClassicBookingDetails() is { } booking)
+            _receiptFunds.Text = $"{booking.TicketHolders} ticket holders at {FestivalCurrency.Format(booking.TicketPricePennies)}; net receipts {FestivalCurrency.Format(booking.NetTicketReceiptsPennies)}. Bands already paid {FestivalCurrency.Format(booking.NetBandCostsPennies)}, excluded from this Start charge. Existing £100 overdraft.";
         // In the red is allowed, as far as the overdraft; beyond it, Start is refused.
         _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : left >= -CampaignDefaults.OverdraftPennies ? Ui.Link : Ui.Alert);
         _receiptCheck!.Text = missing == 0 ? $"✓  All {checks} opening checks pass" : $"!  {missing} of {checks} opening checks still open";
@@ -309,6 +311,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             (session.CapturePreparation()!.CarriedIn is { } carried ? $"the rest carried from Tier {carried.FromTier}." : "the rest a loan.") +
             (pitch > 0 ? $" Plus {FestivalCurrency.Format(pitch)} from {session.PitchingTraders} to pitch." : "") +
             $" You can go up to {FestivalCurrency.Format(CampaignDefaults.OverdraftPennies)} into overdraft.";
+        if (session.CaptureClassicBookingDetails() is { } paid)
+            _draftedOf.TooltipText = $"Actual funds {FestivalCurrency.Format(funds)}; {paid.TicketHolders} ticket holders at {FestivalCurrency.Format(paid.TicketPricePennies)}. Bands already paid {FestivalCurrency.Format(paid.NetBandCostsPennies)}. Start charges remaining site, staff and supplies. Existing £100 overdraft.";
         _draftedOf.MouseFilter = Control.MouseFilterEnum.Pass;
         _left!.Text = left >= 0 ? $"{FestivalCurrency.Format(left)} left" : $"{FestivalCurrency.Format(-left)} over";
         _left.AddThemeColorOverride("font_color", left >= 0 ? Ui.Good : Ui.Warn);
@@ -317,6 +321,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             $"Build {FestivalCurrency.Format(costs.Services)} · acts {FestivalCurrency.Format(costs.Acts)} · staff {FestivalCurrency.Format(costs.Staff)} · " +
             $"supplies {FestivalCurrency.Format(costs.Supplies)}" + (pitch > 0 ? $" · van pays {FestivalCurrency.Format(pitch)}" : "");
 
+        if (!_nav.Placing && session.IsClassicCampaign)
+            _breakdown.Text = $"Build {FestivalCurrency.Format(costs.Services)} · bands paid · staff {FestivalCurrency.Format(costs.Staff)} · supplies {FestivalCurrency.Format(costs.Supplies)}";
         var issue = _nav.Placing ? "Finish or cancel placement" :
             missing.FirstOrDefault()?.Detail ?? session.ValidateCommand(_hud.Host.Envelope(new StartPreparedEditionCommand()))?.Message;
         var ready = issue is null;

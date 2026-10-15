@@ -15,7 +15,7 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     /// <summary>The attempt whose box office briefing has been dismissed; a presentation preference, never saved.</summary>
     private int _boxOfficeSeenAttempt;
     /// <summary>The box office briefing shows once each attempt, after its perk draft and before planning.</summary>
-    private bool BoxOfficeOpen => _session.CapturePreparation() is { Status: PreparationStatus.Preparing } p &&
+    private bool BoxOfficeOpen => !_session.IsClassicCampaign && _session.CapturePreparation() is { Status: PreparationStatus.Preparing } p &&
         _session.CapturePerks()?.Pending != true && p.Attempt != _boxOfficeSeenAttempt;
     bool IPreparationNavigation.Briefing => BoxOfficeOpen;
     private TopBar? _topView;
@@ -26,6 +26,8 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     private void OpenPreparationDestination(string destination)
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
+        if (_session.IsClassicCampaign && destination == "Programme")
+        { _classicProgrammeRequested = true; RefreshClassicTickets(); return; }
         if (_buildGhostKind is not null) CancelBuildPlacement();
         if (destination == "Build")
         {
@@ -50,7 +52,11 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     /// <summary>How fast the day runs. Presentation pacing only: the same ticks run, just more of them per second.</summary>
     private void SetDaySpeed(RequestedSpeed speed) { _host.Clock.RequestedSpeed = speed; RefreshPreparationHud(); }
     void ITopBarActions.ShowAlerts() { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }
-    void ITopBarActions.ToggleMenu() => _hudMenu!.Visible = !_hudMenu.Visible;
+    void ITopBarActions.ToggleMenu()
+    {
+        _hudMenu!.Visible = !_hudMenu.Visible;
+        if (_hudMenu.Visible) _hudMenu.GetParent().MoveChild(_hudMenu, -1);
+    }
     void ITopBarActions.TogglePerks() => Perks.ToggleExpanded();
     void ITopBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
     void ILiveBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;

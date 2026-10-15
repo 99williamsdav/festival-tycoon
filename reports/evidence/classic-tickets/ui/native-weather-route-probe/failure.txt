@@ -1,0 +1,3 @@
+System.InvalidOperationException: Architecture native evidence failed: draft-reopen-does-not-reroll-or-reset-Mild
+   at Festival.Game.Main.ArchitectureCheck(String name, Boolean passed) in /_/game/Main.ArchitectureEvidence.cs:line 23
+   at Festival.Game.Main.ProcessWeatherEvidence() in /_/game/Main.WeatherEvidence.cs:line 86

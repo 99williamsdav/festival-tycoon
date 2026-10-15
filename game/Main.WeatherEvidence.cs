@@ -67,18 +67,19 @@ public partial class Main
             if(step==12)
             {
                 ClassicReady(false);
-                ArchitectureCheck("box-office-matches-saved-conditions-"+kind,FindChildren("*","Label",true,false).OfType<Label>().Any(l=>l.IsVisibleInTree()&&
-                    l.Text.Contains(_session.CaptureClassicForecast()!.Summary)&&l.Text.Contains(_session.CaptureClassicForecast()!.PlanningAdvice)));
+                ArchitectureCheck("booking-retains-known-forecast-"+kind,_session.CaptureClassicBookingDetails()!.Phase==ClassicBookingPhase.SitePreparation&&
+                    _session.CaptureClassicForecast()!.Conditions==kind&&_session.CurrentFestival.Weather==_session.CaptureClassicForecast()!.Weather);
                 if(_session.IsRainyFestival)
                 {
                     ArchitectureSend(new SetPreparationStockCommand(24,16){Ponchos=6,StrawBales=2});
                     ArchitectureSend(new GroundCoverCommand(GroundCoverAction.Matting,new(110,154),new(116,154)));
                 }
                 _forecastUnchanged=_session.CaptureSnapshot().AuthoritativeHash.ToString();
+                if(_classicBookingScreen?.Visible==true)SaveWarningClick("ClassicBookingBack");
                 if(BoxOfficeOpen)SaveWarningClick("StartPlanning");
             }
             if(step==14)SaveWarningClick("FestivalMenu");
-            if(step==18)SaveWarningClick("ReopenForecast");
+            if(step==18){WeatherPicture(prefix+"-menu-route");SaveWarningClick("ReopenForecast");}
             if(step==20)
             {
                 File.WriteAllText(Path.Combine(_weatherEvidenceOutput!,prefix+"-reopen.json"),JsonSerializer.Serialize(new{open=ClassicForecastOpen,same=_session.CaptureSnapshot().AuthoritativeHash.ToString()==_forecastUnchanged,menuVisible=_hudMenu?.Visible,boxOffice=BoxOfficeOpen}));
@@ -134,8 +135,8 @@ public partial class Main
                 WeatherPicture("08-diagnostic-shared-mapping-only");ContinueClassicForecast();ClassicReady(false);
                 if(BoxOfficeOpen)ArchitecturePress("StartPlanning");
                 SelectHudTab("Programme");RefreshPreparationHud();
-                ArchitectureCheck("shared-mapping-programme-and-gates",FindChildren("*","Label",true,false).OfType<Label>().Any(l=>l.IsVisibleInTree()&&l.Text.Contains("61:00–62:45"))&&
-                    FindChildren("*","Label",true,false).OfType<Label>().Any(l=>l.IsVisibleInTree()&&l.Text=="60:00"));
+                ArchitectureCheck("shared-mapping-classic-programme",_classicBookingScreen?.Visible==true&&
+                    _classicBookingScreen.FindChildren("*","Label",true,false).OfType<Label>().Any(l=>l.IsVisibleInTree()&&l.Text.Contains("61:00–62:45")));
             }
             if(step==42&&index==0)
             {

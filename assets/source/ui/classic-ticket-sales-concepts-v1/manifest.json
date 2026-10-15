@@ -1,0 +1,82 @@
+[
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\01-band-booking-1280.png",
+    "Hash": "A6FA8262968E157B642678E194D60371559E4C7A6B04B95C8960B86E0F6C5397"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\02-sales-to-site-prep-1280.png",
+    "Hash": "39435AA7A1D59405FA3842CA25D936CF988BCDCFC4BDA057AA26930B80969CFB"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\03-rebook-confirmation-1280.png",
+    "Hash": "EBB26C5FECB2444500E8741596A072678A293F55A2823B0FBF10948E4BD92C73"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\04-band-booking-1920.png",
+    "Hash": "42D06542911493D9F6FE6CC2EF3CD99BBDF45FB021975B5FD7884D95FBB03A93"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\finalize.cjs",
+    "Hash": "8D96CC8A6EBE33D6A7F9AB4AD3493D63C76FD20ED2B3998DC9F02A292176C2F1"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\HANDOFF.txt",
+    "Hash": "CB6050AE7484C122EFFAC64BA2EB7C6A496BFA91F7FD8EDDDB9743C1C584CE8C"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\refine.cjs",
+    "Hash": "9CC106CC3165591FFE0756A601BEF584A8C91ED0DFE92D6818EA5A4D0042C788"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\render.cjs",
+    "Hash": "83EB300308743666FFDB9274D1DD32BF213BFE04598F7C0237C5848A62201BD9"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\review.html",
+    "Hash": "72ACFB2DB1F9921288917C17D77117C14B7648769C57F249F6972EF27CF7E5AF"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\screen.html",
+    "Hash": "DE534E88C85E2CBB5B2FDCAC0228DF77124EACECC25F211F0ACC80A123F18526"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\prompts\\composition-brief.txt",
+    "Hash": "3C9977AF37D5B18BBC88D54C409F42154333EFD537404DCF98B2BFD1E0B7AC48"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\approved-forecast.png",
+    "Hash": "6C59AB5C55DC0E3184C73B365BC0418B861B5F15AEF962F6F4CBBDE0696E6201"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\BookingPanel.cs",
+    "Hash": "7BC172905DE0EDFA6B6C638FFA6BED39920705CFCA0A0EA6A626811F2D371420"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\historical-programme.png",
+    "Hash": "D1F58EDA424C106D5CBDFCC6CC58EE360379F8B0BA8E8017FF40E76CBB7E5278"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\OFL-SourceSans3.txt",
+    "Hash": "09746787287A289323B0EC3CFF4D1A4A801331B82B7207C1E186F5D26619A392"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\OFL-ZillaSlab.txt",
+    "Hash": "240B385D3EC8C8D5C1D4AF2BBBA6AC72BAC0309A80C1A8FF112C168643CC6811"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\PreparationDock.cs",
+    "Hash": "F9D41A00EBD5AF354FC4A6A74D5DE393D9566F610164765E2A7CAAACC1B1FD7D"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\SourceSans3-Variable.ttf",
+    "Hash": "042FE2CC0B933E328410D7ACBD0AA6A1873DCA5AEF81875F4BC214B08825C7B9"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\Ui.cs",
+    "Hash": "1D61DF46F877D6EE7094DA09C68210B4A7C154908B764A4748EC74DFDB36A602"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-ticket-sales-concepts-v1\\references\\ZillaSlab-SemiBold.ttf",
+    "Hash": "AAFCB295B88D520357DB1ECF9A1C3167055E87E9DDF5F63E560CBD139EC2805E"
+  }
+]

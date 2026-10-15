@@ -36,7 +36,7 @@ public sealed partial class GameSession
                     .Sum(kind => (long)RuleProfile.BuildFee(kind));
             var budget = sales.ConservativeSetupCash(_festivalFinances[new(_preparation.FinanceOwnerId)].CashPennies,
                 _preparation.ClassicBooking.DraftTicketPricePennies, fees);
-            return new(ClassicSiteCapacity, sales, fees, budget, minimum, budget - minimum < -CampaignDefaults.OverdraftPennies);
+            return new(ClassicSiteCapacity, sales, fees, budget, minimum, budget < minimum);
         }
     }
 

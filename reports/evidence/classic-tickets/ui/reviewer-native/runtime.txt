@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.60 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=0ee1f973adba8284fe668833c0241b1c490708ae7a4c359f74dbc8341c49a12b
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+CLASSIC_CAMPAIGN_OPENED id=14 seed=14 festival=1 status=Preparing
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+NEXT_FESTIVAL_STARTED id=14 tier=1 cash=-385 debt=20000
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+CLASSIC_TICKETS_NATIVE_PASS checks=88
