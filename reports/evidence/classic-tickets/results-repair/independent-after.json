@@ -1,0 +1,53 @@
+{
+  "sourceCount": 19,
+  "immutableCount": 10,
+  "mismatches": [],
+  "runs": [
+    {
+      "track": "tickets",
+      "checks": 100,
+      "failed": 0,
+      "execution": {
+        "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64_console.exe",
+        "arguments": [
+          "--path",
+          "C:/Projects/festival-tycoon/game",
+          "--",
+          "--capture-size",
+          "1280x720",
+          "--capture-classic-tickets",
+          "C:/Projects/festival-tycoon/reports/evidence/classic-tickets/results-repair/independent-native-tickets"
+        ],
+        "startedUtc": "2026-10-15T13:59:37.7478828Z",
+        "endedUtc": "2026-10-15T14:00:04.0512938Z",
+        "exitCode": 0,
+        "stderrBytes": 0,
+        "pngs": 12
+      },
+      "runtimeIssues": []
+    },
+    {
+      "track": "classic",
+      "checks": 109,
+      "failed": 0,
+      "execution": {
+        "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64_console.exe",
+        "arguments": [
+          "--path",
+          "C:/Projects/festival-tycoon/game",
+          "--",
+          "--capture-size",
+          "1280x720",
+          "--capture-classic-loop",
+          "C:/Projects/festival-tycoon/reports/evidence/classic-tickets/results-repair/independent-native-classic"
+        ],
+        "startedUtc": "2026-10-15T14:00:04.0967377Z",
+        "endedUtc": "2026-10-15T14:01:00.8292041Z",
+        "exitCode": 0,
+        "stderrBytes": 0,
+        "pngs": 9
+      },
+      "runtimeIssues": []
+    }
+  ]
+}

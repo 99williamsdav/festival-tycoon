@@ -1,0 +1,52 @@
+[
+  {
+    "track": "tickets",
+    "checks": 92,
+    "failures": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngs": 10,
+    "runtimeIssues": 0,
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\FestivalTycoon.exe"
+  },
+  {
+    "track": "classic",
+    "checks": 105,
+    "failures": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngs": 9,
+    "runtimeIssues": 0,
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\FestivalTycoon.exe"
+  },
+  {
+    "track": "weather",
+    "checks": 250,
+    "failures": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngs": 22,
+    "runtimeIssues": 0,
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\FestivalTycoon.exe"
+  },
+  {
+    "track": "survival",
+    "checks": 63,
+    "failures": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngs": 8,
+    "runtimeIssues": 0,
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\FestivalTycoon.exe"
+  },
+  {
+    "track": "warning",
+    "checks": 24,
+    "failures": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngs": 4,
+    "runtimeIssues": 0,
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\FestivalTycoon.exe"
+  }
+]

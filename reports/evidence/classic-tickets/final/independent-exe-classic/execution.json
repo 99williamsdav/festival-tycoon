@@ -1,0 +1,15 @@
+{
+  "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-tickets-2026-10-15/FestivalTycoon.exe",
+  "arguments": [
+    "--",
+    "--capture-size",
+    "1280x720",
+    "--capture-classic-loop",
+    "C:/Projects/festival-tycoon/reports/evidence/classic-tickets/final/independent-exe-classic"
+  ],
+  "startedUtc": "2026-10-15T13:47:08.5943618Z",
+  "endedUtc": "2026-10-15T13:48:13.3183420Z",
+  "exitCode": 0,
+  "stderrBytes": 0,
+  "pngs": 9
+}

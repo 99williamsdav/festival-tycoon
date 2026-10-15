@@ -99,7 +99,8 @@ internal static class FestivalReview
 
         var edition = Ordinal(f.Classic?f.FestivalNumber:f.Tier);
         var standfirst = stars is null
-            ? $"The tickets were sold and the bands were booked, but nobody came through the gate of the {edition} {FestivalName}."
+            ? f.Sold == 0 ? $"The bands were booked, but no tickets were sold for the {edition} {FestivalName}."
+                : $"The tickets were sold and the bands were booked, but nobody came through the gate of the {edition} {FestivalName}."
             : $"{Capitalise(Count(r.GuestCount, "punter"))}, {Count(played.Length, "set")} and {Weather(f)}: our reviewer gives the {edition} {FestivalName} {Words(stars.Value)} out of five.";
         if(r.Deaths>0)standfirst=$"{r.Deaths} {(r.Deaths==1?"person":"people")} died during the {edition} {FestivalName}. The festival continued; {r.GuestCount} surviving guests were rated.";
 
@@ -160,7 +161,8 @@ internal static class FestivalReview
         else if (f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
             text += "New this year was a second stage down by the farm pond. ";
         var admitted=f.Classic?r.AdmittedGuests:r.GuestCount;
-        text += admitted == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
+        text += f.Sold == 0 ? "No tickets were sold for this festival." :
+            admitted == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
             admitted >= f.Sold ? $"All {f.Sold} ticket-holders made the trip" + (played > 0 ? $", and {Count(played, "act")} {(played == 1 ? "was" : "were")} there to play for them." : ".") :
             $"{admitted} of the {f.Sold} ticket-holders made it through the gate.";
         return text;

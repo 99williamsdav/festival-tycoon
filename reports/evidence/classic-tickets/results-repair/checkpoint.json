@@ -1,0 +1,88 @@
+{
+  "base": "2e41a6271b8261eb464cc3540882a2faa17bf8c2",
+  "scope": "Classic newspaper actual ticket holders, zero-sales text and free-next-booking tooltip; native regression assertions",
+  "changedFiles": [
+    "game/Hud/ResultsPaper.cs",
+    "game/Hud/FestivalReview.cs",
+    "game/Main.ClassicEvidence.cs",
+    "game/Main.TicketEvidence.cs"
+  ],
+  "files": [
+    {
+      "path": "game/Hud/BookingPanel.Classic.cs",
+      "sha256": "BAF352D76BB20DAF46C3F3B687C44657ED72ABB79ED52DA484F59E61F715D1C6"
+    },
+    {
+      "path": "game/Hud/BookingPanel.cs",
+      "sha256": "D9C1A8A5B2A5277B36CB45E96D2BFBE01EE886DE60AFFFDA97A2BD2681AEE872"
+    },
+    {
+      "path": "game/Hud/ClassicBookingScreen.cs",
+      "sha256": "1B963F3521B71BEB311AF8F0C7F65C290A6EDDB7AED3C157747D887F143CFB5E"
+    },
+    {
+      "path": "game/Hud/FestivalReview.cs",
+      "sha256": "F86DE7E25366875C5E1C26C832523AA7279822FA68A167E00404A862C9CB02E0"
+    },
+    {
+      "path": "game/Hud/HudKit.cs",
+      "sha256": "B0D6666603BA5CC9A159C743E747FB29FF536070A3BA09B25E0D028DEA5EE5BC"
+    },
+    {
+      "path": "game/Hud/PreparationDock.cs",
+      "sha256": "67A352BCD879CFFB43D3CA7671AE8914BF3013B63B783FD4B9FB97DEB716DD10"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "835040E7A8038DBE384FA923C82E41B98E7EF4F6805495EECB44407724D18147"
+    },
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "A6B1B9ACC9A3302327918F5EC9717733017A49612C24B045786FA09CEEEC1DAE"
+    },
+    {
+      "path": "game/Main.ClassicTickets.cs",
+      "sha256": "85849BB1A00328B97C8810AAB626CBAD700C68D621FE26CA838B11F74F4964FF"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "0ADEC50A18A4CB0DCC590CC14EB2A0A4F3A54EC51FA62E3734948F585C72C75A"
+    },
+    {
+      "path": "game/Main.HudWorkspace.cs",
+      "sha256": "11A9FA5D17562AFF9F945DB4D81CE8AC77C41B61796AC3506830C0C59B253E56"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "7F081C404A5D9FEBA262339952F2DFB0FF627DD18110B8CBED764D09D3A79ADC"
+    },
+    {
+      "path": "game/Main.PreparationDock.cs",
+      "sha256": "6F19BF6E83A4E501F345814B48748ED16843C75C01CF3412D223F4CE258A18B3"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "2400F52196C3659FA97135B2D828C781B677FF79842F9BECC76EBA22B65BDAE4"
+    },
+    {
+      "path": "game/Main.TicketEvidence.cs",
+      "sha256": "31E432D9C644F1BCD546D4810CD4956445CB030811136295BBBD1095740E5737"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs",
+      "sha256": "D3F27A9382EE2C654517EA34C0339F2B6C8DDDDEE066E3432C0814770147C701"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBooking.cs",
+      "sha256": "992247B74D9019F4125FFCE8925B1B02268056A58524140A4C3E07A65ADAC411"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalResults.cs",
+      "sha256": "508F3E287383095B6D4079165B3DDC898F643344C21C7D77C10032A58D64E525"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingIntegrationTests.cs",
+      "sha256": "4D73498EB850002578D39D65FB019D9035F40DA1D90B690006614B74EC6CE563"
+    }
+  ]
+}

@@ -18,6 +18,22 @@ public partial class Main
     private readonly List<object> _ticketJournal = [];
     private void TicketPicture(string name) => GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_ticketEvidenceOutput!, name + ".png"));
     private void TicketObserve(string name) => _ticketJournal.Add(new { name, state = _session.CapturePersistenceSnapshot(), booking = _session.CaptureClassicBookingDetails() });
+    private void ClassicCheckResultsPresentation(string context)
+    {
+        var holders = _session.CaptureClassicBookingDetails()!.TicketHolders;
+        var admitted = _session.CompletedFestivalResult!.AdmittedGuests;
+        var labels = FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.IsVisibleInTree()).ToArray();
+        ArchitectureCheck(context + "-poster-actual-tickets", labels.Single(l => l.Name == "ReviewTicketCount").Text == $"{holders} tickets · Lower Wittering".ToUpperInvariant());
+        var attendance = holders == 0 ? "No tickets were sold for this festival." : admitted == 0
+            ? $"All {holders} tickets were sold, yet nobody turned up to use one."
+            : admitted >= holders ? $"All {holders} ticket-holders made the trip" : $"{admitted} of the {holders} ticket-holders made it through the gate.";
+        ArchitectureCheck(context + "-newspaper-actual-holders", labels.Any(l => l.Text.Contains(attendance, StringComparison.Ordinal)) &&
+            (holders > 0 || labels.All(l => !l.Text.Contains("The tickets were sold", StringComparison.Ordinal))));
+        ArchitectureCheck(context + "-numbers-actual-holders", FindChildren("*", "Control", true, false).OfType<Control>()
+            .Any(c => c.IsVisibleInTree() && c.TooltipText == $"{admitted} of {holders} ticket-holders came in."));
+        ArchitectureCheck(context + "-next-festival-free-booking", FindChildren("NextFestival", "Button", true, false).OfType<Button>()
+            .Single(b => b.IsVisibleInTree()).TooltipText.Contains("Choose acts and set a ticket price before sales.", StringComparison.Ordinal));
+    }
     private void TicketClick(string name)
     {
         var button = FindChildren(name, "Button", true, false).OfType<Button>().First(b => b.IsVisibleInTree());
@@ -152,8 +168,9 @@ public partial class Main
             {
                 TicketSite(); PreparationStart(); ClassicFinish(); TicketObserve("zero-sales-real-finish");
                 ArchitectureCheck("zero-sales-does-not-end-campaign", _session.CompletedFestivalResult!.AdmittedGuests == 0 && _session.CompletedFestivalAccounts!.Reconciles);
-                ClassicNext();
+                ClassicCheckResultsPresentation("zero-sales-results");
             }
+            if (f == 98) { TicketPicture("10-zero-sales-newspaper"); ClassicNext(); }
             if (f == 100) TicketClick("ForecastContinue");
             if (f == 104)
             {
@@ -183,9 +200,10 @@ public partial class Main
                 PreparationStart(); ArchitectureCheck("start-charges-only-remaining-setup", _session.CapturePersistentCampaignState()!.CashPennies == remaining && before > remaining);
                 ClassicFinish(); TicketObserve("recovered-second-festival");
                 ArchitectureCheck("actual-recovered-accounts", _session.CompletedFestivalAccounts!.Reconciles);
-                ArchitecturePress("AccountsTab");
+                ClassicCheckResultsPresentation("recovered-results");
             }
-            if (f == 136) TicketPicture("10-actual-ticket-accounts");
+            if (f == 134) { TicketPicture("11-recovered-ticket-newspaper"); ArchitecturePress("AccountsTab"); }
+            if (f == 136) TicketPicture("12-actual-ticket-accounts");
             if (f == 140)
             {
                 File.WriteAllText(Path.Combine(_ticketEvidenceOutput!, "evidence.json"), JsonSerializer.Serialize(new { executable = OS.GetExecutablePath(), checks = _architectureChecks, journal = _ticketJournal,

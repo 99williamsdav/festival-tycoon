@@ -104,13 +104,13 @@ internal sealed partial class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _pho
         root.AddChild(menu);
         if (nextFestival is not null && _hud.Session.NextFestivalCarryOver is { } carry)
         {
-            // Completing a festival unlocks the next tier: cash, debt, reputation and owned kit come forward.
+            // Cash, debt, reputation and owned kit come forward to the next festival.
             var classic=_hud.Session.IsClassicCampaign;
             var tier = classic?1:carry.FromTier + 1;
             Button? next = null;
             next = Ui.Style(new Button { Text = "Next festival", Name = "NextFestival", MouseDefaultCursorShape = Control.CursorShape.PointingHand,
-                TooltipText = (classic?$"Classic · Festival {_hud.Session.FestivalNumber+1}: ":$"Tier {tier}: ")+
-                    $"{FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
+                TooltipText = (classic?$"Classic · Festival {_hud.Session.FestivalNumber+1}: Choose acts and set a ticket price before sales. ":
+                    $"Tier {tier}: {FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. ") +
                     $"Brings {FestivalCurrency.Format(carry.CashPennies)} cash, {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed, " +
                     "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." +
                     (!classic&&tier >= GameSession.SecondStageFromTier ? "\nThe Barn Stage opens under cover, with its own generator outside." : "") }, Ui.ButtonKind.Primary, 15, 8);
@@ -242,7 +242,7 @@ void fragment() {
         var showers = weather?.Spells.Where((spell, i) => i == 0 || weather.Spells[i - 1].EndTick != spell.StartTick).Count() ?? 0;
         // No weather snapshot on a heatwave day; the medical record says whether the day was hot.
         var heat = !rain && (session.CaptureMedical()?.IsHot ?? WeatherRules.ForTier(p.Tier) == WeatherKind.Heatwave);
-        return new ReviewFacts(result, p.Tier, FestivalTickets.Sold(p.Tier), rain, showers,
+        return new ReviewFacts(result, p.Tier, session.CaptureClassicBookingDetails()?.TicketHolders ?? FestivalTickets.Sold(p.Tier), rain, showers,
             weather?.Spells.Any(spell => spell.Intensity == RainIntensity.Downpour) == true, muddy, sets,
             p.People.ToDictionary(person => person.AgentId, person => person.Name),
             medical.Any(item => item.Id == "medical:collapse" && item.Description.Contains("wasp")),
@@ -410,7 +410,8 @@ void fragment() {
         words.AddChild(Centre(Ui.Heading(FestivalReview.FestivalName, 30)));
         var acts = facts.Sets.Select(set => set.Act).Distinct().ToArray();
         words.AddChild(Centre(Ui.Text(acts.Length == 0 ? "Line-up to be announced" : string.Join("  ·  ", acts), 15, Ui.Ink, Ui.Slab)));
-        words.AddChild(Centre(Ui.Caps($"{facts.Sold} tickets · Lower Wittering", Ui.InkMuted, 9.5f)));
+        var tickets = Centre(Ui.Caps($"{facts.Sold} tickets · Lower Wittering", Ui.InkMuted, 9.5f));
+        tickets.Name = "ReviewTicketCount"; words.AddChild(tickets);
         return poster;
     }
 

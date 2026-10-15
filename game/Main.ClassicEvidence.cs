@@ -114,7 +114,7 @@ public partial class Main
             if(frame==46)SaveWarningClick("FestivalMenu");
             if(frame==47)ArchitectureCheck("classic-menu-pointer-closes",!_hudMenu!.Visible);
             if(frame==48)ClassicFinish();
-            if(frame==56)ClassicPicture("04-first-results-next-festival");
+            if(frame==56){ClassicCheckResultsPresentation("first-results");ClassicPicture("04-first-results-next-festival");}
             if(frame==64){ClassicNext();ClassicReady();}
             if(frame==72){ClassicFinish();ClassicNext();ClassicReady();}
             if(frame==80){ClassicFinish();ClassicNext();ClassicReady();}
