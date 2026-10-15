@@ -1,0 +1,392 @@
+[
+  {
+    "seed": 1,
+    "acts": [
+      {
+        "Id": "act.bus-replacement",
+        "Genre": 1,
+        "Popularity": 6,
+        "fee": 400,
+        "talent": 5
+      },
+      {
+        "Id": "act.sixth-form-poetry",
+        "Genre": 1,
+        "Popularity": 14,
+        "fee": 1000,
+        "talent": 5
+      },
+      {
+        "Id": "act.village-hall-disco",
+        "Genre": 3,
+        "Popularity": 16,
+        "fee": 1200,
+        "talent": 5
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 14,
+      "MaximumSales": 20,
+      "OverlappingPopularity": 14
+    },
+    "actual": 19,
+    "bandFeesPennies": 2600,
+    "minimumMandatorySitePennies": 13100,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 23300,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -6700,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 2,
+    "acts": [
+      {
+        "Id": "act.dj-spreadsheet",
+        "Genre": 3,
+        "Popularity": 7,
+        "fee": 500,
+        "talent": 5
+      },
+      {
+        "Id": "act.two-men-harmonium",
+        "Genre": 0,
+        "Popularity": 8,
+        "fee": 500,
+        "talent": 39
+      },
+      {
+        "Id": "act.allotments",
+        "Genre": 1,
+        "Popularity": 10,
+        "fee": 700,
+        "talent": 32
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 13,
+      "MaximumSales": 18,
+      "OverlappingPopularity": 9
+    },
+    "actual": 17,
+    "bandFeesPennies": 1700,
+    "minimumMandatorySitePennies": 13100,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 22200,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -7800,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 3,
+    "acts": [
+      {
+        "Id": "act.neighbourhood-watch",
+        "Genre": 4,
+        "Popularity": 11,
+        "fee": 800,
+        "talent": 38
+      },
+      {
+        "Id": "act.doom-fete",
+        "Genre": 5,
+        "Popularity": 14,
+        "fee": 1000,
+        "talent": 32
+      },
+      {
+        "Id": "act.sixth-form-poetry",
+        "Genre": 1,
+        "Popularity": 14,
+        "fee": 1000,
+        "talent": 5
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 14,
+      "MaximumSales": 19,
+      "OverlappingPopularity": 13
+    },
+    "actual": 17,
+    "bandFeesPennies": 2800,
+    "minimumMandatorySitePennies": 13300,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 20900,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -9100,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 4,
+    "acts": [
+      {
+        "Id": "act.bus-replacement",
+        "Genre": 1,
+        "Popularity": 6,
+        "fee": 400,
+        "talent": 5
+      },
+      {
+        "Id": "act.dj-spreadsheet",
+        "Genre": 3,
+        "Popularity": 7,
+        "fee": 500,
+        "talent": 5
+      },
+      {
+        "Id": "act.two-men-harmonium",
+        "Genre": 0,
+        "Popularity": 8,
+        "fee": 500,
+        "talent": 39
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 12,
+      "MaximumSales": 18,
+      "OverlappingPopularity": 7
+    },
+    "actual": 16,
+    "bandFeesPennies": 1400,
+    "minimumMandatorySitePennies": 12800,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 21800,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -8200,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 5,
+    "acts": [
+      {
+        "Id": "act.parish-ceilidh",
+        "Genre": 0,
+        "Popularity": 12,
+        "fee": 900,
+        "talent": 5
+      },
+      {
+        "Id": "act.doom-fete",
+        "Genre": 5,
+        "Popularity": 14,
+        "fee": 1000,
+        "talent": 32
+      },
+      {
+        "Id": "act.daisy-diaries",
+        "Genre": 2,
+        "Popularity": 18,
+        "fee": 1400,
+        "talent": 9
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 15,
+      "MaximumSales": 20,
+      "OverlappingPopularity": 16
+    },
+    "actual": 17,
+    "bandFeesPennies": 3300,
+    "minimumMandatorySitePennies": 12900,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 20800,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -9200,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 6,
+    "acts": [
+      {
+        "Id": "act.dj-spreadsheet",
+        "Genre": 3,
+        "Popularity": 7,
+        "fee": 500,
+        "talent": 5
+      },
+      {
+        "Id": "act.neighbourhood-watch",
+        "Genre": 4,
+        "Popularity": 11,
+        "fee": 800,
+        "talent": 38
+      },
+      {
+        "Id": "act.parish-ceilidh",
+        "Genre": 0,
+        "Popularity": 12,
+        "fee": 900,
+        "talent": 5
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 13,
+      "MaximumSales": 19,
+      "OverlappingPopularity": 11
+    },
+    "actual": 15,
+    "bandFeesPennies": 2200,
+    "minimumMandatorySitePennies": 13400,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 19400,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -10600,
+    "lowestCarryCanOpen": false
+  },
+  {
+    "seed": 12,
+    "acts": [
+      {
+        "Id": "act.dj-spreadsheet",
+        "Genre": 3,
+        "Popularity": 7,
+        "fee": 500,
+        "talent": 5
+      },
+      {
+        "Id": "act.two-men-harmonium",
+        "Genre": 0,
+        "Popularity": 8,
+        "fee": 500,
+        "talent": 39
+      },
+      {
+        "Id": "act.kerry-co-op",
+        "Genre": 2,
+        "Popularity": 9,
+        "fee": 600,
+        "talent": 5
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 13,
+      "MaximumSales": 18,
+      "OverlappingPopularity": 8
+    },
+    "actual": 14,
+    "bandFeesPennies": 1600,
+    "minimumMandatorySitePennies": 13500,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 18900,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -11100,
+    "lowestCarryCanOpen": false
+  },
+  {
+    "seed": 14,
+    "acts": [
+      {
+        "Id": "act.bus-replacement",
+        "Genre": 1,
+        "Popularity": 6,
+        "fee": 400,
+        "talent": 5
+      },
+      {
+        "Id": "act.kerry-co-op",
+        "Genre": 2,
+        "Popularity": 9,
+        "fee": 600,
+        "talent": 5
+      },
+      {
+        "Id": "act.parish-ceilidh",
+        "Genre": 0,
+        "Popularity": 12,
+        "fee": 900,
+        "talent": 5
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 13,
+      "MaximumSales": 19,
+      "OverlappingPopularity": 10
+    },
+    "actual": 16,
+    "bandFeesPennies": 1900,
+    "minimumMandatorySitePennies": 13300,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 20800,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -9200,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 20260922,
+    "acts": [
+      {
+        "Id": "act.dj-spreadsheet",
+        "Genre": 3,
+        "Popularity": 7,
+        "fee": 500,
+        "talent": 5
+      },
+      {
+        "Id": "act.two-men-harmonium",
+        "Genre": 0,
+        "Popularity": 8,
+        "fee": 500,
+        "talent": 39
+      },
+      {
+        "Id": "act.daisy-diaries",
+        "Genre": 2,
+        "Popularity": 18,
+        "fee": 1400,
+        "talent": 9
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 14,
+      "MaximumSales": 19,
+      "OverlappingPopularity": 13
+    },
+    "actual": 16,
+    "bandFeesPennies": 2400,
+    "minimumMandatorySitePennies": 13000,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 20600,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -9400,
+    "lowestCarryCanOpen": true
+  },
+  {
+    "seed": 20261015,
+    "acts": [
+      {
+        "Id": "act.neighbourhood-watch",
+        "Genre": 4,
+        "Popularity": 11,
+        "fee": 800,
+        "talent": 38
+      },
+      {
+        "Id": "act.damp-cardigans",
+        "Genre": 0,
+        "Popularity": 15,
+        "fee": 1100,
+        "talent": 15
+      },
+      {
+        "Id": "act.daisy-diaries",
+        "Genre": 2,
+        "Popularity": 18,
+        "fee": 1400,
+        "talent": 9
+      }
+    ],
+    "estimate": {
+      "MinimumSales": 15,
+      "MaximumSales": 20,
+      "OverlappingPopularity": 16
+    },
+    "actual": 16,
+    "bandFeesPennies": 3300,
+    "minimumMandatorySitePennies": 12900,
+    "starterCashPennies": 20000,
+    "starterAfterMinimumPennies": 19800,
+    "lowestExistingCarryPennies": -10000,
+    "lowestCarryAfterMinimumPennies": -10200,
+    "lowestCarryCanOpen": false
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "sourceCommit": "4c1f82cf267a2cf50bfc76fb7908715faeaa330d",
+  "scope": "Immutable Survival state/hash/ordered-events/RNG before Classic booking/ticket phases",
+  "boundaries": 63,
+  "excludedFields": [],
+  "repinned": false,
+  "tests": 2,
+  "testFailures": 0,
+  "pins": [
+    {
+      "path": "reports/evidence/classic-loop/survival-before-checkpoint.json",
+      "sha256": "09C1031E21DA6E77F390D462B0D829702C91E5B482C29F9EC47117967E7F3B73"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+      "sha256": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+      "sha256": "3F4279928EB3EE94FF22AE8314367571AB29645E5B5583E0BAF35298D2510DA7"
+    },
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "sha256": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418"
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "sha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-companion.json",
+      "sha256": "12E77C5DB21EB3D9A8E530DD493355F1DFEC82BEB21BC1C43A05F9E13BC1343E"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-save-limitation.json",
+      "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline.json",
+      "sha256": "272848B02CD14D14059EE903C82DE3D0EFCD4CE7DE54A0C5684FD2D2E668DC0A"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-consequence-baseline.json",
+      "sha256": "278EB7215AAABD62AD08B6EC2E5EE9BB9A476B68BC15981F34758526C7B3F969"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-save-limitation.json",
+      "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+    }
+  ]
+}

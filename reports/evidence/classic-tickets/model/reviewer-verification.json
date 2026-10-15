@@ -1,0 +1,141 @@
+{
+  "base": "4c1f82cf267a2cf50bfc76fb7908715faeaa330d",
+  "verifiedPins": [
+    {
+      "path": "briefs/classic-booking-ticket-phases.md",
+      "expected": "156F9EC3E78382E072A5B461053DF775FC4A08893CCD39C25CD1BD037C92A31E",
+      "actual": "156F9EC3E78382E072A5B461053DF775FC4A08893CCD39C25CD1BD037C92A31E",
+      "matches": true
+    },
+    {
+      "path": "briefs/results/classic-ticket-audit-plan.md",
+      "expected": "1C4BE6CA6D59753D02CC26BAF7398ACE997963CA476F0E8D1C97848DBD4DBBBD",
+      "actual": "1C4BE6CA6D59753D02CC26BAF7398ACE997963CA476F0E8D1C97848DBD4DBBBD",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicTicketDemand.cs",
+      "expected": "9D1E2A2A0130A69577A86F2249D77B520C8522A363816E0839E1872431BCA9C7",
+      "actual": "9D1E2A2A0130A69577A86F2249D77B520C8522A363816E0839E1872431BCA9C7",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBookingTerms.cs",
+      "expected": "DA9F3B1C51AB89D434B897A4DF7C99165CF5BE3566075AF34F0F5CD683E9F847",
+      "actual": "DA9F3B1C51AB89D434B897A4DF7C99165CF5BE3566075AF34F0F5CD683E9F847",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicTicketDemandTests.cs",
+      "expected": "F41212B7A2A6EFB478B368031DCFADCF347742D2A19A13E0F5580815FE2B9AB6",
+      "actual": "F41212B7A2A6EFB478B368031DCFADCF347742D2A19A13E0F5580815FE2B9AB6",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingTermsTests.cs",
+      "expected": "4F360CBD6EC96718A5221905AA9019A4E8F086E20321B3E836A90DFAD95D9EA4",
+      "actual": "4F360CBD6EC96718A5221905AA9019A4E8F086E20321B3E836A90DFAD95D9EA4",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before-checkpoint.json",
+      "expected": "09C1031E21DA6E77F390D462B0D829702C91E5B482C29F9EC47117967E7F3B73",
+      "actual": "09C1031E21DA6E77F390D462B0D829702C91E5B482C29F9EC47117967E7F3B73",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+      "expected": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4",
+      "actual": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+      "expected": "3F4279928EB3EE94FF22AE8314367571AB29645E5B5583E0BAF35298D2510DA7",
+      "actual": "3F4279928EB3EE94FF22AE8314367571AB29645E5B5583E0BAF35298D2510DA7",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "expected": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418",
+      "actual": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "expected": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E",
+      "actual": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-companion.json",
+      "expected": "12E77C5DB21EB3D9A8E530DD493355F1DFEC82BEB21BC1C43A05F9E13BC1343E",
+      "actual": "12E77C5DB21EB3D9A8E530DD493355F1DFEC82BEB21BC1C43A05F9E13BC1343E",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-save-limitation.json",
+      "expected": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "actual": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline.json",
+      "expected": "272848B02CD14D14059EE903C82DE3D0EFCD4CE7DE54A0C5684FD2D2E668DC0A",
+      "actual": "272848B02CD14D14059EE903C82DE3D0EFCD4CE7DE54A0C5684FD2D2E668DC0A",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-consequence-baseline.json",
+      "expected": "278EB7215AAABD62AD08B6EC2E5EE9BB9A476B68BC15981F34758526C7B3F969",
+      "actual": "278EB7215AAABD62AD08B6EC2E5EE9BB9A476B68BC15981F34758526C7B3F969",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-save-limitation.json",
+      "expected": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "actual": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "matches": true
+    }
+  ],
+  "evidenceHashes": [
+    {
+      "path": "reports/evidence/classic-tickets/model/review-checkpoint.json",
+      "sha256": "5EDA50C9A4325FBCA20898FB887D8CC4E1E349C2CFE08101659CDEFF78DADD93"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/model/calibration.json",
+      "sha256": "A7300997015F21DA200E2754C0B4167AF1007329A03EFF1CA16BAF8ADB3C8F7A"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/model/initial-calibration-reach-5500.json",
+      "sha256": "AFF0C4AEF05B2138E0ADB6F60B82AE60C79F065F5EDCC764EB2AC722C09E2ED4"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/model/calibration-probe.cs",
+      "sha256": "3A55D6F173A451D53A61323C31A44B2F183EEF50C62E315EA03EF962906BBA98"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/model/builder-tests.txt",
+      "sha256": "F1EAE2D30A0B5E0B5083DDF52615B67107E19A77863808B1D126F9159071BC7E"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/before/checkpoint.json",
+      "sha256": "5BCE9538CA0FEA45F4C8E437D8EE62B419A3BD56FE120E9E9A73E5CA1D9CA208"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/before/survival-tests.txt",
+      "sha256": "1AD2163985AE6F949B132345FCC4ED42FD8303B83DD134710CFA2D32D94710D1"
+    },
+    {
+      "path": "tests/Festival.Tests/bin/Debug/net8.0/Festival.Tests.dll",
+      "sha256": "33C70C6C2466D258E08B8D2383FAA1B37D8224C65DB20CF7D6509533B7590D7B"
+    },
+    {
+      "path": "tests/Festival.Tests/bin/Debug/net8.0/Festival.Simulation.dll",
+      "sha256": "CFAF5818B22605655C77F7662E88CE46798F24A1784EC8FE56303B8148C14EB3"
+    }
+  ],
+  "focusedTestResult": "9 passed; 0 failed; 493ms; independent no-build/no-restore execution, 15 October 2026",
+  "command": "dotnet test tests/Festival.Tests/Festival.Tests.csproj --no-build --no-restore -- --filter 'FullyQualifiedName~ClassicTicketDemandTests|FullyQualifiedName~ClassicBookingTermsTests'"
+}

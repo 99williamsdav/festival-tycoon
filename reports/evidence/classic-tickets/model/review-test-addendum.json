@@ -1,0 +1,10 @@
+{
+  "scope": "Two additional regression tests requested by independent review; product source unchanged",
+  "files": [
+    {
+      "path": "tests/Festival.Tests/ClassicBookingTermsTests.cs",
+      "sha256": "76E3961A34BE862185C60618A133688647C9F261320D6AA3A4FE9D4211346687"
+    }
+  ],
+  "tests": 11
+}

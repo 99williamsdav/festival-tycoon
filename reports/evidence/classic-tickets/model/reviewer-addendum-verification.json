@@ -1,0 +1,38 @@
+[
+  {
+    "path": "briefs/classic-booking-ticket-phases.md",
+    "expected": "156F9EC3E78382E072A5B461053DF775FC4A08893CCD39C25CD1BD037C92A31E",
+    "actual": "156F9EC3E78382E072A5B461053DF775FC4A08893CCD39C25CD1BD037C92A31E",
+    "matches": true
+  },
+  {
+    "path": "briefs/results/classic-ticket-audit-plan.md",
+    "expected": "1C4BE6CA6D59753D02CC26BAF7398ACE997963CA476F0E8D1C97848DBD4DBBBD",
+    "actual": "1C4BE6CA6D59753D02CC26BAF7398ACE997963CA476F0E8D1C97848DBD4DBBBD",
+    "matches": true
+  },
+  {
+    "path": "src/Festival.Simulation/ClassicTicketDemand.cs",
+    "expected": "9D1E2A2A0130A69577A86F2249D77B520C8522A363816E0839E1872431BCA9C7",
+    "actual": "9D1E2A2A0130A69577A86F2249D77B520C8522A363816E0839E1872431BCA9C7",
+    "matches": true
+  },
+  {
+    "path": "src/Festival.Simulation/ClassicBookingTerms.cs",
+    "expected": "DA9F3B1C51AB89D434B897A4DF7C99165CF5BE3566075AF34F0F5CD683E9F847",
+    "actual": "DA9F3B1C51AB89D434B897A4DF7C99165CF5BE3566075AF34F0F5CD683E9F847",
+    "matches": true
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicTicketDemandTests.cs",
+    "expected": "F41212B7A2A6EFB478B368031DCFADCF347742D2A19A13E0F5580815FE2B9AB6",
+    "actual": "F41212B7A2A6EFB478B368031DCFADCF347742D2A19A13E0F5580815FE2B9AB6",
+    "matches": true
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicBookingTermsTests.cs",
+    "expected": "76E3961A34BE862185C60618A133688647C9F261320D6AA3A4FE9D4211346687",
+    "actual": "76E3961A34BE862185C60618A133688647C9F261320D6AA3A4FE9D4211346687",
+    "matches": true
+  }
+]
