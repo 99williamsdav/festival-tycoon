@@ -158,13 +158,14 @@ public sealed partial class GameSession
             yield return RunCell(alongX, along, across);
     }
 
+    public bool GroundCoverAvailable => (_preparation?.Tier??1)>=GroundCoverRules.FromTier || IsClassicCampaign&&IsRainyFestival;
     private CommandResult? ValidateGroundCover(EntityId? target, GroundCoverCommand command)
     {
         if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Straw and matting are laid before opening.");
         if (!Enum.IsDefined(command.Action) || !new TraversalGrid().Contains(command.From) || !new TraversalGrid().Contains(command.To))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown ground cover.");
-        if (p.Tier < GroundCoverRules.FromTier) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Straw and matting come with Tier 2's wet weather.");
+        if (!GroundCoverAvailable) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Straw and matting come with Tier 2's wet weather.");
         var blocked = CoverBlocked(p, Stages, _equipment, command.Action);
         var straw = (p.StrawCells ?? []).ToHashSet();
         var matted = (p.MatPanels ?? []).SelectMany(panel => panel.Cells()).ToHashSet();
@@ -228,7 +229,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedGroundCover(PreparationSnapshot p, SessionPersistenceSnapshot s)
     {
         if (p.StrawCells is null && p.MatPanels is null) return null;
-        if (p.Tier < GroundCoverRules.FromTier || p.StrawCells is { Length: 0 } || p.MatPanels is { Length: 0 } || (p.MatPanels ?? []).Any(panel => panel is null))
+        if (p.Tier < GroundCoverRules.FromTier && !(SavedClassic(s)&&SavedWeatherKind(s)==WeatherKind.Rain) || p.StrawCells is { Length: 0 } || p.MatPanels is { Length: 0 } || (p.MatPanels ?? []).Any(panel => panel is null))
             return "Ground cover invalid for this festival.";
         var straw = p.StrawCells ?? [];
         if (straw.Where((cell, index) => index > 0 && cell <= straw[index - 1]).Any()) return "Straw cells must be in ascending order without repeats.";

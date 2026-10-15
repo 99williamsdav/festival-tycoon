@@ -428,7 +428,7 @@ public sealed partial class GameSession
         {
             // Trample is saved as is (0 for fresh), so check it on its own scale.
             if (ValidateGroundLayer(strawCells, g.Trample!.Select(value => value + 1).ToArray(), GroundCoverRules.TrampleMaximum + 1, "straw") is { } strawError) return strawError;
-            if (prep.Tier < GroundCoverRules.FromTier) return "Straw lies on a festival without it.";
+            if (prep.Tier < GroundCoverRules.FromTier && !(SavedClassic(s)&&SavedWeatherKind(s)==WeatherKind.Rain)) return "Straw lies on a festival without it.";
         }
         // Everything laid in Build is down from opening; stewards may have spread more.
         if (prep.Status != PreparationStatus.Preparing && prep.StrawCells is { } planned && !planned.ToHashSet().IsSubsetOf(g.StrawCells ?? []))

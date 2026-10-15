@@ -104,6 +104,7 @@ public sealed partial class GameSession
             (20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0)) * (BringsOwnBottle(id) ? ByobThirstQuarters : 4) / 4,
             IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, HungerPerSecond, 80 / ToiletNeedGainEveryTicks(id));
         if (IsRainyFestival) growth = growth with { Thirst = growth.Thirst * (5 - WeatherRules.RainThirstSkipOf5) / 5, Heat = 0 };
+        if(IsClassicCampaign&&Weather!=WeatherKind.Heatwave)growth=growth with{Heat=0};
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed, WetnessOf(id));
         return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options, CommittedPastHorizonTicks(id), RainOutlookFor(id));
     }

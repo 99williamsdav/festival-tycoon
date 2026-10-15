@@ -1,0 +1,15 @@
+warning: --no-progress is deprecated; use --progress off instead.
+Telemetry
+---------
+Microsoft Testing Platform collects usage data in order to help us improve your experience. The data is collected by Microsoft and are not shared with anyone.
+You can opt-out of telemetry by setting the TESTINGPLATFORM_TELEMETRY_OPTOUT or DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about Microsoft Testing Platform telemetry: https://aka.ms/testingplatform/telemetry
+Test Parallelization enabled for C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (Workers: 20, Scope: MethodLevel)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 11
+  failed: 0
+  succeeded: 11
+  skipped: 0
+  duration: 8s 497ms

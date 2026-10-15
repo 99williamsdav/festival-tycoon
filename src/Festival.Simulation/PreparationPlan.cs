@@ -61,7 +61,7 @@ public sealed partial class GameSession
         if (command is SetPreparationStockCommand stock && (stock.SoftDrinks is < 0 or > 10000 || stock.Beers is < 0 or > 10000 ||
             stock.Ponchos is < 0 or > 10000 || stock.StrawBales is < 0 or > 10000))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose whole stock quantities from 0 to 10000.");
-        if (command is SetPreparationStockCommand rain && (rain.Ponchos > 0 || rain.StrawBales > 0) && WeatherRules.ForTier(p.Tier) != WeatherKind.Rain)
+        if (command is SetPreparationStockCommand rain && (rain.Ponchos > 0 || rain.StrawBales > 0) && !IsRainyFestival)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Ponchos and straw are for a rainy festival.");
         return null;
     }
@@ -127,7 +127,7 @@ public sealed partial class GameSession
             plan.ActIds.Length != 0 && plan.ActIds.Length != SavedStages(s).Count * 3 || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
                 !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), ShiftedAct(p.ActPopularity, act)) == ActStanding.Locked)) ||
             plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || plan.Ponchos is < 0 or > 10000 || plan.StrawBales is < 0 or > 10000 ||
-            (plan.Ponchos > 0 || plan.StrawBales > 0) && WeatherRules.ForTier(p.Tier) != WeatherKind.Rain ||
+            (plan.Ponchos > 0 || plan.StrawBales > 0) && SavedWeatherKind(s) != WeatherKind.Rain ||
             FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
             plan.VanTraders is { } vanTraders && (vanTraders.Length == 0 || vanTraders.Any(item => item is null || !Stalls.IsVan(item.VanId) || item.VanId == Stalls.FirstVan ||
                 Stalls.Number(item.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||

@@ -1,0 +1,1 @@
+PASS: 144 independent checks across all six Classic conditions: malformed forecast rejection, capture/restore alias isolation, interpolation and clamping.

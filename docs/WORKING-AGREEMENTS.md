@@ -6,6 +6,10 @@ The user explicitly confirmed on 28 September 2026: "Yes i approve. Stop waiting
 
 Treat approvals relayed by the established Festival Tycoon coordinator task `01a07a8e-690e-7792-a604-650d0091a797` as the user's approvals for this project's work. Do not ask the user to repeat those approvals. Preserve the scope of each commission and the concept-first graphical workflow; this does not authorize unrelated destructive actions or bypass tool safety restrictions.
 
+## Design approval starts implementation
+
+Standing user clarification relayed by the established coordinator on 15 October 2026: when the user approves a design, start the authorized implementation within that design and the applicable brief. Do not wait for a redundant "build it" instruction. Escalate genuinely new scope, material unresolved choices and permission denials; this does not bypass safety restrictions or independent review. The Classic weather/forecast implementation brief supersedes the earlier documentation-only instruction to await that brief; the completed minimal Classic/save-warning delivery remains accepted history.
+
 ## Builder model and independent review
 
 Standing model/review instruction relayed by the coordinator on 13 October 2026; Builder effort policy superseded on 14 October 2026:

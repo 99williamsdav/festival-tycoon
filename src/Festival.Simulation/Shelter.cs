@@ -95,7 +95,7 @@ public sealed partial class GameSession
             lifecycle.Attempts.Any(a=>a.AttemptId==lifecycle.CurrentAttemptId&&a.Status==(int)EditionAttemptStatus.Failed)&&
             lifecycle.Casualties.Count(c=>c.AttemptId==lifecycle.CurrentAttemptId)==1&&
             lifecycle.Casualties.Any(c=>c.AttemptId==lifecycle.CurrentAttemptId&&c.Tick==s.CurrentTick);
-        if (p.Status != PreparationStatus.Running&&!frozenFatal || WeatherRules.ForTier(p.Tier) != WeatherKind.Rain) return "Sheltering outside a rainy festival day.";
+        if (p.Status != PreparationStatus.Running&&!frozenFatal || SavedWeatherKind(s) != WeatherKind.Rain) return "Sheltering outside a rainy festival day.";
         var spots = ShelterLayout(p.BuildPlacements ?? []).Spots.Select(spot => spot.Cell).ToHashSet();
         var places = new HashSet<GridCell>();
         foreach (var agent in sheltering)

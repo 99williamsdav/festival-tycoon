@@ -6,7 +6,7 @@ namespace Festival.Simulation;
 public enum WeatherKind { Heatwave, Rain, Mild }
 
 /// <summary>How hard it's raining: B, heavy showers, is the norm; C, a downpour, is rare.</summary>
-public enum RainIntensity { Dry, Heavy, Downpour }
+public enum RainIntensity { Dry, Heavy, Downpour, Showers }
 
 /// <summary>One shower, in ticks from opening.</summary>
 public sealed record WeatherSpell(long StartTick, long EndTick, RainIntensity Intensity);
@@ -20,6 +20,8 @@ public sealed record WeatherSnapshot(int Version, WeatherKind Kind, WeatherSpell
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public int StrawBales { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ClassicForecast? ClassicForecast { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public StrawJob? StrawJob { get; init; }
 }
@@ -44,13 +46,13 @@ public static class WeatherRules
     public const int DownpourFromTicks = 6 * FestivalMinuteTicks, DownpourToTicks = 10 * FestivalMinuteTicks;
 
     /// <summary>Wetness a person out in it gains each second, of 10,000.</summary>
-    public static int SoakPerSecond(RainIntensity rain) => rain switch { RainIntensity.Heavy => 250, RainIntensity.Downpour => 500, _ => 0 };
+    public static int SoakPerSecond(RainIntensity rain) => rain switch { RainIntensity.Showers => 100, RainIntensity.Heavy => 250, RainIntensity.Downpour => 500, _ => 0 };
     /// <summary>Drying each second: slowly under cover while it rains, quicker once it stops.</summary>
     public const int DryUnderCoverPerSecond = 50, DryInTheOpenPerSecond = 100;
     /// <summary>Wetness from which a guest looks soaked.</summary>
     public const int SoakedFrom = 4_000;
     /// <summary>Satisfaction a guest loses each second out in the rain, before prissiness.</summary>
-    public static int RainLossPerSecond(RainIntensity rain) => rain switch { RainIntensity.Heavy => 2, RainIntensity.Downpour => 5, _ => 0 };
+    public static int RainLossPerSecond(RainIntensity rain) => rain switch { RainIntensity.Showers => 1, RainIntensity.Heavy => 2, RainIntensity.Downpour => 5, _ => 0 };
     /// <summary>And for being wet through, in or out of it: up to 2 more a second.</summary>
     public const int WetLossStep = 5_000;
     public static int WetLossPerSecond(int wetness) => wetness / WetLossStep;
@@ -68,7 +70,7 @@ public static class WeatherRules
     /// (<see cref="FanKeenness"/>). Being wet hurts more the wetter they are. A poncho wearer never feels it.
     /// </remarks>
     public static long WetDiscomfort(int wetness) => (long)wetness * wetness / 40_000;
-    public static long ExposedDiscomfort(RainIntensity rain) => rain switch { RainIntensity.Heavy => 6_000, RainIntensity.Downpour => 14_000, _ => 0 };
+    public static long ExposedDiscomfort(RainIntensity rain) => rain switch { RainIntensity.Showers => 2_000, RainIntensity.Heavy => 6_000, RainIntensity.Downpour => 14_000, _ => 0 };
     /// <summary>Keenness on an act on now (0–100) from which a guest is a fan and puts up with the rain.</summary>
     public const int FanKeenness = 80;
 
@@ -85,7 +87,7 @@ public static class WeatherRules
     /// The ground: rain each ground step on open grass, and what soaks away. Grass drinks a heavy shower; trampled
     /// ground, and the odd hollow, can't, so puddles form where people walk.
     /// </summary>
-    public static int RainOnGround(RainIntensity rain) => rain switch { RainIntensity.Heavy => 3, RainIntensity.Downpour => 6, _ => 0 };
+    public static int RainOnGround(RainIntensity rain) => rain switch { RainIntensity.Showers => 1, RainIntensity.Heavy => 3, RainIntensity.Downpour => 6, _ => 0 };
     public const int GrassDrain = 4;
     /// <summary>Wear past which the ground is trampled enough to churn under feet while it rains.</summary>
     public const int TrampledWear = 60;
@@ -108,7 +110,7 @@ public sealed partial class GameSession
     public WeatherSnapshot? CaptureWeather()
     {
         if (_weather is not { } w) return null;
-        return w with { Spells = w.Spells.ToArray(), WetIds = _wetness.Keys.ToArray(), Wetness = _wetness.Values.ToArray() };
+        return w with { ClassicForecast=CaptureClassicForecast(), Spells = w.Spells.ToArray(), WetIds = _wetness.Keys.ToArray(), Wetness = _wetness.Values.ToArray() };
     }
 
     internal string? WeatherCanonicalJson
@@ -167,6 +169,15 @@ public sealed partial class GameSession
     /// <summary>Sets the tier's weather up: rain from Tier 2, where nobody heats up and the bar sells ponchos.</summary>
     private static void SetUpWeather(GameSession session, ulong seed, int tier)
     {
+        if(session.IsClassicCampaign)
+        {
+            var (forecast,rain)=ClassicWeatherForecast(session.CampaignSeed,session.FestivalNumber,session.PreparedEditionDurationTicks);
+            session._weather=new(1,forecast.Weather,rain,[],[]){ClassicForecast=forecast};
+            session._wetness.Clear();
+            session.MedicalView=session.MedicalView! with {IsHot=forecast.Weather==WeatherKind.Heatwave,
+                Evidence=[new("medical:classic-weather",0,forecast.Summary+" "+forecast.PlanningAdvice)]};
+            return;
+        }
         session._weather = NewWeather(seed, tier, session.PreparedEditionDurationTicks,session.Identity.Ruleset);
         session._wetness.Clear();
         if (session._weather is not null) session.MedicalView = session.MedicalView! with { IsHot = false,
@@ -270,7 +281,7 @@ public sealed partial class GameSession
     private void RestoreWeather(WeatherSnapshot? snapshot)
     {
         _wetness.Clear();
-        _weather = snapshot is null ? null : snapshot with { Spells = snapshot.Spells.ToArray(), WetIds = [], Wetness = [] };
+        _weather = snapshot is null ? null : snapshot with { ClassicForecast=snapshot.ClassicForecast is{} f?f with{Temperatures=f.Temperatures.ToArray()}:null, Spells = snapshot.Spells.ToArray(), WetIds = [], Wetness = [] };
         for (var i = 0; i < (snapshot?.WetIds.Length ?? 0); i++) _wetness[snapshot!.WetIds[i]] = snapshot.Wetness[i];
         _weatherVersion++;
     }
@@ -282,14 +293,29 @@ public sealed partial class GameSession
     private static string? ValidatePersistedWeather(SessionPersistenceSnapshot s)
     {
         if (s.Preparation is not { } p) return s.Weather is null ? null : "Weather without a festival.";
-        var kind = CampaignRulesProfile.For(s.Identity!.Ruleset).WeatherForTier(p.Tier);
-        if (kind == WeatherKind.Heatwave) return s.Weather is null ? null : "This festival has no rain.";
+        var kind = SavedWeatherKind(s);
+        if (!SavedClassic(s) && kind == WeatherKind.Heatwave) return s.Weather is null ? null : "This festival has no rain.";
         if (s.Weather is not { } w) return "A rainy festival's weather is missing.";
         if (w.Version != 1 || w.Kind != kind || w.Spells is null || w.WetIds is null || w.Wetness is null || w.WetIds.Length != w.Wetness.Length ||
             w.Spells.Any(spell => spell is null)) return "Weather state shape invalid.";
-        if(kind==WeatherKind.Mild&&(w.Spells.Length!=0||w.WetIds.Length!=0||w.StrawBales!=0||w.StrawJob is not null))return "The fixed mild Classic festival must remain dry.";
+        if(kind!=WeatherKind.Rain&&(w.Spells.Length!=0||w.WetIds.Length!=0||w.StrawBales!=0||w.StrawJob is not null))return "A dry festival must remain dry.";
         var day = DayTicksFor(SavedStages(s));
-        if (!w.Spells.SequenceEqual(kind==WeatherKind.Mild?[]:RainForecast(s.CampaignSeed, p.Tier, day))) return "The showers differ from the day's forecast.";
+                WeatherSpell[] expected;
+        if(SavedClassic(s))
+        {
+            var generated=ClassicWeatherForecast(s.CampaignSeed,s.CampaignPlanning!.EditionNumber,day);
+            var f=w.ClassicForecast;
+            if(f is null||f.Version!=generated.Forecast.Version||f.Conditions!=generated.Forecast.Conditions||
+                f.Temperatures is null||!f.Temperatures.SequenceEqual(generated.Forecast.Temperatures))
+                return "Classic temperature forecast differs from its seeded schedule.";
+            expected=generated.Rain;
+        }
+        else
+        {
+            if(w.ClassicForecast is not null)return "Classic forecast on a Survival festival.";
+            expected=RainForecast(s.CampaignSeed,p.Tier,day);
+        }
+        if (!w.Spells.SequenceEqual(expected)) return "The showers differ from the day's forecast.";
         var roster = p.People.ToDictionary(person => person.AgentId);
         for (var i = 0; i < w.WetIds.Length; i++)
         {

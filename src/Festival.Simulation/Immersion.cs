@@ -423,7 +423,7 @@ public sealed partial class GameSession
 if (m.Purchases.Select(p=>p.Id).Distinct().Count()!=m.Purchases.Length || m.Purchases.Any(p=>!Enum.IsDefined(p.Product) || !m.People.Any(n=>n.AgentId==p.AgentId) || p.PricePennies!=SavedPrice(p) || p.CostPennies!=ImmersionCost(p.Product) || p.Tick<0 || p.Tick>s.CurrentTick || p.Entries.Sum(e=>e.AmountPennies)!=0) || m.Purchases.Any(p=>p.VendorId is { } at && (Stalls.Number(at)<2 || !prep.BuildPlacements.Any(b=>b.Id==at) || !SavedSells(prep,at,p.Product)) || !vendors.Any(v=>v.Id==Stalls.Of(p)) || !SavedSells(prep,Stalls.Of(p),p.Product) || p.Product.IsFood() && prep.Plan is not { Committed: true }) || m.SoftStock!=(m.StockPurchased?prep.Plan?.SoftDrinks??40:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.SoftDrink) ||
             m.PonchoStock!=(m.StockPurchased?prep.Plan?.Ponchos??0:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.Poncho) || m.PonchoStock<0 ||
             m.Purchases.Where(p=>p.Product==ImmersionProduct.Poncho).GroupBy(p=>p.AgentId).Any(g=>g.Count()>1 || prep.People.Single(n=>n.AgentId==g.Key).Role!=ProtectedPersonRole.Guest) ||
-            m.Purchases.Any(p=>p.Product==ImmersionProduct.Poncho) && WeatherRules.ForTier(prep.Tier)!=WeatherKind.Rain ||
+            m.Purchases.Any(p=>p.Product==ImmersionProduct.Poncho) && SavedWeatherKind(s)!=WeatherKind.Rain ||
             m.People.Any(p=>p.Held?.Product==ImmersionProduct.Poncho) || m.BeerStock!=(m.StockPurchased?prep.Plan?.Beers??32:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.Beer) || Math.Min(m.SoftStock,m.BeerStock)<0 || vendors.Any(v=>v.Queue.Any(id=>!m.People.Any(p=>p.AgentId==id && p.VendorId==v.Id)))) return "Immersion stock/transactions/FIFO invalid.";
         return null;
     }

@@ -799,7 +799,7 @@ public sealed partial class GameSession
             : PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : IsClassicCampaign
-            ? $"In fixed mild conditions {victim.Name} died after untreated dehydration; thirst {_persons[victim.Id].Thirst}/10000; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
+            ? $"In {Weather.ToString().ToLowerInvariant()} conditions {victim.Name} died after untreated dehydration; thirst {_persons[victim.Id].Thirst}/10000; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
         _medical = m with { Fatal = true };
         MedicalEvent("medical:death", cause);
@@ -813,7 +813,7 @@ public sealed partial class GameSession
             new TerrainCellOverride(new(cell.X, cell.Z), (GroundSurface)cell.Surface, cell.IsWalkable, cell.CostPermille, cell.ElevationMillimetres, cell.SlopePermille))) : null;
         if (s.Facilities?.Taps is not { } points || points.Any(point => point is null)) return "Saved facilities have no taps.";
         var extraTaps = points.Where(point => point.Id != "water.main").ToArray();
-        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || m.IsHot != (CampaignRulesProfile.For(s.Identity!.Ruleset).WeatherForTier(p.Tier) == WeatherKind.Heatwave) || m.Needs is null ||
+        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || m.IsHot != (SavedWeatherKind(s) == WeatherKind.Heatwave) || m.Needs is null ||
             m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : FestivalTickets.Sold(p.Tier) + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||

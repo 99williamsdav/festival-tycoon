@@ -42,6 +42,8 @@ public sealed partial class GameSession
             var tier=_preparation?.Tier??1;
             if(_festivalDefinition is null||_festivalDefinition.Tier!=tier||_definitionTrial!=_pondStageTrial||_definitionRuleset!=_identity.Ruleset)
             {_definitionTrial=_pondStageTrial;_definitionRuleset=_identity.Ruleset;_festivalDefinition=CampaignRulesProfile.For(_identity.Ruleset).Festival(tier,_pondStageTrial);}
+            if(IsClassicCampaign&&_weather is not null&&_festivalDefinition.Weather!=Weather)
+                _festivalDefinition=_festivalDefinition with{Weather=Weather};
             return _festivalDefinition;
         }
     }

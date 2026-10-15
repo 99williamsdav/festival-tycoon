@@ -52,17 +52,17 @@ public sealed class ClassicCampaignTests
     }
 
     [TestMethod]
-    public void ClassicHasApprovedMildDefinitionAndStrictIndependentIdentity()
+    public void ClassicHasSeededWeatherDefinitionAndStrictIndependentIdentity()
     {
         var s=GameSession.CreateClassicCampaign(20260922);
         Assert.AreEqual(CampaignIdentity.ClassicManagement,s.Identity);
-        Assert.AreEqual(WeatherKind.Mild,s.CurrentFestival.Weather);
+        Assert.AreEqual(s.CaptureClassicForecast()!.Weather,s.CurrentFestival.Weather);
         Assert.IsNull(s.CurrentFestival.Challenge);
         Assert.AreEqual(1,s.Stages.Count);
         Assert.AreEqual(25,s.CurrentFestival.Attendance);
         Assert.AreEqual(new IncidentTimingParameters(3200,1600,4800,4800,4800,7200,9600),s.IncidentTiming);
-        Assert.IsFalse(s.CaptureMedical()!.IsHot);
-        Assert.AreEqual(0,s.CaptureWeather()!.Spells.Length);
+        Assert.AreEqual(s.Weather==WeatherKind.Heatwave,s.CaptureMedical()!.IsHot);
+        CollectionAssert.AreEqual(GameSession.ClassicWeatherForecast(s.CampaignSeed,1,s.PreparedEditionDurationTicks).Rain,s.CaptureWeather()!.Spells);
         Assert.AreEqual(0,s.CaptureClassicHistory()!.CompletedFestivals.Length);
         RoundTrip(s);
         var snapshot=s.CapturePersistenceSnapshot();
@@ -78,6 +78,7 @@ public sealed class ClassicCampaignTests
         for(var number=1;number<=4;number++)
         {
             Assert.AreEqual(number,s.FestivalNumber);
+            CollectionAssert.AreEqual(GameSession.ClassicWeatherForecast(s.CampaignSeed,number,s.PreparedEditionDurationTicks).Rain,s.CaptureWeather()!.Spells);
             Assert.AreEqual(1,s.CurrentFestival.Tier);
             Assert.AreEqual(PreparationStatus.Preparing,s.PreparedStatus);
             Assert.AreEqual(0L,s.CurrentTick);
