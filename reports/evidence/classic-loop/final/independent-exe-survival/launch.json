@@ -1,0 +1,6 @@
+{
+  "Executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-loop-2026-10-15/FestivalTycoon.exe",
+  "Arguments": "--fixed-fps 30 --quit-after 260 --log-file \"C:/Projects/festival-tycoon/reports/evidence/classic-loop/final/independent-exe-survival/runtime.log\" -- --capture-survival-architecture \"C:/Projects/festival-tycoon/reports/evidence/classic-loop/final/independent-exe-survival\" --capture-size 1280x720",
+  "ExitCode": 0,
+  "ProcessId": 8440
+}

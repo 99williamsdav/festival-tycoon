@@ -1,0 +1,25 @@
+{
+  "copiedExecutable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-loop-2026-10-15/FestivalTycoon.exe",
+  "classic": {
+    "checks": 101,
+    "failed": 0,
+    "exit": 0,
+    "pngs": 9,
+    "exitProvenance": "Direct GUI launch followed by retained live Process handle, WaitForExit and observed ExitCode0"
+  },
+  "survival": {
+    "checks": 63,
+    "failed": 0,
+    "exit": 0,
+    "pngs": 8,
+    "runtimeExecutable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-loop-2026-10-15/FestivalTycoon.exe"
+  },
+  "saveWarning": {
+    "checks": 24,
+    "failed": 0,
+    "exit": 0,
+    "pngs": 4
+  },
+  "survivalImmutableDiffExit": 0,
+  "limitation": "Scripted native diagnostics, explicit overdue-medical death injections, no broad manual QA or performance claim."
+}
