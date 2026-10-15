@@ -1,0 +1,15 @@
+{
+  "base": "546e132dcc6d2bd25dce99cdc475720a68e957b5",
+  "scope": "Pure pre-opening contract journal, no session/UI integration",
+  "files": [
+    {
+      "path": "src/Festival.Simulation/ClassicBookingLedger.cs",
+      "sha256": "882E64D426E1E954E3927255FC2E545AE4FC40474855C1BC8939E7A5CFFE174E"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingLedgerTests.cs",
+      "sha256": "D9B4B821A17322C2228A69545EE50C7FD04ED928B6B89F29E0195B65570CD9ED"
+    }
+  ],
+  "focusedTests": 18
+}
