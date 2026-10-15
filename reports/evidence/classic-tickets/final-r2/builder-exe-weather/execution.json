@@ -1,0 +1,15 @@
+{
+  "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+  "arguments": [
+    "--",
+    "--capture-size",
+    "1280x720",
+    "--capture-classic-weather",
+    "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-weather"
+  ],
+  "startedUtc": "2026-10-15T14:04:59.0232394Z",
+  "endedUtc": "2026-10-15T14:05:58.8085551Z",
+  "exitCode": 0,
+  "stderrBytes": 0,
+  "pngs": 22
+}

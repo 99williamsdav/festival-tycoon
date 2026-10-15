@@ -1,0 +1,11 @@
+{
+  "timeUtc": "2026-10-15T14:14:42.8967582Z",
+  "payloadCount": 194,
+  "sourceCount": 2037,
+  "oldExeCount": 3,
+  "repairSourceCount": 19,
+  "immutableCount": 10,
+  "rejectedCandidatePayloadCount": 194,
+  "exportLogMatches": true,
+  "mismatches": []
+}

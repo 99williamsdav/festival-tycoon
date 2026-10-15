@@ -1,0 +1,77 @@
+[
+  {
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1920x1080",
+      "--capture-classic-tickets",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-tickets"
+    ],
+    "startedUtc": "2026-10-15T14:03:32.0875951Z",
+    "endedUtc": "2026-10-15T14:03:59.2257509Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 12
+  },
+  {
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-classic-loop",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-classic"
+    ],
+    "startedUtc": "2026-10-15T14:03:59.2395759Z",
+    "endedUtc": "2026-10-15T14:04:59.0186181Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 9
+  },
+  {
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-classic-weather",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-weather"
+    ],
+    "startedUtc": "2026-10-15T14:04:59.0232394Z",
+    "endedUtc": "2026-10-15T14:05:58.8085551Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 22
+  },
+  {
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1920x1080",
+      "--capture-survival-architecture",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-survival"
+    ],
+    "startedUtc": "2026-10-15T14:05:58.8135140Z",
+    "endedUtc": "2026-10-15T14:06:21.8623469Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 8
+  },
+  {
+    "executable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-save-warning",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\classic-tickets\\final-r2\\builder-exe-warning"
+    ],
+    "startedUtc": "2026-10-15T14:06:21.8668298Z",
+    "endedUtc": "2026-10-15T14:06:30.8584467Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 4
+  }
+]

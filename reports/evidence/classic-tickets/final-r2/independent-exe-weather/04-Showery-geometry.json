@@ -1,0 +1,1 @@
+{"layerVisible":true,"controls":[{"name":"ForecastScreen","size":"(1920, 1080)","scale":"(1, 1)","children":[{"name":"@ColorRect@8843","size":"(1920, 1080)","scale":"(1, 1)"},{"name":"@Control@8844","size":"(1280, 720)","scale":"(1.5, 1.5)"}]}],"buttons":[{"name":"ForecastMenu","rect":"(72, 937.5), (253.5, 78)"},{"name":"ForecastContinue","rect":"(1360.5, 937.5), (487.5, 78)"}]}

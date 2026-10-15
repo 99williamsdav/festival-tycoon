@@ -1,0 +1,100 @@
+{
+  "timeUtc": "2026-10-15T14:21:40.5124571Z",
+  "disposition": "PASS",
+  "scope": "Final metadata only; no build, export, native replay or product edit",
+  "metadataFiles": [
+    {
+      "path": "CURRENT_DESIGN.md",
+      "expected": "D9545CCD462C4CAD6650A5669171257B6A456DA49F66F9F4569D7846EAC77C93",
+      "actual": "D9545CCD462C4CAD6650A5669171257B6A456DA49F66F9F4569D7846EAC77C93",
+      "matches": true
+    },
+    {
+      "path": "assets/source/DESIGN_INDEX.md",
+      "expected": "4CD074B611CB060FBD107493863D634ED86D74EFF5F48015BD96541505491263",
+      "actual": "4CD074B611CB060FBD107493863D634ED86D74EFF5F48015BD96541505491263",
+      "matches": true
+    },
+    {
+      "path": "briefs/DECISIONS.md",
+      "expected": "DDB40A32A7D0984E2C52A7B662344CAA4FD8C02DDAA9B5936FEE89120E7363FC",
+      "actual": "DDB40A32A7D0984E2C52A7B662344CAA4FD8C02DDAA9B5936FEE89120E7363FC",
+      "matches": true
+    },
+    {
+      "path": "briefs/results/classic-tickets-handoff.md",
+      "expected": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88",
+      "actual": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88",
+      "matches": true
+    },
+    {
+      "path": "briefs/results/classic-ticket-ui-implementation.md",
+      "expected": "D27059B8C945C3D65D84AD4DF38AC83DAA7C5DCB6C1562952624CE1BD21D598E",
+      "actual": "D27059B8C945C3D65D84AD4DF38AC83DAA7C5DCB6C1562952624CE1BD21D598E",
+      "matches": true
+    },
+    {
+      "path": "briefs/results/classic-ticket-exe-independent-review.md",
+      "expected": "B232CCFB51DC582B596ADDCD24CC9484CB93C9F9A1CE8B08EB7562413B79566E",
+      "actual": "B232CCFB51DC582B596ADDCD24CC9484CB93C9F9A1CE8B08EB7562413B79566E",
+      "matches": true
+    },
+    {
+      "path": "reports/evidence/classic-tickets/final-r2/delivery-readme.txt",
+      "expected": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923",
+      "actual": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\CURRENT-TASK.txt",
+      "expected": "44AFE3911322DEE7BA7174AC67B88349B4269653A7C4D6116155CCBF89576128",
+      "actual": "44AFE3911322DEE7BA7174AC67B88349B4269653A7C4D6116155CCBF89576128",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\classic-tickets-handoff.md",
+      "expected": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88",
+      "actual": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\classic-ticket-exe-independent-review.md",
+      "expected": "B232CCFB51DC582B596ADDCD24CC9484CB93C9F9A1CE8B08EB7562413B79566E",
+      "actual": "B232CCFB51DC582B596ADDCD24CC9484CB93C9F9A1CE8B08EB7562413B79566E",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\README.txt",
+      "expected": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923",
+      "actual": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\README.txt",
+      "expected": "AFBECA0766239693F65E4A4C29C796F0C27C265A1BCD50D41726C4269F480A49",
+      "actual": "AFBECA0766239693F65E4A4C29C796F0C27C265A1BCD50D41726C4269F480A49",
+      "matches": true
+    }
+  ],
+  "metadataMismatches": [],
+  "repairSourceCount": 19,
+  "repairSourceMismatches": [],
+  "exe": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-tickets-2026-10-15-r2/FestivalTycoon.exe",
+  "exeSha256": "76EFAE7AD4883B0648446554F8E5C39DDD4E5B08331A91B1BD4162B2424C422E",
+  "exeMatches": true,
+  "missingDesignIndexLinks": [],
+  "acceptedChecks": 546,
+  "acceptedOriginalImages": 55,
+  "payloadFiles": 194,
+  "payloadBytes": 287643723,
+  "exportSourceInputs": 2037,
+  "exportSourceCommit": "1dd89e921ce3f28f4f99884e522c44c3c3b96cfb",
+  "reviewPreAddendumSha256": "B232CCFB51DC582B596ADDCD24CC9484CB93C9F9A1CE8B08EB7562413B79566E",
+  "notes": [
+    "Repo/workspace handoff and review mirrors match before addendum; r2 README mirror matches.",
+    "Final status, counts, paths, SHA and bounded claims agree with independently accepted evidence.",
+    "First refusal and superseded candidate retained; older saves preserved; provisional balance and existing Survival HUD overflow disclosed.",
+    "Implementation report is chronological history; latest status is owned by final handoff and EXE review.",
+    "Review addendum changes its own pinned hash; parent will mirror and re-pin that review only."
+  ]
+}

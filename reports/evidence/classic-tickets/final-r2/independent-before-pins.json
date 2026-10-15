@@ -1,0 +1,11 @@
+{
+  "timeUtc": "2026-10-15T14:07:38.9865387Z",
+  "payloadCount": 194,
+  "payloadBytes": 287643723.0,
+  "actualPayloadCount": 194,
+  "sourceCount": 2037,
+  "oldExeCount": 3,
+  "repairSourceCount": 19,
+  "exportLogMatches": true,
+  "mismatches": []
+}

@@ -1,0 +1,53 @@
+{
+  "scope": "Final accepted r2 handoff and metadata only; no runtime/source change",
+  "files": [
+    {
+      "path": "CURRENT_DESIGN.md",
+      "sha256": "D9545CCD462C4CAD6650A5669171257B6A456DA49F66F9F4569D7846EAC77C93"
+    },
+    {
+      "path": "assets/source/DESIGN_INDEX.md",
+      "sha256": "4CD074B611CB060FBD107493863D634ED86D74EFF5F48015BD96541505491263"
+    },
+    {
+      "path": "briefs/DECISIONS.md",
+      "sha256": "DDB40A32A7D0984E2C52A7B662344CAA4FD8C02DDAA9B5936FEE89120E7363FC"
+    },
+    {
+      "path": "briefs/results/classic-tickets-handoff.md",
+      "sha256": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88"
+    },
+    {
+      "path": "briefs/results/classic-ticket-ui-implementation.md",
+      "sha256": "D27059B8C945C3D65D84AD4DF38AC83DAA7C5DCB6C1562952624CE1BD21D598E"
+    },
+    {
+      "path": "briefs/results/classic-ticket-exe-independent-review.md",
+      "sha256": "15DAFEB100AA830C1CBCBFDBBCE60B7F5BCA2987A6CD674C90B660F4FA573FA8"
+    },
+    {
+      "path": "reports/evidence/classic-tickets/final-r2/delivery-readme.txt",
+      "sha256": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923"
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\CURRENT-TASK.txt",
+      "sha256": "44AFE3911322DEE7BA7174AC67B88349B4269653A7C4D6116155CCBF89576128"
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\classic-tickets-handoff.md",
+      "sha256": "D88FDCD0F1DD17EE134E867D0AFF621E2761C8B99583B77F3237AE1A1C1EAB88"
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\classic-ticket-exe-independent-review.md",
+      "sha256": "15DAFEB100AA830C1CBCBFDBBCE60B7F5BCA2987A6CD674C90B660F4FA573FA8"
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15-r2\\README.txt",
+      "sha256": "FA796052097F27AF9BAF76B01E779BF7B88324A46629EC01071FC40F5BF8D923"
+    },
+    {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-tickets-2026-10-15\\README.txt",
+      "sha256": "AFBECA0766239693F65E4A4C29C796F0C27C265A1BCD50D41726C4269F480A49"
+    }
+  ]
+}
