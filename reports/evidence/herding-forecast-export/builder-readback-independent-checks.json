@@ -1,0 +1,27 @@
+[
+  {
+    "track": "tickets",
+    "checks": 100,
+    "failures": 0
+  },
+  {
+    "track": "classic",
+    "checks": 109,
+    "failures": 0
+  },
+  {
+    "track": "weather",
+    "checks": 262,
+    "failures": 0
+  },
+  {
+    "track": "survival",
+    "checks": 63,
+    "failures": 0
+  },
+  {
+    "track": "warning",
+    "checks": 24,
+    "failures": 0
+  }
+]

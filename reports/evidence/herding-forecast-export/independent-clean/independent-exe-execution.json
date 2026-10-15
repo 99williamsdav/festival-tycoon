@@ -1,0 +1,77 @@
+[
+  {
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1920x1080",
+      "--capture-classic-tickets",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-clean\\independent-exe-tickets"
+    ],
+    "startedUtc": "2026-10-15T16:33:21.5055643Z",
+    "endedUtc": "2026-10-15T16:33:49.7725428Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 12
+  },
+  {
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-classic-loop",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-clean\\independent-exe-classic"
+    ],
+    "startedUtc": "2026-10-15T16:33:49.8338941Z",
+    "endedUtc": "2026-10-15T16:34:51.4288632Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 9
+  },
+  {
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-classic-weather",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-clean\\independent-exe-weather"
+    ],
+    "startedUtc": "2026-10-15T16:34:51.4379187Z",
+    "endedUtc": "2026-10-15T16:35:53.5477789Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 22
+  },
+  {
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1920x1080",
+      "--capture-survival-architecture",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-clean\\independent-exe-survival"
+    ],
+    "startedUtc": "2026-10-15T16:35:53.5556408Z",
+    "endedUtc": "2026-10-15T16:36:17.7593307Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 8
+  },
+  {
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "arguments": [
+      "--",
+      "--capture-size",
+      "1280x720",
+      "--capture-save-warning",
+      "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-clean\\independent-exe-warning"
+    ],
+    "startedUtc": "2026-10-15T16:36:17.7733683Z",
+    "endedUtc": "2026-10-15T16:36:27.1185925Z",
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "pngs": 4
+  }
+]

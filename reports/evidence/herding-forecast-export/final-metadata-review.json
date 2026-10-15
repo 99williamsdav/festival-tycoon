@@ -1,0 +1,16 @@
+{
+  "verdict": "PASS",
+  "date": "2026-10-15",
+  "scope": "Final handoff metadata readback",
+  "metadataPinCount": 15,
+  "productPreservationPinCount": 2480,
+  "metadataPins": "final-metadata-pins-verified.json",
+  "findingsRepaired": [
+    "55 captures generated; key captures visually inspected",
+    "Export log retains two UID cache warnings and zero ERROR lines"
+  ],
+  "newBuildOrNativeRun": false,
+  "payloadChanged": false,
+  "reportSha256": "5CC11E9C302C03C2E61740732273F85DECD40B4A9330EC866D4A28BB16AA1FA4",
+  "expectedFollowup": "Mirror this appended report and refresh its own metadata pin"
+}

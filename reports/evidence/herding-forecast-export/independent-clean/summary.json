@@ -1,0 +1,52 @@
+[
+  {
+    "track": "tickets",
+    "checks": 100,
+    "expected": 100,
+    "failed": 0,
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "pngs": 12
+  },
+  {
+    "track": "classic",
+    "checks": 109,
+    "expected": 109,
+    "failed": 0,
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "pngs": 9
+  },
+  {
+    "track": "weather",
+    "checks": 262,
+    "expected": 262,
+    "failed": 0,
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "pngs": 22
+  },
+  {
+    "track": "survival",
+    "checks": 63,
+    "expected": 63,
+    "failed": 0,
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "pngs": 8
+  },
+  {
+    "track": "warning",
+    "checks": 24,
+    "expected": 24,
+    "failed": 0,
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+    "pngs": 4
+  }
+]

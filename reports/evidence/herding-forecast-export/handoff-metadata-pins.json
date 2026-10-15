@@ -1,0 +1,62 @@
+[
+  {
+    "sha256": "2E0B334EC363DBD8F71B8A7DD1C41CA2DEB56073D15C0450CC032576CE44807A",
+    "path": "briefs/results/herding-forecast-handoff.md"
+  },
+  {
+    "sha256": "5CC11E9C302C03C2E61740732273F85DECD40B4A9330EC866D4A28BB16AA1FA4",
+    "path": "briefs/results/herding-forecast-export-independent-review.md"
+  },
+  {
+    "sha256": "B72DD8B13E96260EE42D076AF2BC5EBF453B0B430A62BE0703207638FE74CD4A",
+    "path": "briefs/results/cow-herd-return.md"
+  },
+  {
+    "sha256": "72A4C00F63204C074261C2A2FBC41B11C314B2DF3AB61B3E9DBA15CB87980B0D",
+    "path": "briefs/results/cow-herd-return-independent-review.md"
+  },
+  {
+    "sha256": "C13D34012AD9EA3EED76993995BB7BF1A56C2F50707945D769BEB47FE6CF084D",
+    "path": "briefs/results/forecast-mosaic-suite-integration.md"
+  },
+  {
+    "sha256": "8B63CBFCB151B10E771A7E4B03307A6BACBA902DCEAA83C892B23FEF98418CAE",
+    "path": "briefs/results/forecast-mosaic-suite-independent-review.md"
+  },
+  {
+    "sha256": "569BA7844193DED28C4725B6D5D2FB691666A716AF863C604338A152C7A75A1F",
+    "path": "game/Main.CowHerdEvidence.cs.uid"
+  },
+  {
+    "sha256": "923A79418DBD7A6BD4CDF07A94D9F249699235538F398C298253D256BCBC00EA",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\CURRENT-TASK.txt"
+  },
+  {
+    "sha256": "165186882B054A960C301C6F0D91ACCE77C049750C0CA60AF0EC278587641803",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-herding-forecast-2026-10-15\\README.txt"
+  },
+  {
+    "sha256": "72A4C00F63204C074261C2A2FBC41B11C314B2DF3AB61B3E9DBA15CB87980B0D",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\cow-herd-return-independent-review.md"
+  },
+  {
+    "sha256": "B72DD8B13E96260EE42D076AF2BC5EBF453B0B430A62BE0703207638FE74CD4A",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\cow-herd-return.md"
+  },
+  {
+    "sha256": "8B63CBFCB151B10E771A7E4B03307A6BACBA902DCEAA83C892B23FEF98418CAE",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\forecast-mosaic-suite-independent-review.md"
+  },
+  {
+    "sha256": "C13D34012AD9EA3EED76993995BB7BF1A56C2F50707945D769BEB47FE6CF084D",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\forecast-mosaic-suite-integration.md"
+  },
+  {
+    "sha256": "5CC11E9C302C03C2E61740732273F85DECD40B4A9330EC866D4A28BB16AA1FA4",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\herding-forecast-export-independent-review.md"
+  },
+  {
+    "sha256": "2E0B334EC363DBD8F71B8A7DD1C41CA2DEB56073D15C0450CC032576CE44807A",
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\briefs\\results\\herding-forecast-handoff.md"
+  }
+]

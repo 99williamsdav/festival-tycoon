@@ -1,0 +1,15 @@
+{
+  "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-herding-forecast-2026-10-15/FestivalTycoon.exe",
+  "arguments": [
+    "--",
+    "--capture-size",
+    "1280x720",
+    "--capture-classic-loop",
+    "C:\\Projects\\festival-tycoon\\reports\\evidence\\herding-forecast-export\\independent-exe-classic"
+  ],
+  "startedUtc": "2026-10-15T16:31:48.1965438Z",
+  "endedUtc": "2026-10-15T16:32:51.8641020Z",
+  "exitCode": 0,
+  "stderrBytes": 258,
+  "pngs": 9
+}

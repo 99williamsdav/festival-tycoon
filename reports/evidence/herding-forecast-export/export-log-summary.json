@@ -1,0 +1,11 @@
+{
+  "logSha256": "DF9B14B16445366E9A4BF3FCE73443F0187FF479888177C68B4D542F37CCCC2C",
+  "errorLines": [],
+  "errorCount": 0,
+  "exportExit": 0,
+  "warningCount": 2,
+  "warningLines": [
+    "WARNING: Missing .uid file for path \"res://Main.LavHoseEvidence.cs\". The file was re-created from cache.",
+    "WARNING: Missing .uid file for path \"res://Main.StrawMarker.cs\". The file was re-created from cache."
+  ]
+}
