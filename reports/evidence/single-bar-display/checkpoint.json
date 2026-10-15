@@ -1,0 +1,48 @@
+{
+  "base": "da2b8bf1f677ddfbd373510fea2c3f687b8e6046",
+  "scope": "Single current placed bar display-only shorthand; no export",
+  "files": [
+    {
+      "path": "src/Festival.Simulation/Stalls.cs",
+      "sha256": "987FFEE5DDD82C0248BFE62B69B8A4D4CBF107D2A542CD69C89229285B31DC0F"
+    },
+    {
+      "path": "tests/Festival.Tests/SingleBarDisplayTests.cs",
+      "sha256": "D4A880972469DB41188C3E7E2B553B25AAF87AF959880E6F2F0B9D8B45CA6984"
+    },
+    {
+      "path": "game/Hud/BuildDrawer.cs",
+      "sha256": "32B4FD49BC8DF9E7BD62F6FAF49997B4034B310A0228F06C77AF3D507302C534"
+    },
+    {
+      "path": "game/Main.SiteMap.cs",
+      "sha256": "7EF247A631C5AE0DCA120B7C7F9F5078BC4F00CDF4571009C663153C14A1F6C2"
+    },
+    {
+      "path": "game/Main.Immersion.cs",
+      "sha256": "37806821D7D428CC74073CCC1E6AD9E90B91F4D0DA3037ED3B7A40216BFFABE3"
+    },
+    {
+      "path": "game/Main.Moments.cs",
+      "sha256": "21D3C27F8F24AE9A17EA185425ED26F1F3EF969E487B4533D0D21A4F5F8EA779"
+    },
+    {
+      "path": "game/Main.RadioMenu.cs",
+      "sha256": "BAECF1C7E14E6208B67071103475B788ACDB2AA833E2EF7D972C700BD6C3CD4E"
+    },
+    {
+      "path": "game/Main.StewardShiftHud.cs",
+      "sha256": "536E1A612C5868A7650AB0FC6C5576A7E19F22DED2FCD569A0B784964BC8A842"
+    }
+  ],
+  "unchangedAcceptedExecutable": {
+    "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-tickets-2026-10-15-r2/FestivalTycoon.exe",
+    "sha256": "76EFAE7AD4883B0648446554F8E5C39DDD4E5B08331A91B1BD4162B2424C422E"
+  },
+  "baselineFailureNames": [
+    "failed TheNamesFollowTheStagesThatAreOpen",
+    "failed TheDefaultLayoutsNameTheirBarsByCompassAndStageAndTheirVansByTrader",
+    "failed LastFestivalsLayoutIsCopiedWhereItStillFitsAndSaysHowManyDidnt",
+    "failed TheCopyIsWorkedOutOnceAndPricedAsItLands"
+  ]
+}

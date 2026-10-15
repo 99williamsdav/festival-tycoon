@@ -239,7 +239,7 @@ public partial class Main
         var fill = pin.Urgent ? Ui.Alert : Ui.Gold;
         var px = X(Mathf.Clamp(_shiftPinShown, -CompassClampDegrees, CompassClampDegrees));
         Icon(c, "map-pin", new Vector2(px - Ui.S(10), y + Ui.S(2)), Ui.S(20), fill);
-        var chip = $"{pin.Place} · {_shiftPinMetres:0} m";
+        var chip = $"{_session.StallDisplayLabel(pin.Place)} · {_shiftPinMetres:0} m";
         var cw = TextWidth(Ui.BodyBold, chip, 12) + Ui.S(16);
         var chipX = Mathf.Clamp(px - cw / 2, x0, x0 + w - cw);
         c.DrawStyleBox(Ui.Box(fill, 9), new Rect2(chipX, y + Ui.S(30), cw, Ui.S(18)));
@@ -421,7 +421,7 @@ public partial class Main
                     DisorderStage.Fight => "fighting", DisorderStage.Argument => "arguing", DisorderStage.Agitated => "agitated", DisorderStage.Complaint => "complaining",
                     _ when _session.CaptureStewardShift()?.EscortId == id => "following you to the gate",
                     _ when _session.CaptureStewardShift()?.EscortOffer?.GuestId == id => "calmed · walk them out",
-                    _ => person.VendorId is { } vendor ? $"looking for {_session.StallName(vendor)}" : person.ToiletStage == ToiletVisitStage.Approaching ? "looking for the loos" :
+                    _ => person.VendorId is { } vendor ? $"looking for {_session.StallDisplayName(vendor)}" : person.ToiletStage == ToiletVisitStage.Approaching ? "looking for the loos" :
                         person.Intent == MedicalIntent.SeekWater ? "looking for water" : "",
                 };
             return state == "" ? $"{kind} · {metres}" : $"{kind} · {metres} · {state}";
@@ -485,7 +485,7 @@ public partial class Main
         if (shift.Action is { } held && _session.StewardTargetPoint(held.TargetId) is { } point)
         {
             _cardState = CardState.Holding; _cardKey = true; _cardIcon = ActionIcon(held.Kind);
-            _cardTitle = $"{ActionVerb(held.Kind)} {Lowered(held.Kind, point.Name)}";
+            _cardTitle = $"{ActionVerb(held.Kind)} {Lowered(held.Kind, _session.StallDisplayLabel(point.Name))}";
             _cardDetail = TargetDetail(held.TargetId, Distance(point.X, point.Z));
             _cardRing = Mathf.Clamp((now - held.StartedTick + (float)_host.Clock.InterpolationFraction) / held.DurationTicks, 0, 1);
             _shiftLastHeld = held;
@@ -507,7 +507,7 @@ public partial class Main
             _cardState = CardState.Prompt; _cardRing = 0;
             _cardKey = first.Action is not null;
             _cardIcon = first.Action is { } action ? ActionIcon(action) : "hand";
-            _cardTitle = first.Action is { } verb ? $"{ActionVerb(verb)} {Lowered(verb, first.Name)}" : first.Name;
+            _cardTitle = first.Action is { } verb ? $"{ActionVerb(verb)} {Lowered(verb, _session.StallDisplayLabel(first.Name))}" : _session.StallDisplayLabel(first.Name);
             _cardDetail = TargetDetail(first.TargetId, first.DistanceMillimetres);
         }
         else wanted = false;
@@ -523,9 +523,12 @@ public partial class Main
         string Place(StewardCall call)
         {
             var key = $"{call.Id}@{call.OpenedTick}";
-            if (_shiftCallPlaces.TryGetValue(key, out var known)) return known;
-            if (_session.StewardCallPoint(call) is not { } at) return "the field";
-            return _shiftCallPlaces[key] = _session.StewardLandmark(at.X, at.Z);
+            if (!_shiftCallPlaces.TryGetValue(key, out var known))
+            {
+                if (_session.StewardCallPoint(call) is not { } at) return "the field";
+                _shiftCallPlaces[key] = known = _session.StewardLandmark(at.X, at.Z);
+            }
+            return _session.StallDisplayLabel(known);
         }
         string Where(StewardCall call) => _session.StewardCallPoint(call) is { } at ? $"{Place(call)} · {Distance(at.X, at.Z) / 1000} m away" : Place(call);
         // A hands-on day's calls Control gave to the hired crew aren't the player's: they show once, as covered.

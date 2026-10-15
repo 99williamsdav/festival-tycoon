@@ -1,0 +1,16 @@
+# Single-bar display naming — 15 October 2026
+
+Accepted source-only change, based on `da2b8bf1`. The coordinator relayed explicit user authorization for this narrow display change. Fresh independent Astra Medium focused review passed; no export was requested or performed.
+
+A single currently placed bar now displays as **Bar**. Multiple bars keep the existing distinct location/stage names and numeric collision suffixes, rather than introducing another naming scheme. Count comes from the existing current stall/layout resolver, not service inventory or the maximum allowed count. The remaining bar can have a secondary stable ID. Placement/removal updates the existing cache; load and preparation-to-live derive labels from the restored/current layout.
+
+The new display getters leave the canonical `StallName`/`StallNames` resolver unchanged. Existing recorded evidence, finance/account labels, stable IDs, item names, saves, queues, prices and other facility names stay on their original paths. Exact standalone landmark/target labels can use the shorthand; saved prose is not searched and rewritten. World labels retain the project's uppercase typography. Wiring covers placed Build rows, site-map labels, world bar signs, vendor context/service readouts, current cow moments, looking-for-vendor text, action prompts and radio/compass landmarks. Cached radio place names remain canonical and are formatted when displayed.
+
+Builder validation: four focused tests pass (1.401s), covering single/secondary-ID bars, unplaced extra stock, add/remove, multiple names, save/restore in preparation and live, preparation-to-live, unchanged non-bar labels/narrative and unchanged authoritative hash after display reads. The game builds with zero warnings/errors. No screenshot/manual-play or Windows EXE update is claimed.
+
+The broader legacy StallNames group has four pre-existing failures tied to Pond Stage layout/price expectations. A temporary baseline probe used the exact HEAD Stalls source and excluded the new test file: 10 passed, the same four failed. Candidate comparison (before the final extra multiple-live test) passed 13 and failed exactly those four. Their original tests are unchanged. One initial new test also assumed the old Pond Stage label; corrected to the current existing East Bar 2 convention. A stale incremental assembly after restoring the baseline source caused an intermediate compile failure; that comparison was discarded, the candidate source was rebuilt, and only the subsequent actual executed results are cited. Logs retain this history.
+
+Evidence and eight source pins: `reports/evidence/single-bar-display/`. The accepted r2 EXE remains SHA256 `76EFAE7AD4883B0648446554F8E5C39DDD4E5B08331A91B1BD4162B2424C422E`; this naming tweak is not included in that existing EXE. Unrelated palette imports, lockfile edit, outfit source and pre-existing UID files remain preserved. No new feature or automation.
+
+Independent acceptance: 4/4 focused tests passed; game build had zero warnings/errors. All eight source pins, the accepted r2 EXE hash and ten immutable Survival pins matched. The four legacy failures agree with the unchanged-source baseline evidence. No actionable findings remain in this scope. Review: single-bar-display-independent-review.md.
+

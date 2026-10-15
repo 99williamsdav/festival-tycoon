@@ -70,7 +70,7 @@ public partial class Main
             {
                 BuildServiceKind.WaterTap => ("tap", taps.IndexOf(place.Id) is var n && n > 0 ? $"Tap {n + 1}" : "Tap"),
                 BuildServiceKind.Toilet => ("loo", place.Id.EndsWith(".main", StringComparison.Ordinal) ? "Loos" : ""),
-                BuildServiceKind.Bar => ("bar", _session.StallName(place.Id)),
+                BuildServiceKind.Bar => ("bar", _session.StallDisplayName(place.Id)),
                 BuildServiceKind.FoodVan => ("van", _session.TraderAt(place.Id).Menu),
                 BuildServiceKind.FirstAid => ("aid", "First aid"),
                 BuildServiceKind.StewardPost => ("post", "Steward post"),

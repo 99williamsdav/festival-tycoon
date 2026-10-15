@@ -496,7 +496,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     /// <summary>"Toilet 2" rather than "toilet.extra-1"; a bar or van by its name on the field, "East Bar".</summary>
     internal static string PlacedName(BuildPlacement item, GameSession session)
     {
-        if (Stalls.IsStall(item.Kind)) return session.StallName(item.Id);
+        if (Stalls.IsStall(item.Kind)) return session.StallDisplayName(item.Id);
         var suffix = item.Id.Split('.').Last();
         var number = Stalls.IsStall(item.Kind) ? Stalls.Number(item.Id).ToString() :
             suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)

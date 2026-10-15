@@ -187,4 +187,17 @@ public sealed partial class GameSession
 
     /// <summary>A bar's or van's name, "East Bar" or "Korma Chameleon"; the fallback label for one not on the field.</summary>
     public string StallName(string id) => StallNamesNow().TryGetValue(id, out var name) ? name : Stalls.Label(id);
+
+    // Keep recorded evidence and accounts on the established names; only current UI labels use this shorthand.
+    private string? SingleBarForDisplay()
+    {
+        var bars = StallNamesNow().Keys.Where(Stalls.IsBar).Take(2).ToArray();
+        return bars.Length == 1 ? bars[0] : null;
+    }
+
+    /// <summary>A lone placed bar is simply "Bar"; multiple stalls retain their existing distinct names.</summary>
+    public string StallDisplayName(string id) => id == SingleBarForDisplay() ? "Bar" : StallName(id);
+
+    /// <summary>Present an exact current landmark/target label without rewriting saved narrative text.</summary>
+    public string StallDisplayLabel(string label) => SingleBarForDisplay() is { } bar && label == StallName(bar) ? "Bar" : label;
 }

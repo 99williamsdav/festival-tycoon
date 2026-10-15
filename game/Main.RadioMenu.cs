@@ -137,7 +137,7 @@ public partial class Main
 
     private string RadioReply(RadialEntry entry, bool queued)
     {
-        var place = _session.StewardTargetPoint(entry.Target!) is { } at ? _session.StewardLandmark(at.X, at.Z) : "the field";
+        var place = _session.StewardTargetPoint(entry.Target!) is { } at ? _session.StallDisplayLabel(_session.StewardLandmark(at.X, at.Z)) : "the field";
         var who = entry.Target!.StartsWith("person:", StringComparison.Ordinal) && _session.StewardTargetPoint(entry.Target) is { } person ? person.Name.Split(' ')[0] : null;
         return entry.Job switch
         {
