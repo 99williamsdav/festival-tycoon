@@ -10,63 +10,39 @@ public partial class Main
     private readonly Dictionary<EntityId, Node3D> _immersionHeldVisuals = [];
     private readonly Dictionary<EntityId, string> _immersionHeldProducts = [];
 
-    // Food-van module transforms preserve the approved chassis origin.
-    // Blender (X,Y,Z) -> Godot (X,Z,-Y). Both vendor fronts are local +Z.
-    /// <summary>A bar, or a food van in its trader's livery.</summary>
+    // Delivered GLBs contain the complete curated body, fascia, artwork and kitchen.
+    // Keep their original transforms under the unchanged shared service anchor.
+    private static string FoodVanProductionAsset(ImmersionProduct product) =>
+        "res://assets/environment/food-vans-production-v1/ft_food_" + (product switch
+        {
+            ImmersionProduct.Chips => "chips",
+            ImmersionProduct.Pizza => "pizza",
+            ImmersionProduct.Curry => "curry",
+            _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown food van")
+        }) + "_production_v1.glb";
+
     private Node3D InstantiateImmersionVendor(FoodTrader? trader)
     {
         if (trader is null) return InstantiateAsset("res://assets/environment/lwf_drinks_stall_prototype_v1.glb");
         var vendor = new Node3D { Name = "ImmersionFoodVan" };
-        // Centre the serving opening at the shared vendor anchor. Original module
-        // origins, hinge rotations and relative placement stay within this child.
-        var assembly = new Node3D { Name = "ApprovedFoodVanAssembly", Position = new Vector3(-2.15f, 0, 0) };
+        var assembly = new Node3D { Name = "ApprovedFoodVanAssembly", Position = new(-2.15f, 0, 0) };
         vendor.AddChild(assembly);
-        assembly.AddChild(InstantiateAsset("res://assets/environment/lwf_food_van_chassis_open_service_v1.glb"));
-        // User requested removal of the overhead awning. The separate raised
-        // serving flap is omitted; chassis aperture/counter and fascia remain.
-        // Keep the archived flap asset unchanged for provenance.
-        var fascia = InstantiateAsset("res://assets/environment/lwf_food_van_fascia_v1.glb");
-        fascia.Position = new Vector3(2.15f, 2.49f, 1.18f);
-        assembly.AddChild(fascia);
-        // The trader's livery: their colours on the van, their name painted across the fascia, and a big picture sign
-        // of what they sell. Each piece waits for its artwork.
-        var art = trader.Art;
-        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_name_panel_{art}_v1.glb"))
-        {
-            var panel = InstantiateAsset($"res://assets/environment/lwf_food_van_name_panel_{art}_v1.glb");
-            panel.Position = new Vector3(0, 0, 0.056f);
-            fascia.AddChild(panel);
-        }
-        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_palette_{art}_v1.png"))
-            ApplyFoodVanLivery(assembly, $"res://assets/environment/lwf_food_van_palette_{art}_v1.png");
-        var sign = trader.Product.ToString().ToLowerInvariant();
-        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"))
-        {
-            // On a pole from the middle of the roof.
-            var board = InstantiateAsset($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb");
-            board.Position = new Vector3(2.10f, 2.75f, 0);
-            assembly.AddChild(board);
-        }
-        // A cooking trader's kitchen: roof vents that steam while they're busy, and foil trays on the counter.
-        if (CookingArts.Contains(art))
-        {
-            var kitchen = InstantiateAsset("res://assets/environment/lwf_food_van_kitchen_dressing_v1.glb");
-            assembly.AddChild(kitchen);
+        var model = InstantiateAsset(FoodVanProductionAsset(trader.Product));
+        model.Name = "ApprovedFoodVanModel";
+        assembly.AddChild(model);
+        // Curated palettes/artwork remain untouched; no legacy chassis or decoration is added.
+        if (trader.Product == ImmersionProduct.Curry)
             foreach (var vent in new[] { "LWF_FoodVan_SteamVent_L", "LWF_FoodVan_SteamVent_R" })
-                if (kitchen.FindChild(vent, true, false) is Node3D marker) marker.AddChild(VanSteam());
-        }
-        // The chalk menu out front, beside the queue rather than in it.
-        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_menu_board_{art}_v1.glb"))
+                ((Node3D)model.FindChild(vent, true, false)).AddChild(VanSteam());
+        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_menu_board_{trader.Art}_v1.glb"))
         {
-            var menu = InstantiateAsset($"res://assets/environment/lwf_food_van_menu_board_{art}_v1.glb");
-            menu.Position = new Vector3(4.10f, 0, 2.30f);
+            var menu = InstantiateAsset($"res://assets/environment/lwf_food_van_menu_board_{trader.Art}_v1.glb");
+            menu.Name = "FoodVanChalkMenu";
+            menu.Position = new(4.10f, 0, 2.30f);
             assembly.AddChild(menu);
         }
         return vendor;
     }
-
-    /// <summary>Traders who cook on board, and so get the kitchen dressing.</summary>
-    private static readonly string[] CookingArts = ["korma"];
     private const string VanSteamName = "VanSteam";
     private static StandardMaterial3D? _vanSteamMaterial;
 
@@ -114,27 +90,6 @@ public partial class Main
             var busy = vendor.Queue.Length > 0 || vendor.OwnerId is not null;
             foreach (var steam in vents) if (steam.Emitting != busy) steam.Emitting = busy;
         }
-    }
-
-    private readonly Dictionary<string, StandardMaterial3D> _foodVanLiveries = [];
-
-    /// <summary>Swaps the van's palette for the trader's; wheels, counter and hatch keep their swatches.</summary>
-    private void ApplyFoodVanLivery(Node3D van, string palette)
-    {
-        foreach (var mesh in van.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
-            for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
-            {
-                if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source ||
-                    !source.ResourceName.StartsWith("LWF_FoodVan_MattePalette", StringComparison.Ordinal)) continue;
-                if (!_foodVanLiveries.TryGetValue(palette, out var livery))
-                {
-                    livery = (StandardMaterial3D)source.Duplicate();
-                    livery.AlbedoTexture = GD.Load<Texture2D>(palette);
-                    livery.TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest;
-                    _foodVanLiveries.Add(palette, livery);
-                }
-                mesh.SetSurfaceOverrideMaterial(surface, livery);
-            }
     }
 
     // Presentation only: product identity and hands eligibility come from simulation.

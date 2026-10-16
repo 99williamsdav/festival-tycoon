@@ -388,7 +388,9 @@ private void BuildImmersionControls(VBoxContainer parent)
                 body = new StaticBody3D { CollisionLayer = 1, CollisionMask = 0 };
                 body.AddChild(InstantiateImmersionVendor(trader));
                 if (trader is not null) body.SetMeta("TraderArt", trader.Art);
-                var size = van ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
+                // Pick the complete curated body/roof/curry nose, inside the existing reservation.
+                // This is a ray target only; authoritative service footprints and queues are unchanged.
+                var size = van ? new Vector3(6.5f, 4, 3) : new Vector3(3.5f, 3.1f, 2.5f);
                 body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(van ? -.5f : 0, size.Y / 2, 0) });
                 var name=BuildingName(trader?.Menu.ToUpperInvariant() ?? "BAR",new Vector3(0,van?5.3f:3.4f,0)); // a van's label clears its roof sign
                 name.Name="VendorCategoryLabel";body.AddChild(name);

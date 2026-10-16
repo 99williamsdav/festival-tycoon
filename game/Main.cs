@@ -47,6 +47,7 @@ public partial class Main : Node, IHudHost
         ConfigureCommandLine();
         _host = new SessionHost(_barnEvidenceOutput is not null ? BarnStageFixture.Create(20260922) :
             _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
+            _foodVanEvidenceOutput is not null ? GameSession.CreateDevelopmentFestival(20260922, 2).WithCurrentBarnGeometry() :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
             _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag).WithCurrentBarnGeometry() :
             _litterEvidenceOutput is not null || _cowHerdEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922).WithCurrentBarnGeometry(), SaveDirectory, _saveCompatibility,
@@ -78,6 +79,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_foodVanEvidenceOutput is not null){ProcessFoodVanEvidence(delta);return;}
         if(_tractorEvidenceOutput is not null){ProcessTractorEvidence(delta);return;}
         if(_classicStressEvidenceOutput is not null){ProcessClassicStressEvidence(delta);return;}
         if(_cowHerdEvidenceOutput is not null){ProcessCowHerdEvidence();return;}
@@ -632,6 +634,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
             else if (args[i] == "--capture-trees" && i + 1 < args.Length) _treeEvidenceOutput = args[++i];
             else if (args[i] == "--capture-servers" && i + 1 < args.Length) _serverEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-food-vans" && i + 1 < args.Length) { _foodVanEvidenceOutput = args[++i]; _architectureEvidenceOutput = _foodVanEvidenceOutput; }
             else if (args[i] == "--capture-entrance" && i + 1 < args.Length) _entranceEvidenceOutput = args[++i];
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }

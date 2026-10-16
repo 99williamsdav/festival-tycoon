@@ -35,11 +35,12 @@ public partial class Main
         ArchitectureCheck(name + "-file-roundtrip", save.IsSuccess && loaded.IsSuccess && loaded.Session!.Identity == _session.Identity
             && loaded.Session.CaptureSnapshot().AuthoritativeHash == hash);
     }
-    private void ArchitectureReady()
+    private void ArchitectureReady(Action? afterLayout = null)
     {
         var perk = _session.CapturePerks()!;
         ArchitectureSend(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         ArchitectureSend(new UseDefaultBuildLayoutCommand());
+        afterLayout?.Invoke();
         var acts = _session.GetFestivalActs().Where(a => _session.ActStandingOf(a) == ActStanding.Available)
             .OrderBy(_session.ActFee).ThenBy(a => a.Id, StringComparer.Ordinal).Select(a => a.Id).ToArray();
         ArchitectureSend(new SetProgrammeCommand(acts[..3]));
