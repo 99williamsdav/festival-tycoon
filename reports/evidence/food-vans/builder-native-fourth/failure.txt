@@ -1,0 +1,7 @@
+System.InvalidOperationException: Server runtime check failed: food-van-ChooseFoodTraderCommand Choose a festival perk before preparation.
+   at Festival.Game.Main.ServerCheck(String name, Boolean passed) in /_/game/Main.ServiceServerEvidence.cs:line 31
+   at Festival.Game.Main.FoodCheck(String name, Boolean passed) in /_/game/Main.FoodVanEvidence.cs:line 23
+   at Festival.Game.Main.FoodSend(SessionCommand command) in /_/game/Main.FoodVanEvidence.cs:line 26
+   at Festival.Game.Main.FoodSelect(ImmersionProduct product) in /_/game/Main.FoodVanEvidence.cs:line 43
+   at Festival.Game.Main.BeginFoodLive(ImmersionProduct product) in /_/game/Main.FoodVanEvidence.cs:line 109
+   at Festival.Game.Main.ProcessFoodVanEvidence(Double delta) in /_/game/Main.FoodVanEvidence.cs:line 189

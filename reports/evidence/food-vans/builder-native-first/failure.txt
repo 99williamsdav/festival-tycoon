@@ -1,0 +1,5 @@
+System.InvalidOperationException: Server runtime check failed: food-van-chips-exact-model
+   at Festival.Game.Main.ServerCheck(String name, Boolean passed) in /_/game/Main.ServiceServerEvidence.cs:line 31
+   at Festival.Game.Main.FoodCheck(String name, Boolean passed) in /_/game/Main.FoodVanEvidence.cs:line 22
+   at Festival.Game.Main.CheckFoodModel(ImmersionProduct product) in /_/game/Main.FoodVanEvidence.cs:line 47
+   at Festival.Game.Main.ProcessFoodVanEvidence(Double delta) in /_/game/Main.FoodVanEvidence.cs:line 161

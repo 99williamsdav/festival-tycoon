@@ -1,0 +1,66 @@
+[
+  {
+    "path": "game/Main.Classic.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/game/Main.Classic.cs",
+    "sha256": "D9A39341A91930AD130B563D9C53465BCDC59C0EC6508F8BC8DF01BC32D6DFE2",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "game/Main.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/game/Main.cs",
+    "sha256": "EBBD5B970000A3B43E9D263F21876FC23A2F240FE1EC26E6408BA172B9A795AE",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "game/Main.HandsOn.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/game/Main.HandsOn.cs",
+    "sha256": "88ED28EE9153C7BAC01F143D88EFA5227FF9ABF0B422581D5D3F696A78BEA5FC",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "game/Main.StewardShift.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/game/Main.StewardShift.cs",
+    "sha256": "C2B8DB4A56216BA60FB8BD7DE8CC9953C1954F137D2D0BBC6B29F8F2402D513A",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "src/Festival.Simulation/CrowdStanding.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/src/Festival.Simulation/CrowdStanding.cs",
+    "sha256": "FEC64941BC13B787FB718B00D58C5FE5067F87A2A61897670450D8F8653A2213",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/src/Festival.Simulation/GameSession.Navigation.cs",
+    "sha256": "1422E88A97F4BEEA44BBABF3959DA782AA4E2794A0526B346DD0D4F915125790",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "src/Festival.Simulation/LivePerformance.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/src/Festival.Simulation/LivePerformance.cs",
+    "sha256": "E53AFBC130F385987A0ADC4D36B7D813AEE5210E3FAFF1FC79FC79887FDAB47C",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  },
+  {
+    "path": "src/Festival.Simulation/MedicalIncident.cs",
+    "snapshot": "reports/evidence/food-vans/exported-source/src/Festival.Simulation/MedicalIncident.cs",
+    "sha256": "A42923A8368D639F2A875E867A7A6061B8F75295010FF8CE69BF5D4FBAABECA6",
+    "sourceCommit": "7b467c6d",
+    "laterCommit": "c62f8dc1",
+    "reason": "Later committed changes after completed export; exact exported bytes reconstructed from export commit without touching live files."
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "exported_source": [
+    {
+      "path": "game/Main.Classic.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "game/Main.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/CrowdStanding.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/LivePerformance.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "matches_git_normalized": true,
+      "hash_matches": true
+    }
+  ],
+  "inherited_references": [
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-companion.json",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline.json",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-consequence-baseline.json",
+      "git_parent_matches_live_normalized": true,
+      "hash_matches": true
+    }
+  ]
+}

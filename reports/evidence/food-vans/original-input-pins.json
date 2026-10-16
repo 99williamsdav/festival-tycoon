@@ -1,0 +1,382 @@
+[
+  {
+    "path": "assets/source/characters/lead-outfit-v1/build_preview.py",
+    "sha256": "655B96E546E3D7D950364FC8F7952BB7AF93ABB155C6230EBF0591518845B47F"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/lead_outfit.py",
+    "sha256": "C5A5EDA63ACD168C57C29730D1F6C21A0BAEB789D2969BED86F8199F41117391"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/README.md",
+    "sha256": "8A6C300C8D71006AA8FD7CB6ED7FC1C85BE9B529A5ACA6EDD6F8F466DEFDDD18"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/colourways-sheet.png",
+    "sha256": "E0B311A06D60B696D6238487756EA5A7BDF546F20FBEFAD4E8485B94EC83C53D"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/lwf_lead_female_preview_v1.blend",
+    "sha256": "68C253D8B8D4C9F10689AFCB2C0983A0E32B85F53F395237CEE6C780F39EE3FC"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/lwf_lead_female_skater_preview_v1.blend",
+    "sha256": "11F633845F3B26C5FE3846115E81965B357A184FDC72135B2D02C7940333668D"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/metal-front.png",
+    "sha256": "ABFB580AFE27B09976D020D42C713C5C2927F9E341BAFE905AFB05E4FFAE2281"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/neck-faces.png",
+    "sha256": "9183BA0C4596C3DF4FE073FE85C0866897372EDD86F3B3435E0CE1C28679244F"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/pop-front.png",
+    "sha256": "933DF807540BDC8F59D19732CED66D208EDA838D0232DECADAAA7AA9D45E6F76"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/punk-front.png",
+    "sha256": "3FD3457E018E6ADD28DC5E31CF2D79EE4EEEAB3ADE3B50F132A50F7461BF2DFB"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/skater-colourways-sheet.png",
+    "sha256": "CF2FDC5479B651D819F8E03B1E74F7B5A1491B8F1A86F6C11908693D3622B8F7"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/skater-faces.png",
+    "sha256": "8DFD32F53BB35A461E19ED903FCD9487E4E2213662038E7389BFB876A793EB6D"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/skater-punk-front.png",
+    "sha256": "F56F7C30E0B6EBC3500A62F1D781B4BF952301A84CD74F42DB5ACB0E4AFEEFA5"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/skater-punk-oxblood-front.png",
+    "sha256": "06BF9CB98F0F9FC4A0AB8EF4C90C5BF1EF23F5B1A0783AC8ED2786C4851456EE"
+  },
+  {
+    "path": "assets/source/characters/lead-outfit-v1/review/skater-punk-tartan-red-front.png",
+    "sha256": "AC132378A59C43E8ACF168E4BB814EADA3BD5DD58CC262FE426AEB592F4A0E8C"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drink_hold_v2_attendee-palette.png.import",
+    "sha256": "407533E45F86E8542159D3328841C0ED10E49ADCF349A88C30CE2CE821366442"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drink_hold_v2.glb.import",
+    "sha256": "2E7F0E290467AD72A29CEE0428B347576AED82640C4E7EA388189A65C691B687"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drinking_beer_v2_attendee-palette.png.import",
+    "sha256": "16289511C3652603C248F6DD50231BB0FC44829A2B421E09F6AB6672037D166C"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drinking_beer_v2.glb.import",
+    "sha256": "867EC7F11041B9097BD545ABAEF3367F4A0DD1C59581AC285E4D85872985C25A"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drinking_soft_v2_attendee-palette.png.import",
+    "sha256": "2A89040DC2B3266CFF61CDFAB0230F7EF56B5E73CD80AFAF47107BB4A95AF117"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_drinking_soft_v2.glb.import",
+    "sha256": "34E8463B425259A7489B98C0EFDFACB2E839564D9D1B541D38F0259FF9CC12AA"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_eating_v2_attendee-palette.png.import",
+    "sha256": "84AF95437A9EAA0A399FF979398BDC70D453450CB8F805231E4FEC08EE3089E6"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_eating_v2.glb.import",
+    "sha256": "7AC7FE95F5EAE4D18DC9B69C2D920B88AC1A94DB6CB72DB6EFC778D8868FEB41"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_food_hold_v2_attendee-palette.png.import",
+    "sha256": "72F1556542360DE98A3B8FDEC0AA4BC92ED553977210E5891CEE9772B75353C0"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_food_hold_v2.glb.import",
+    "sha256": "F03407D56C70D23B863B3F4E78E3E26871ACBDA810DB957393AB60A4DAD1B383"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_relaxed_v2_attendee-palette.png.import",
+    "sha256": "4D1D17DA8F0502B269400F18D68792B3D2E14395D3D7000B4DA1952ACB75C0D3"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_female_relaxed_v2.glb.import",
+    "sha256": "B9E46274E1C14AB47000BBC6A0EF2B0775C33A35D4727896A860B882F0088682"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drink_hold_v2_attendee-palette.png.import",
+    "sha256": "99F1892E9B04F45C851F6739A425473DA3C923FFDA9D44BAAA81F079DE7CC6E8"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drink_hold_v2.glb.import",
+    "sha256": "FCC43AD1925B17CB58E23DA76ED1B1970469BBCEDC12E44C26001BB89E8C6692"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drinking_beer_v2_attendee-palette.png.import",
+    "sha256": "0377281BF1B5EDC6691B95DA8F81CD39B7F8D55A230B00C52FB9E46CEC4A1AC9"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drinking_beer_v2.glb.import",
+    "sha256": "83250643BC33A64256FD90E911A8ABC61918034AF19DDAC0196C322D22868C88"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drinking_soft_v2_attendee-palette.png.import",
+    "sha256": "C16075625D246A4278CDA8B83E3FE66D084641DE237C4B1F4C41F02459407761"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_drinking_soft_v2.glb.import",
+    "sha256": "A850D106F4190148733DF82C088B41C72984C46A9C52BACBF1140E9919913957"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_eating_v2_attendee-palette.png.import",
+    "sha256": "7CCE750C11BF29F828864FB72457BD355430101E3F0828791DA8BC9408B36DD5"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_eating_v2.glb.import",
+    "sha256": "CF8A4F48BC6FA957900579A9CE8509752DF3C031453B7965CFB472C03E501715"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_food_hold_v2_attendee-palette.png.import",
+    "sha256": "0DF65A19D8AD6362194545E929F0F242E17E92459C2C0254D2133D0D4CA92EC5"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_food_hold_v2.glb.import",
+    "sha256": "D4EA1E89FFEDD334A8D22E075634185F7FFC5AE44BD5307CFB00D053690D5935"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_relaxed_v2_attendee-palette.png.import",
+    "sha256": "141D97679EB7EEB18F7BC870962BBD43126D3EDE6F436256AD48B2EC052BAFCD"
+  },
+  {
+    "path": "game/assets/characters/lwf_attendee_male_relaxed_v2.glb.import",
+    "sha256": "EF6BFF01969A1681088AA6F415D6C5BE34CB00741056D7AE5178278E00AE80C4"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_female_kit_v2_lwf_bassist_body_palette_v1.png.import",
+    "sha256": "8174822904502A1BE1271F3C33FCE6D54E6F27F02489D0E31AF86DF4AB47D3B2"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_female_kit_v2_lwf_bassist_palette.png.import",
+    "sha256": "5E9E1A3908F39CDF22CD3C8711E934484126AAD9E550336989654A4BCB39FFF0"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_female_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "E3427B78E6ECD6E7803D7D9066E9ADB266495FB3A4581211440CCF6E1CBB1612"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_female_kit_v2.glb.import",
+    "sha256": "FC370796DFF0B6F7B7CD5FC428C945F7E7AB31326AA909FA92AD74F03A3055D8"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_male_kit_v2_lwf_bassist_body_palette_v1.png.import",
+    "sha256": "E1D5ECB4159BE9E8ED82DA6BE0CEA0C22C2A236FE0AA73CCE8085AC5363D4945"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_male_kit_v2_lwf_bassist_palette.png.import",
+    "sha256": "94EB2F575F9A218CE52725B2867625DC95B5989CCCBA97EDF8CA7E8E3227810D"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_male_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "A014E4FE9C3A639E5ABF8EF58DA3B2199D0C7437392E87D96824D9E07F0CFFC4"
+  },
+  {
+    "path": "game/assets/characters/lwf_bassist_male_kit_v2.glb.import",
+    "sha256": "1E797818B4F6CA91ECB982099FEA4E16CDE116B79FC47136A70A23EBE1774A99"
+  },
+  {
+    "path": "game/assets/characters/lwf_drum_hardware_only_v2_lwf_drummer_palette.png.import",
+    "sha256": "7E19E4413A213B289C71774B20830558322F45472CFFD59CA0F2C280A5E39620"
+  },
+  {
+    "path": "game/assets/characters/lwf_drum_hardware_only_v2.glb.import",
+    "sha256": "0E0B479E66C5C7A7AC6593AF747C32383D90F57BF15BCFDFB8BDA3B46A55C29C"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_female_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "37F5E38A7151B6FF6C4F034F21BD507F31CD8EA5D05D318A2A229E670036917B"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_female_kit_v2_lwf_drummer_body_palette_v1.png.import",
+    "sha256": "295E8E03C6DDEBC36E7E5645D03C77F3E0AD54671F9AC1F6ADA028A5EC514803"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_female_kit_v2.glb.import",
+    "sha256": "FBAE24EF80BCA3F71031AA758EAA52F7009626D43F2C07685C87D2F75310E0B7"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_male_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "9DE5CB67BDE641EF369F44053F491BDC2505890F6A92A6B2936AD951268BC74A"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_male_kit_v2_lwf_drummer_body_palette_v1.png.import",
+    "sha256": "8DCD3B8357C15C411CC4FA7F2FC307A8531D1D77DB6734E5F894BEE6CC29BEA0"
+  },
+  {
+    "path": "game/assets/characters/lwf_drummer_male_kit_v2.glb.import",
+    "sha256": "814598627CAF6F4EB4E6CEB9F771A040F5E3BB1FEAF93C565D832A2CE9456D8A"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_female_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "28E505F5A83E34721B38C088A6E2EA3BA1D05977DF1600EEE26714D467FE0C87"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_female_kit_v2_lwf_guitarist_body_palette_v1.png.import",
+    "sha256": "754BEB6ADE3C9D382CC0491680A3A4C2FD26628D75CCB7C80BAAA960F293E9AD"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_female_kit_v2_lwf_guitarist_palette.png.import",
+    "sha256": "AB3B34FF3D3B258A282E38A0EEAC1D87608DE47F2EDFB28603962A38B9C20B74"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_female_kit_v2.glb.import",
+    "sha256": "A4A2BF9EC704715E3B522A339675C90A7994CC56034298F607E18152BD056DB1"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_male_kit_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "96756BD7CB5A0B9373E7A127D06AB7B1D85B6B8B5DFE0AD59353201A01244518"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_male_kit_v2_lwf_guitarist_body_palette_v1.png.import",
+    "sha256": "E33157B7152C32B8B5D5BBEFB7F13F25DD7009AFFA4A13756ED282BB50543792"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_male_kit_v2_lwf_guitarist_palette.png.import",
+    "sha256": "5079D4BCFF4512C3E597E7C831005313CAFB90C9D70EC0B1FE266937AFD66C1F"
+  },
+  {
+    "path": "game/assets/characters/lwf_guitarist_male_kit_v2.glb.import",
+    "sha256": "850B20E31DD0B3BED029584A8508F9F20644E48B180CC24D15CD5127CA8FD2A0"
+  },
+  {
+    "path": "game/assets/characters/lwf_maintenance_female_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "1FBEA3C1A00483A07A15B177DE1C00242F9E764B12477D717533309DB24414BC"
+  },
+  {
+    "path": "game/assets/characters/lwf_maintenance_female_overlay_v2.glb.import",
+    "sha256": "680802205B34D97A01A1840A340A3C17037A714E43082D88CA4EC69F62C49CC0"
+  },
+  {
+    "path": "game/assets/characters/lwf_maintenance_male_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "34D6215438C155F65E4EE3F8DBB045E358138DE7257FFC1EA49FF08BD5E9ED15"
+  },
+  {
+    "path": "game/assets/characters/lwf_maintenance_male_overlay_v2.glb.import",
+    "sha256": "53B17664704332A9D60B1163D0DCFAF8CC97D062472668B9166BB6B5DD695D65"
+  },
+  {
+    "path": "game/assets/characters/lwf_medic_female_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "F78F1FF902A37068294AF12B4BCF1DD87FE884C6B8CECC936E5A935E6D123596"
+  },
+  {
+    "path": "game/assets/characters/lwf_medic_female_overlay_v2.glb.import",
+    "sha256": "BE09BD51B48B6747E514D3E2C9BD258F33E46E61F667F388155E05845665C949"
+  },
+  {
+    "path": "game/assets/characters/lwf_medic_male_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "05E74C4C28AF7FD5E4E3001ACFBAD0FEECB0D613E58DDC7F963F3BDB58B895D0"
+  },
+  {
+    "path": "game/assets/characters/lwf_medic_male_overlay_v2.glb.import",
+    "sha256": "EBAF512841FB14E5044399B962873AB308CD9481F8BAE8889FF8D544709DF6D9"
+  },
+  {
+    "path": "game/assets/characters/lwf_performer_female_body_v2_lwf_guitarist_body_palette_v1.png.import",
+    "sha256": "2706D734A7C2AE9362CF754577E90F81556ABAEC0F3F85BFBB74BCE8A0F7DE0F"
+  },
+  {
+    "path": "game/assets/characters/lwf_performer_female_body_v2.glb.import",
+    "sha256": "9EC867AA79849135A6B06418E1D0AA588EC45D54A7E9492608D2FA2072E6D73B"
+  },
+  {
+    "path": "game/assets/characters/lwf_performer_male_body_v2_lwf_guitarist_body_palette_v1.png.import",
+    "sha256": "E196DFDE2C00935A17E94868842825906B118DE3F6B2735D114A860463DAB5CA"
+  },
+  {
+    "path": "game/assets/characters/lwf_performer_male_body_v2.glb.import",
+    "sha256": "5BB7D065CCECCB572B901CA5579647E9A9A61F8DC485371DC97D47B6B6363A4C"
+  },
+  {
+    "path": "game/assets/characters/lwf_sound_female_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "C7CA37A50B590B2DC26808240408229C0C44C98BA51A90B90538EF11AB65D8A3"
+  },
+  {
+    "path": "game/assets/characters/lwf_sound_female_overlay_v2.glb.import",
+    "sha256": "735F2EBAEFF2162ED99CA4BD91D66D66FA63A5EB4604EC097188087E3D9EE945"
+  },
+  {
+    "path": "game/assets/characters/lwf_sound_male_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "E8EC95D608D98869A8D81DC1BE9B29FBD8F860DC5C83E30D774F653A708E6350"
+  },
+  {
+    "path": "game/assets/characters/lwf_sound_male_overlay_v2.glb.import",
+    "sha256": "B4E8245D0BAB0729DF22A75DD42392C73EC05F6170F679886BEF487EDB37299F"
+  },
+  {
+    "path": "game/assets/characters/lwf_steward_female_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "3871EE805B1874565E69BCDE5DF49F2E8C97368FB8D9514F06483011D4DE4859"
+  },
+  {
+    "path": "game/assets/characters/lwf_steward_female_overlay_v2.glb.import",
+    "sha256": "DB9D8FA996B4B4226261703CDA153363BBD2C93EA6E10EF398FAB81892A6A54B"
+  },
+  {
+    "path": "game/assets/characters/lwf_steward_male_overlay_v2_lwf_crew_trim_palette_v1.png.import",
+    "sha256": "43F3A6EF4C10076ECCEBD70C3B300A742DB1850D2C0E46DE4E0999DCC839EB07"
+  },
+  {
+    "path": "game/assets/characters/lwf_steward_male_overlay_v2.glb.import",
+    "sha256": "D8FE7E8ABA59E98178958B64BB7BFB53434A38B5548711F7914CE741DDFFE5F1"
+  },
+  {
+    "path": "game/assets/ui/field-notes/doodle_rain.png.import",
+    "sha256": "9A912158A08AD39759E802BA6CF87FE2FE2E9F0F839E01F2BA36019E68D1A11B"
+  },
+  {
+    "path": "game/assets/ui/field-notes/pin_rain.png.import",
+    "sha256": "785663903AFAB6BAC0307B2EFA681C28F9CD47D4A202E4DF45B448FEEB65E0E0"
+  },
+  {
+    "path": "game/Hud/ResultsPaper.YourShift.cs.uid",
+    "sha256": "9FB76E2EAC0790AB6E8C279EAF453BFADFCE4C12412DCFC845A6AB0594DA54B5"
+  },
+  {
+    "path": "game/Main.EntranceEvidence.cs.uid",
+    "sha256": "7CDC335A988F7B1ACB9FA88BAFF086C092C97B5C8FA7F99FE7EF59A899B8FF51"
+  },
+  {
+    "path": "game/Main.HandsOnCues.cs.uid",
+    "sha256": "E2C74E920A3EF57AAF4A4B65618A1EA4C6A14F54E2DEFF030B14E2B77938E03A"
+  },
+  {
+    "path": "game/Main.LavHoseEvidence.cs.uid",
+    "sha256": "C11B019E53CBA964889A373F435BA7F919D6FBB9D7B5478E8AA446F447C10008"
+  },
+  {
+    "path": "game/Main.NowPlaying.cs.uid",
+    "sha256": "62FF8533B5ADA9485512D3D157F3EF7EA81F1332D74C9AB853C579C9D1D511E6"
+  },
+  {
+    "path": "game/Main.NowPlayingEvidence.cs.uid",
+    "sha256": "E17CFDCAC06BE4520E2FEB843976F7BA0B3973A1F53C50A9BFF10E2A68C2529D"
+  },
+  {
+    "path": "game/Main.RadioMenu.cs.uid",
+    "sha256": "67620AFD221C594B27ECEB181AD7F5706C45DFA8A130F869C496FD800BBDCF33"
+  },
+  {
+    "path": "game/Main.SiteMap.cs.uid",
+    "sha256": "848CAFD806E2E8BEA18B2A29DC9D451AD9A552060405F247DA617A5DFBB42A9D"
+  },
+  {
+    "path": "game/Main.StrawMarker.cs.uid",
+    "sha256": "29B2FBC99D3C26C92B9EDA10BCFAB596425DCC7F0C294AC0F7E47998A63FFD44"
+  },
+  {
+    "path": "src/Festival.Simulation/packages.lock.json",
+    "sha256": "EADEA5A9D191CF8D282E162CFFE83E72D13D8A12E5D41F4368D49A8D10E06117"
+  }
+]

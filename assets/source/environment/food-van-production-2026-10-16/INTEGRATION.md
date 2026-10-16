@@ -14,6 +14,10 @@ The existing assembly offset stays Godot (−2.15,0,0); server anchor (0,.47,.88
 
 All models fit the original 13×7 half-metre-cell reservation. Curry extends .21 m beyond the old physical hitch but retains .13 m reservation margin; rear steps extend .01 m beyond the former physical rear with .30 m reservation margin. Navigation, service and queues are unchanged. The ray-picking target alone is 6.5×4×3 m, centred at vendor X−.5/Y2: it covers the new cab/roof inside the existing reserved X/Z bounds. It is not authoritative collision or a footprint expansion.
 
-Native diagnostics select isolated save roots before creating any host, check all models/orientations/materials/picking and both server rigs, then exercise actual normal simulation offers, purchases, customer-held food, pause and file roundtrips. All ordinary/development save files and directory names are pinned before/after. Final source and copied-EXE acceptance is required before the playtest handoff.
+Native diagnostics select isolated save roots before creating any host, check all models/orientations/materials/picking and both server rigs, then exercise actual normal simulation offers, purchases, customer-held food, pause and file roundtrips. All ordinary/development save files and directory names are pinned before/after. Independent source/native review passed: 194 runtime checks and 41 existing core tests; actual copied-EXE review also passed 321 checks (194 food, 66 Survival, 61 stress). All 233 player files/52 directories and payload/exported-source/preservation hashes match independently. See the final integration and EXE reports.
 
 No new art design, coffee/tractor change, pricing, queue anchor, food economics or simulation rule is included. Staff doors remain static geometry; enlarged inspection camera views are labelled separately from normal minimum18/default62 views. Existing roof/fascia occlusion and performance limitations remain.
+
+Existing directional shadows produce bands on broad panels/roof at some viewing angles, including pizza at nearest normal zoom. Controlled same-model comparisons establish shadow dependence; production lighting remains unchanged. Shadows-off captures are diagnostic only.
+
+

@@ -1,0 +1,855 @@
+{
+  "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-food-vans-2026-10-16/FestivalTycoon.exe",
+  "checks": [
+    {
+      "name": "food-van-ChoosePerkCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-UseDefaultBuildLayoutCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-initial-host-isolated-before-commands",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-exact-model",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-curated-materials",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-external-chalk-menu",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-steam-markers",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-reservation-fit",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-unchanged-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-real-placement-ghost",
+      "passed": true
+    },
+    {
+      "name": "chips-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.2962000513076781,
+      "maxPropTiltDegrees": 0.015261197462677956,
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-male-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "chips-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.29612852573394766,
+      "maxPropTiltDegrees": 0.045326173305511475,
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-female-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-normal-directional-shadows-enabled",
+      "passed": true
+    },
+    {
+      "name": "food-van-shadow-probe-restores-light-with-same-model-and-state",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-trader-rebuild-removes-old-pick",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-exact-model",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-curated-materials",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-external-chalk-menu",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-steam-markers",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-reservation-fit",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-unchanged-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-real-placement-ghost",
+      "passed": true
+    },
+    {
+      "name": "pizza-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.2962000513076781,
+      "maxPropTiltDegrees": 0.015261193737387657,
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-male-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "pizza-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.29612852573394766,
+      "maxPropTiltDegrees": 0.04532615467905998,
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-female-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-normal-directional-shadows-enabled",
+      "passed": true
+    },
+    {
+      "name": "food-van-shadow-probe-restores-light-with-same-model-and-state",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-trader-rebuild-removes-old-pick",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-exact-model",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-curated-materials",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-external-chalk-menu",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-steam-markers",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-reservation-fit",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-unchanged-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-real-placement-ghost",
+      "passed": true
+    },
+    {
+      "name": "curry-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.2962000513076781,
+      "maxPropTiltDegrees": 0.015261199325323105,
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-male-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "curry-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.29612852573394766,
+      "maxPropTiltDegrees": 0.045326169580221176,
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-female-all-six-clips-and-crossfades",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn0-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn0",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn1-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn1",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn2-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn2",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-service-anchor-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(0, 3.8, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-physical-pick-turn3-(-3.6, 1, 0)",
+      "passed": true
+    },
+    {
+      "name": "food-van-shared-click-resolver-turn3",
+      "passed": true
+    },
+    {
+      "name": "food-van-MoveBuildServiceCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-normal-directional-shadows-enabled",
+      "passed": true
+    },
+    {
+      "name": "food-van-shadow-probe-restores-light-with-same-model-and-state",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-live-save-isolated",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-real-owner-at-counter",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-real-pause-freezes",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-actual-busy-steam",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-presentation-does-not-transact",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-real-sale-empty-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-customer-held-receipt",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-customer-visible-food",
+      "passed": true
+    },
+    {
+      "name": "food-van-chips-no-duplicate-transaction",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-live-save-isolated",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-real-owner-at-counter",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-real-pause-freezes",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-actual-busy-steam",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-presentation-does-not-transact",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-real-sale-empty-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-customer-held-receipt",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-customer-visible-food",
+      "passed": true
+    },
+    {
+      "name": "food-van-pizza-no-duplicate-transaction",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-ChooseFoodTraderCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-live-save-isolated",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-real-owner-at-counter",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-real-pause-freezes",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-actual-busy-steam",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-presentation-does-not-transact",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-real-sale-empty-server",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-customer-held-receipt",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-customer-visible-food",
+      "passed": true
+    },
+    {
+      "name": "food-van-curry-no-duplicate-transaction",
+      "passed": true
+    },
+    {
+      "name": "food-van-SetPausedCommand Command accepted.",
+      "passed": true
+    },
+    {
+      "name": "food-van-all-server-checks-pass",
+      "passed": true
+    }
+  ],
+  "architectureChecks": [
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "chips-actual-sale-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "pizza-actual-sale-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "curry-actual-sale-file-roundtrip",
+      "passed": true
+    }
+  ],
+  "liveSamples": [
+    {
+      "product": "chips",
+      "tick": 10722,
+      "owner": 34,
+      "queue": [
+        34
+      ],
+      "XMillimetres": 4250,
+      "ZMillimetres": 17250,
+      "action": "Arrived",
+      "serviceCell": {
+        "X": 136,
+        "Z": 162
+      }
+    },
+    {
+      "product": "pizza",
+      "tick": 10783,
+      "owner": 34,
+      "queue": [
+        34
+      ],
+      "XMillimetres": 4250,
+      "ZMillimetres": 17250,
+      "action": "Arrived",
+      "serviceCell": {
+        "X": 136,
+        "Z": 162
+      }
+    },
+    {
+      "product": "curry",
+      "tick": 10660,
+      "owner": 36,
+      "queue": [
+        36
+      ],
+      "XMillimetres": 4250,
+      "ZMillimetres": 17250,
+      "action": "Arrived",
+      "serviceCell": {
+        "X": 136,
+        "Z": 162
+      }
+    }
+  ],
+  "caveat": "Staged native orientations and imported clip sampling plus actual normal simulation purchases. Inspection6 is enlarged; minimum18/default62 are normal zooms. No performance claim."
+}

@@ -1,0 +1,13 @@
+ERROR: System.InvalidOperationException: Server runtime check failed: food-van-curry-steam-markers
+   at Festival.Game.Main.ServerCheck(String name, Boolean passed) in /_/game/Main.ServiceServerEvidence.cs:line 31
+   at Festival.Game.Main.FoodCheck(String name, Boolean passed) in /_/game/Main.FoodVanEvidence.cs:line 23
+   at Festival.Game.Main.CheckFoodModel(ImmersionProduct product) in /_/game/Main.FoodVanEvidence.cs:line 64
+   at Festival.Game.Main.ProcessFoodVanEvidence(Double delta) in /_/game/Main.FoodVanEvidence.cs:line 179
+   at: void Festival.Game.Main.ProcessFoodVanEvidence(double) (/_/game/Main.FoodVanEvidence.cs:179)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessFoodVanEvidence(double) (/_/game/Main.FoodVanEvidence.cs:179)
+       [2] void Festival.Game.Main._Process(double) (/_/game/Main.cs:82)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [4] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:5900)
+       [5] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

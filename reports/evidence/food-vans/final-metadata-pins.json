@@ -1,0 +1,1230 @@
+[
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\DESIGN_INDEX.md",
+    "sha256": "A38968AC1757137CB96CAA883EEBDA32FE0366E72D3EF424E82A7764209B56A2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\food-van-production-2026-10-16\\INTEGRATION.md",
+    "sha256": "1B4E83126A6F84EDC6F4C409A1531FF38CDEBDA14240194B5A9CA26524462004"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\food-vans-exe-independent-review.md",
+    "sha256": "05667A0AE6B945BEC495716E24B8F1350B0AE896F2140594072577AD1D9A934E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\food-vans-integration-handoff.md",
+    "sha256": "C4C970DDAFE24758EDBD65703D79F6A94A8AA2EF195BF36B46E2DB29077A09F0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\food-vans-integration-independent-review.md",
+    "sha256": "D51F6F5B3331F0B44B8F9FBD11622DD4A76144F60199AFA4240D9A348AC1B30F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\checks.json",
+    "sha256": "9692EFC5E9BF38CEB8D46AAB9D16C8226E9FA5EF0D0AEFC6CF91A5459691FAD3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-actual-offer.png",
+    "sha256": "C50F4BD0D432CEC3A9B13F240EA3ED597B861BB6D3A9C91CFC920B94461750E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-actual-sale.png",
+    "sha256": "5EE1BBC71DD26B04AA8A988423A133920CA606B793FE7BA5788FC2E16A19E1F5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-default62.png",
+    "sha256": "DA0482642350389A4301C8E5EA093CC30D4BCC07E9359DA8080A459E31919663"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\chips-minimum18.png",
+    "sha256": "EEDC39A002FA33381B2D543DDC11D3C764E69E9E0BBD01EBC643BBB7E886219A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-actual-offer.png",
+    "sha256": "FC12BCC019D6C6C3C30278FDDA4DA007AE86AAA1BBB6741FB5A8164EEE826EC3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-actual-sale.png",
+    "sha256": "816FBF39E3A74AFAFFA3F0E68BD5D4B92FF130B1970AB2530A9656ABF150F85C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-angle0-inspection6.png",
+    "sha256": "DC692516B4BE4E3FCAB19BDB226DD39FA030E9AA6A5936B287D9D5D2912E7E86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-angle1-inspection6.png",
+    "sha256": "C0F30A7651A2D35C2AF04357EFDAF5D3644ADD3716B788D87497AD0DAF9C29F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-angle2-inspection6.png",
+    "sha256": "26AE3832FD264A99A63F4A191165ACE9FD8A27AF2798815C9D4FB4B02D8DCD8B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-angle3-inspection6.png",
+    "sha256": "ED521CCBFB8757849C23721659DB1B9A71326D142FBD1664AEC6B5DBB5BD840C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-default62.png",
+    "sha256": "6086DA1135DFB3579052C12506ECD21888A58C52077AB3CAD9012DD6A5FE3FAD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\curry-minimum18.png",
+    "sha256": "09DBB307F53F7C4A880B65F2876EA4C3C66A03BD7B4F6286CF5BC13F6DD1E52A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-actual-offer.png",
+    "sha256": "391DC0264BAFD2E0F93A875468B0A84B198C773A4D81849B7526E3EDBBC9E58A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-actual-sale.png",
+    "sha256": "E429FDBFFBB23F695AE51ABDFFED29AD7EDA7BF29E570AF5EFF8197126BECF48"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-default62.png",
+    "sha256": "50FBDB463B24DB38FC84679B250D879CA07C53B2AADE84747A069C8F9A39B9DF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fifth\\pizza-minimum18.png",
+    "sha256": "6A0BDAE348FEE4E815782A3BD4C09F7859331DDAA78B4F29C6D876E7DB94D7EF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\checks.json",
+    "sha256": "ED826A4BAF2D6C75866D536177B608A3FD75A769D85B9987631E83C63E5C809A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-actual-offer.png",
+    "sha256": "5935ABD4486338F80963DE290F04518EE076B938D726A806716F6774846201A3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-actual-sale.png",
+    "sha256": "D17E43EE5850D13E4E09A941BAFCAB52DBF11FE713E93B162D0A35D5D90A52FD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-default62.png",
+    "sha256": "A472963B9B505137AD003EA6EE57B3D0325136E00AAC84B4B38E088439D358CD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-minimum18.png",
+    "sha256": "3763DAD8E512C478D5830751416063E11200A482FE94E558E9D3021A43AF3E25"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-shadow-off-diagnostic.png",
+    "sha256": "1C6F2B61A0EA9B8410407FAF561E3C69029474F10D4BE4F646EF874942D78E4D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\chips-shadow-on.png",
+    "sha256": "E793285C4BCE000CFD0B5966561CA634134E719EAC21EEF51998E473B661B1B2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-actual-offer.png",
+    "sha256": "B98B209157671FAFB9A99F237CB791E5FBA39856098D7BB3A25A1CC1F84F699D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-actual-sale.png",
+    "sha256": "040E10586038285EA8B291A6E6B347DA47C3BE654513366FD287837B186CC636"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-angle0-inspection6.png",
+    "sha256": "DC692516B4BE4E3FCAB19BDB226DD39FA030E9AA6A5936B287D9D5D2912E7E86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-angle1-inspection6.png",
+    "sha256": "C0F30A7651A2D35C2AF04357EFDAF5D3644ADD3716B788D87497AD0DAF9C29F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-angle2-inspection6.png",
+    "sha256": "26AE3832FD264A99A63F4A191165ACE9FD8A27AF2798815C9D4FB4B02D8DCD8B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-angle3-inspection6.png",
+    "sha256": "ED521CCBFB8757849C23721659DB1B9A71326D142FBD1664AEC6B5DBB5BD840C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-default62.png",
+    "sha256": "0EF32C0F48D8CF56F4B56CEEBE743A3CEB0F4F303AE299D4B50AD2721A9676E7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-minimum18.png",
+    "sha256": "A33AF32AC7DF310CAAAB1B511505F192355E4EE5D06A51575BF0CFBFDF789303"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-shadow-off-diagnostic.png",
+    "sha256": "C054B74B51556CC51E68D6AD9E21C307F3C363BDA774A71F7C22FCC01121D9F0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\curry-shadow-on.png",
+    "sha256": "C5E422FFCA01A7C4490678C11CE1CC26A06370E9B95B1D0398C6A3B14620809D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-actual-offer.png",
+    "sha256": "A7429E63D9BB899F91EE24B09A47DD21C08B738C2EAB440E9A83FC8D865061D3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-actual-sale.png",
+    "sha256": "4ECE8DF2CD4CBDCD8F99D2E7F1A604010208FBAF0CEB1DF9D12BD169F4D7EF5D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-default62.png",
+    "sha256": "E08858B7A8E2F5F28BCA17F036209F224981C6C03998D853DCC42DD616388187"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-minimum18.png",
+    "sha256": "054232E0F93419FF6E1443BF8BCF579CA994DC1D905C5580E5AB0BC7B9CBB714"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-shadow-off-diagnostic.png",
+    "sha256": "DDF99EC4B96A742D071EB9A4527D7B94D1412C9BEF4978C6DE519BBC07F78B35"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-final\\pizza-shadow-on.png",
+    "sha256": "B0D132E154E36ED51CE5935ABC2F62F44E1BDC2B922AF08C41C7E798DA4E8ED2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-first\\failure.txt",
+    "sha256": "04733AAFAAF0120A43BD1D291FE013A48280D3602BC1C9B88FB5CFCF73ED228E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-default62.png",
+    "sha256": "7FE735F424ED8D47BE76FF32AD68EDBD01845155F556FC6D9AC3F8A3BFA1B942"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\chips-minimum18.png",
+    "sha256": "F1D50C59AD2277F91D68C2D2DFBE0070880E20B911B510C55960BAF37B679F6D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-angle0-inspection6.png",
+    "sha256": "DC692516B4BE4E3FCAB19BDB226DD39FA030E9AA6A5936B287D9D5D2912E7E86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-angle1-inspection6.png",
+    "sha256": "C0F30A7651A2D35C2AF04357EFDAF5D3644ADD3716B788D87497AD0DAF9C29F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-angle2-inspection6.png",
+    "sha256": "26AE3832FD264A99A63F4A191165ACE9FD8A27AF2798815C9D4FB4B02D8DCD8B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-angle3-inspection6.png",
+    "sha256": "ED521CCBFB8757849C23721659DB1B9A71326D142FBD1664AEC6B5DBB5BD840C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-default62.png",
+    "sha256": "8BD5381117E4BDC236346A899D4A51E152F95DD762746B4102247653165D5C3C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\curry-minimum18.png",
+    "sha256": "1BB85BA3C346DFAC5A6A1926CE5AC3F840829F92440703DEFB1674837E278AD2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\failure.txt",
+    "sha256": "E9A995E18204DE5A4ECC65CAD2D62A60E72FCE7A6ACE2ED07A010EABE09BDB2B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-default62.png",
+    "sha256": "96BE385382DAE1196CD218753500AE9C8CF2417A62B3380C1D0CAD3FB0E765CD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-fourth\\pizza-minimum18.png",
+    "sha256": "1D6B2C27A855EBE873750E56648A9FA93E29E8930DCCB7B891148E4DEC6C8032"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-default62.png",
+    "sha256": "889B8FE15772F45CAB35995A714060ECB25464BE8536AC2C9FFF3E31347320E3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\chips-minimum18.png",
+    "sha256": "FE694FA9E7F1EDA122606909FD686A045BE49D9FAC65F2960D7995AA7F010470"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\failure.txt",
+    "sha256": "68FFA645D9410C7E15AAC3AFC62F73DCC731E2D65A84869FAC7EF898F3F5E929"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-angle0-inspection6.png",
+    "sha256": "B5D66B0A17840D0E110732FD949E5376711398EF65CAD46F128D7B6BBA6F1CA3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-angle1-inspection6.png",
+    "sha256": "8DE4CCB90E2E022ADB25A7A18A414F3945FB695204C3DC8B0D27DE0F7D3D5E0A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-default62.png",
+    "sha256": "7A8F7D91F0E2405F4E879AAE85E6178BFAD09FC62450F5CCACCCB09111BF49EA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-second\\pizza-minimum18.png",
+    "sha256": "D4EE5DA30A6C2204D41BB259D3D08A4E8959752E73C35030A996487C6DAEEADD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\checks.json",
+    "sha256": "9692EFC5E9BF38CEB8D46AAB9D16C8226E9FA5EF0D0AEFC6CF91A5459691FAD3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-actual-offer.png",
+    "sha256": "7D10345CA4F9201F655698148C6F927FD0AFED56735E77BAAA4F176649F6B1E9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-actual-sale.png",
+    "sha256": "F236C30A5CAE5F73679AF0D1ADEF98A86506535F7A875ECD6B55E23326DCE020"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-default62.png",
+    "sha256": "EE9342DDA8DEFF8BB454CF611597E764BAF6D16B8DF35183890B0AC6284259C4"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\chips-minimum18.png",
+    "sha256": "D59D959E80BA100F0C51D1D404FDEC018B29E621A367F1C786297E7FED12C796"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-actual-offer.png",
+    "sha256": "A8B7332BAB6A56A3BD600AC95684ECBA78A9A7C64E5B1BEF9844E0BA33781B31"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-actual-sale.png",
+    "sha256": "B101FA7A41ACC557824363E30512EB116876AF35EB57C020DCFF2A48F21441C3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-angle0-inspection6.png",
+    "sha256": "DC692516B4BE4E3FCAB19BDB226DD39FA030E9AA6A5936B287D9D5D2912E7E86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-angle1-inspection6.png",
+    "sha256": "C0F30A7651A2D35C2AF04357EFDAF5D3644ADD3716B788D87497AD0DAF9C29F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-angle2-inspection6.png",
+    "sha256": "26AE3832FD264A99A63F4A191165ACE9FD8A27AF2798815C9D4FB4B02D8DCD8B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-angle3-inspection6.png",
+    "sha256": "ED521CCBFB8757849C23721659DB1B9A71326D142FBD1664AEC6B5DBB5BD840C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-default62.png",
+    "sha256": "E916FB283D41357EDBD8B79F0C6A4FE9FCD8774140383C7C168549E2B1121B58"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\curry-minimum18.png",
+    "sha256": "2245DB45B22251429DF3C27A72814E3BC902F3E415E24DF8B123239B01D35E62"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-actual-offer.png",
+    "sha256": "728EF33D14E208D3C913D530E0B086004BE559D261ED5D125DBF759F7EEADF2F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-actual-sale.png",
+    "sha256": "D0C48F20C89436CA2CB74CA636FA93EDD45277B843305DE489F1176710117A80"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-default62.png",
+    "sha256": "045600B98760CD891A357407849904DD4380BBEBC7614C5F36CEA0AB8BB32594"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-sixth\\pizza-minimum18.png",
+    "sha256": "E1340086D4FA2AD35956CB1E32A0D985B9F52B1EEC7268BFD99992B263DAE503"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-default62.png",
+    "sha256": "42B8D46769954247EBD121FF79C846320FF8D9508388F440DF40C6322850531F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\chips-minimum18.png",
+    "sha256": "D4F73506FD0E5D44B5CD9657118F52937715918A1F37C7E3A6AEC3AF095A09D0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\failure.txt",
+    "sha256": "7B941E6354027472C75B9478C0E42ABB9C4C30784D878D7BB165338F7F9BA1B3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-default62.png",
+    "sha256": "247512EC33195AC8B22512D2B641F54170D516F156E33D85287EC17D70B2800F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\builder-native-third\\pizza-minimum18.png",
+    "sha256": "6D426AE74920D34BD16A26E8529DBB3594738FC2C95DDA451021C45E077BA7E1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\check-export-pins.ps1",
+    "sha256": "6AFBD3BECCEA3D671370DB74E08238084FEEE203B709F57EAE1138274B6A53E2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\check-player-saves.ps1",
+    "sha256": "9324C8DE4BDE34C0A9576871D83FFF0A7D72D48D447AF56AB164CD69BDF71A24"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\create-export-checkpoint.ps1",
+    "sha256": "FD2870DE4A143E4AEAE12E6516784CAE7FC9AA6D7E424F913D872490EDB37F1E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\export-checkpoint.json",
+    "sha256": "C5A608AA14B23C9CE21C94F8EA90C3E03A7DE9A1DBEFA8F078F2929493EB46F0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source-overrides.json",
+    "sha256": "9B0A16E8871E89E06412B5210D20B1624ED69D767BADF6CB3BF2CB9445556388"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\game\\Main.Classic.cs",
+    "sha256": "D9A39341A91930AD130B563D9C53465BCDC59C0EC6508F8BC8DF01BC32D6DFE2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\game\\Main.cs",
+    "sha256": "EBBD5B970000A3B43E9D263F21876FC23A2F240FE1EC26E6408BA172B9A795AE"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\game\\Main.HandsOn.cs",
+    "sha256": "88ED28EE9153C7BAC01F143D88EFA5227FF9ABF0B422581D5D3F696A78BEA5FC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\game\\Main.StewardShift.cs",
+    "sha256": "C2B8DB4A56216BA60FB8BD7DE8CC9953C1954F137D2D0BBC6B29F8F2402D513A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\src\\Festival.Simulation\\CrowdStanding.cs",
+    "sha256": "FEC64941BC13B787FB718B00D58C5FE5067F87A2A61897670450D8F8653A2213"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\src\\Festival.Simulation\\GameSession.Navigation.cs",
+    "sha256": "1422E88A97F4BEEA44BBABF3959DA782AA4E2794A0526B346DD0D4F915125790"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\src\\Festival.Simulation\\LivePerformance.cs",
+    "sha256": "E53AFBC130F385987A0ADC4D36B7D813AEE5210E3FAFF1FC79FC79887FDAB47C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\exported-source\\src\\Festival.Simulation\\MedicalIncident.cs",
+    "sha256": "A42923A8368D639F2A875E867A7A6061B8F75295010FF8CE69BF5D4FBAABECA6"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\finalize-metadata.ps1",
+    "sha256": "050B501E1ABBF73D69A1CAF492D0612E5460520EB732B10D9C4683CB6E000E35"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food-sheet-0.png",
+    "sha256": "97FABAB586445469A732FC2AC67EE450D11925342CAF70D1BC912B58ACBF8AF5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food-sheet-1.png",
+    "sha256": "F0DF8E99093C373503912320B5CBDFEDAB469240CBF97420896613F4046E96D6"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food-sheet-2.png",
+    "sha256": "E95E6C3BC446C2DF45539B2E240C619CBC4BDC0DC65FAC359BA56AA65470C819"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food-sheet-3.png",
+    "sha256": "6E64E7A2E2A0A138B3D338021BBF7846CC74EB56E4A18F19C44BFA337E6B053A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food-sheet-4.png",
+    "sha256": "AE9218EBFDDA4C30E58D566FCCE3A5FEFCED419341CEF7D91C1747BB70A95A0E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\checks.json",
+    "sha256": "E61FE88EAF3FF3F1660B6F599BBAE6460BAA24E52ED0B86362F11D1D769580F7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-actual-offer.png",
+    "sha256": "B2133639B92B8BD29F9CCC226DF214BE6AB14E71F88B74D4E6B48BFB081CE7DC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-actual-sale.png",
+    "sha256": "DC4802E1ADF28982EB0E30FDD39B3B1CBD26C36461E6F5CD8DA1D1F128FF327E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-angle0-inspection6.png",
+    "sha256": "8C77C58A7413DFC0C2EE021A694C339F791200ABA8FF7B61B7C44109CE1D4EEB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-angle1-inspection6.png",
+    "sha256": "907AEEA528A2D6F2636C4EA8CE9ECBEC42205FBCD020407A3D715181A90D7BEC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-angle2-inspection6.png",
+    "sha256": "F36B1A8B43854D6C6185F56D197043FE81333F19B5697151F129B343822A7FEA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-angle3-inspection6.png",
+    "sha256": "B2D819F31CE2AB8CD80DB8E4CF06F773B01EBADF7D94DCA0DDE28C3386A71F13"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-default62.png",
+    "sha256": "2B6884F59AC23BFC89F6BC41D9ACC8A170AE86B3C0B85394858FB9A8DD374080"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-import.json",
+    "sha256": "4085BF43A64F42B3549E7629582CB8D8BB32F4925B3EE5A79C72D130A63C1962"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-minimum18.png",
+    "sha256": "B9B725589B85AF83AB669B5722E04D27773C39824B5823FC45FE9C4578B596D0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-shadow-off-diagnostic.png",
+    "sha256": "1C6F2B61A0EA9B8410407FAF561E3C69029474F10D4BE4F646EF874942D78E4D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\chips-shadow-on.png",
+    "sha256": "E793285C4BCE000CFD0B5966561CA634134E719EAC21EEF51998E473B661B1B2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-actual-offer.png",
+    "sha256": "4680E4A4E9E9C2683450DAD150A01D1289F11A5E950A8C384A698541EEA62A9E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-actual-sale.png",
+    "sha256": "4B88A1CC427635F720BFF7AC7D133FAB9950D17AC848175EE1F6AB23E3A0B4BC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-angle0-inspection6.png",
+    "sha256": "DC692516B4BE4E3FCAB19BDB226DD39FA030E9AA6A5936B287D9D5D2912E7E86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-angle1-inspection6.png",
+    "sha256": "C0F30A7651A2D35C2AF04357EFDAF5D3644ADD3716B788D87497AD0DAF9C29F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-angle2-inspection6.png",
+    "sha256": "26AE3832FD264A99A63F4A191165ACE9FD8A27AF2798815C9D4FB4B02D8DCD8B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-angle3-inspection6.png",
+    "sha256": "ED521CCBFB8757849C23721659DB1B9A71326D142FBD1664AEC6B5DBB5BD840C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-default62.png",
+    "sha256": "E6BA42CAE30C1CBB694D2CAD6E5F794EE65EF400B22D017899367C9AE07B1210"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-import.json",
+    "sha256": "83CA01C388CF6E330CF894FDA8B7E39E84D7C6BC02E227AE9B104BD6329CB285"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-minimum18.png",
+    "sha256": "FFCC8B4D1B36653154A4BBD2D563B9A7C36D79EDFECC85DDE866904D4A14DF34"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-shadow-off-diagnostic.png",
+    "sha256": "C054B74B51556CC51E68D6AD9E21C307F3C363BDA774A71F7C22FCC01121D9F0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\curry-shadow-on.png",
+    "sha256": "C5E422FFCA01A7C4490678C11CE1CC26A06370E9B95B1D0398C6A3B14620809D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\exit.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-actual-offer.png",
+    "sha256": "028E1C7CEBE3A7A56049BAA0C7AFCA3A8A0FD53F620DB3DCEF615215889850C7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-actual-sale.png",
+    "sha256": "9CF8DC258562FF977EC9457555AEBAF643CAE7F8C12AF6699B5E0A23D7F9CE36"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-angle0-inspection6.png",
+    "sha256": "F1B9B7FA349844CF1CAAD74DC94E40D0C6947385B26F1DBB6069BCD3B8A92D8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-angle1-inspection6.png",
+    "sha256": "B7E24A1B3822A559297584486040FD34F3DC427023E38E7EA83C10DC221718E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-angle2-inspection6.png",
+    "sha256": "C185D9BC3AD85CB035A5B16514AD275425B2903E0331F1C4B66021D3C029F3F3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-angle3-inspection6.png",
+    "sha256": "E20E892DEF39E1F7A0A61CC664384D7FB614BA8E80EFFFB1B2891E837783E53C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-default62.png",
+    "sha256": "29CE7A62337D122624CE2EE8506130DAE632D54DFAF9D4B527FEF7690C6D7931"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-import.json",
+    "sha256": "3E02FB6F8F9879CFB2AF1CB54D8C017E760ABD02058B049E75E5A5B40D912194"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-minimum18.png",
+    "sha256": "FA1AD18E50B57CE297ACF6517A253602AF4FD63F86808B76AAD91F7B815916AB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-shadow-off-diagnostic.png",
+    "sha256": "DDF99EC4B96A742D071EB9A4527D7B94D1412C9BEF4978C6DE519BBC07F78B35"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\pizza-shadow-on.png",
+    "sha256": "B0D132E154E36ED51CE5935ABC2F62F44E1BDC2B922AF08C41C7E798DA4E8ED2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\food\\stdout.log",
+    "sha256": "779FB14621E460C0B8411C7CCEFF9FC825551004C14C0391EBC9F30D169809B3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\pins-after.json",
+    "sha256": "3906E5A8EBED9DAB9AFB4C02276CE1E8BD2C53921695B41C3A5609022F7B9A01"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\pins-before.json",
+    "sha256": "1E5D8BB121145652400978077BF8E8624CE6C47DDA1B98A3AD28253B2027A52F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\pins-resumed-before.json",
+    "sha256": "3906E5A8EBED9DAB9AFB4C02276CE1E8BD2C53921695B41C3A5609022F7B9A01"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\provenance.json",
+    "sha256": "0D9081CC9FBD9C52D92CC3394CE3AC9B29617EAB067A4B5BB531ECCFCAF9D391"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\saves-after-survival.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\saves-after.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\saves-before.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-pre-sheet-0.png",
+    "sha256": "BA8935115B0CF9E68C97D53FE6E5464007DE38328F24210B986777E3C6CCF9C7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-pre-sheet-1.png",
+    "sha256": "0BD537CE020161893C4CD2626DB8738EB1D827123375B799751A46D1CEF5F952"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-pre-sheet-2.png",
+    "sha256": "EB7A229BD2E56E9518BA48999405228F92BB7FD61501312CD72AB9F703051FAA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-pre-sheet-3.png",
+    "sha256": "47AF99935EB32DED72BF443E9E344593B0974825C90F984176E7B50B9A1BDEA5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-pre-sheet-4.png",
+    "sha256": "ADD31A1623E1F7A99A4E651EAD631737716D7B04FE885FA9B1C8EF6FD649F22E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress-samples.png",
+    "sha256": "C3B120A1A91E7A570C8573682197CE09F8EA02257F25DA9F6C63E1E85CF375CF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\01-development-menu.png",
+    "sha256": "AF5C50C74B7794626A004ABBFF7C239148B4B674105D2552BB79C7F5CF0E6FBD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\02-development-default-options.png",
+    "sha256": "1DF1BF96CB5844B42F9E4861B47300BF56360495FD7BF9386E1D0D1C1FED4665"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\03-explicit-diagnostic-options.png",
+    "sha256": "B5AC6DA355E50500B03892BEE7C1BE3AD17CE38A3DE6AE4C83EFF17962A0491D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\04-three-stage-forecast.png",
+    "sha256": "5EB49D96E72FB07A790C184B88A975E5D59F16CEC917DC82D7FCF3F4830C4A96"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\05-three-engineer-staff.png",
+    "sha256": "E6687506D3B26D9152D7F62FA5FFEB5CE6756EFAB2DE4EA2C90992FA38F69A2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\06-trailer-bookings.png",
+    "sha256": "35284AE927BBE50BE53E26C9E2A0C8BC606528CC5F265D8C5F3C23EC835FA148"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\07-barn-bookings.png",
+    "sha256": "B8C26F394A859B45A707A1F25D62A9DAB5F2EBF6A4090D60084CA8F78DA2E581"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\08-pond-bookings.png",
+    "sha256": "5663EE5C0FE487D13834B54A3F9BF9A2165B33C69434E74048C8AA259A9FE217"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\09-hundred-attendee-results.png",
+    "sha256": "E0A01E90A074FED036EC4ECD20FE098A79A3E43F8A468AA80F3619451067E10B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\10-next-test-festival.png",
+    "sha256": "57368C80B260455F936B5F98A883FDA5020BD397D67CD4E1F053E357C587607F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\11-pond-headliner-contract-preview.png",
+    "sha256": "D3F9E65945E3115931F680DC608016DA520FCC529AB0FAEE07E81B4FB2DEB752"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\12-pond-empty-headliner.png",
+    "sha256": "D2D27C4A9B680488319DC0831FF1F77583C63C7D472D91B5794F23A4C70C56A0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\13-barn-only-own-generator-cut.png",
+    "sha256": "71449EAEEB8524F23428D8E58AD4940E126E4BE72B31D0321CBBFC347A8F324F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\14-pond-only-own-generator-cut.png",
+    "sha256": "A2F62527680067565056DD0837BF0B6AC8195AD1219DA7062675C80EFA7D5A97"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\15-food-traders-page-one.png",
+    "sha256": "D411187B39A13A5E92329BC8E98C1F1AA15A684EF1416FF61D5137A5938D5E5E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\16-food-traders-board.png",
+    "sha256": "40107763ABCC2C15368EA94A2ED77818423A98FF7C43636B60CB2727B04A2B63"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\17-placed-bins-page-one.png",
+    "sha256": "A936215F92DC1208F15F0D9C6F2DC8B99FDBC16684CB2871570F974F728BE51A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\18-placed-bins-page-two.png",
+    "sha256": "18AF35D63B9695BD21A5DFC6301F0EDCB478FCDBCCD2F51548533897A6DFE11F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\19-additional-buildings-world.png",
+    "sha256": "A9D8C26A0F6C419A210B0E8227670C9C0459C26DEF8D9FF2FE031764F8F04118"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\checks.json",
+    "sha256": "713AE109441BE603513B861343F82AC44D86EFFCCDBAF675D3C13FF8136DA66F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\clip-counts.json",
+    "sha256": "A2B45EC2B7C13D9094562A128DEAA464B2B5B151A3087E75D01E189A88B33BBB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\development-saves\\press-photos\\20260922-t1-a1.png",
+    "sha256": "A3965225CB5B84EABDC814C0850CEED5BE0DDE2743B74B5FD3D9C86C7062392F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\development-saves\\press-photos\\20260922-t1-a1.txt",
+    "sha256": "AFF445BE16141F707269A5CEF50085C64C5FA6B78B0B6D00A54AD2E019E386CC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\exit.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\stdout.log",
+    "sha256": "100391F8570A24687125F1C75B7502DD6A1351E6AC9788B88E62E7D99E929BBF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival-sheet-0.png",
+    "sha256": "169EDD14E13DA5375FA243CE3A54C3FF7DC8E028CDFA85408B186DF28083AD75"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival-sheet-1.png",
+    "sha256": "D357199605052DD1BE3E8B91D965A5282A8F8E144375D257F1D61ECFC43488B6"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\01-existing-control-menu.png",
+    "sha256": "891B15AC28E4B9488E3FA4E97494A355E3A995FF4681A96249FA1BC7948A31C7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\02-existing-rain-challenge.png",
+    "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\03-management-tier-two-live.png",
+    "sha256": "752953F4CD7368EBDCE5260B42B7FC4D1AB1FF4511C89214513B62E1C5F24033"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\04-all-rounder-management.png",
+    "sha256": "8AF79DECE9F4B21DE8B854F0DD27D35D4FBC6A5B6FB7ECF8FA27DA212378A438"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\05-all-rounder-first-person.png",
+    "sha256": "9D9BB1E88C0B24ED15BE9679F99858BB96BC7F80D9E163CE796DF59CBD96CEAC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\06-steward-only-tier-one.png",
+    "sha256": "283B28DF67344A0FE8EED64C53A4973C43D638574D934687957C3E52B39D8DED"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\07-steward-only-tier-two.png",
+    "sha256": "57CB6591580920995DB2D7D4659D20765F4CEABEAF3FA10B3975DCB88252E7B8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\08-resumed-management.png",
+    "sha256": "73B6865F6E1624C65AD3006D90A0FC66C310B5497281CB3694861C390823879C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\architecture-evidence.json",
+    "sha256": "827613A0683EF67B896AD0033F25D9392725129EB670E34792326783747E2526"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\exit.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\survival\\stdout.log",
+    "sha256": "419F9ADCEEBCC48E181D8E9E34CF556E1B8AF0D858365289FFD2D0C98D398C19"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\inherited-reference-changes.json",
+    "sha256": "B4CCE3F5ED824F78D50EBFA2FA51A0E31CC9D642BE5F96F282D6E559E43B5C89"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\original-input-pins.json",
+    "sha256": "E372E65E738178B4E16DE1660FC0F122FAAA7A78ED51F1FC6797C0266B4F9EEE"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\original-package-archive-check.json",
+    "sha256": "E53852CBC3D0641EC77EDAF37D1E64439DBD09FECF6B42F7234A1330450A9F2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\pins-after-provenance-repair.json",
+    "sha256": "3906E5A8EBED9DAB9AFB4C02276CE1E8BD2C53921695B41C3A5609022F7B9A01"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\player-save-pins.json",
+    "sha256": "66A10DC807016C9D91A1D1B898C50E16EC2B829A0495AD8640ACB7B16EBA209B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\restored-original-inputs-after-export.json",
+    "sha256": "A97AD9DAA26BD75E22104C8BDBC02BAAC0612F2E6DE91AD58CA1767D0AEAFB61"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-export.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-fifth.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-final.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-first.json",
+    "sha256": "3AEF929110068BAA32374E5571833E4CC76ABF763C72E616834402345FB98234"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-fourth.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-sixth.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\save-check-after-third.json",
+    "sha256": "C89B2082A4DB1C71135647384443AE2E0923503FFA4CBE6F1654CCA7BFA1ED2C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-eighth.txt",
+    "sha256": "D037718F7CAFA6FFA53AD51192B12EB5054D64E714F18BC9E0A9AC1F7DC05766"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-fifth.txt",
+    "sha256": "8A58A84D4F017EAB0FFA2E93545607E4B73C698C6963F1CB9D10C8C39154FDE2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-first.txt",
+    "sha256": "904579BB65C7A1CEB7823683D04F74B38536EEBC0B519F527D49106191B5DD77"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-fourth.txt",
+    "sha256": "A68E3A1B3F3C9D9E48445AE48C2399E21F81CD0C79DDC28A9E81962CAB6CA95B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-second.txt",
+    "sha256": "EB244FAA00B4DE630DFA30ABCE5943680679179FCC1232C7DF1506482F141E12"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-seventh.txt",
+    "sha256": "C3DDC38BBD23BA784CA41B874298AB015B8FC233831207ED2211CB995581BE61"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-shadow-probe.txt",
+    "sha256": "9DD34B0AA9DE91C85D38BDFC691D8D69A5EDA3224ABD4A2518DC8282512B7B91"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-sixth.txt",
+    "sha256": "7402CD1141B9CF6B49FC85502EBEC8D0A0760685230DBB4474B76CB3DE0408AD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-build-third.txt",
+    "sha256": "CA67AA259BB10C749913ECBCFB110B6EC4A384ACF2AB8A56DB1D026A744E074C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-core-tests.txt",
+    "sha256": "FD4E2A07B4D167735DB43263284D2144820A26B0AC651F1B33E8ED8B09838E76"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-import-stderr.txt",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-import-stdout.txt",
+    "sha256": "C81AEF1FF1E94F77F25B57026E0F4CA3CD737BBD1FEAE7AE1C72258962BAF750"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-fifth-stderr.txt",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-fifth-stdout.txt",
+    "sha256": "779FB14621E460C0B8411C7CCEFF9FC825551004C14C0391EBC9F30D169809B3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-final-stderr.txt",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-final-stdout.txt",
+    "sha256": "779FB14621E460C0B8411C7CCEFF9FC825551004C14C0391EBC9F30D169809B3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-first-stderr.txt",
+    "sha256": "3358CF1F327DB0E7DF7620990CC50625AC623684624CC324F28059CA703F0ECA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-first-stdout.txt",
+    "sha256": "9DEE4F19D0255476B111DDF1D509139EE9E0BA17E246B129597F353DBD9F5E95"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-fourth-stderr.txt",
+    "sha256": "6826F9CA7D4CE8DD4A8EF71C5317F60C4D834CF6AE35FBC774F55B7504D6AE79"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-fourth-stdout.txt",
+    "sha256": "DF97F0CE1131BE7DBC23F373793FAB078A9327A030DD5CFD4E63FA5179098A43"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-second-stderr.txt",
+    "sha256": "3BA99A8756CAA0DDC9EECD83BAFB52453C5A675CC657D525A5F9DC07E2D8E4BC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-second-stdout.txt",
+    "sha256": "9DEE4F19D0255476B111DDF1D509139EE9E0BA17E246B129597F353DBD9F5E95"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-sixth-stderr.txt",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-sixth-stdout.txt",
+    "sha256": "779FB14621E460C0B8411C7CCEFF9FC825551004C14C0391EBC9F30D169809B3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-third-stderr.txt",
+    "sha256": "5F7300C8D7E26848A68B433CDBD5383A5AD4C267D7ACDD4A2B27DFF8B9EEA1BC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\food-vans-native-third-stdout.txt",
+    "sha256": "9DEE4F19D0255476B111DDF1D509139EE9E0BA17E246B129597F353DBD9F5E95"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\validation-logs\\windows-export.log",
+    "sha256": "9554D7A164FAE8C6CC5A5087EDBA9DF13A10F22E8CCD32C6F6CAFEBA81124970"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\CURRENT-TASK.txt",
+    "sha256": "02597E18C6D2E0A6CF58C7FECA015000B25A8BD637A926E772D1F47D58464299"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\food-vans-exe-independent-review.md",
+    "sha256": "05667A0AE6B945BEC495716E24B8F1350B0AE896F2140594072577AD1D9A934E"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\food-vans-integration-handoff.md",
+    "sha256": "C4C970DDAFE24758EDBD65703D79F6A94A8AA2EF195BF36B46E2DB29077A09F0"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\food-vans-integration-independent-review.md",
+    "sha256": "D51F6F5B3331F0B44B8F9FBD11622DD4A76144F60199AFA4240D9A348AC1B30F"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-food-vans-2026-10-16\\README.txt",
+    "sha256": "F99BCF2BD325A50C6C0940541808C9C1DF9453950A4D3356CDB65AC60C6490D3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\clip-0000.png",
+    "sha256": "8D41EC4FFDC74824CDDB1CD235EB4C17768A4107B328E78F4179A3FDB10B9606"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\clip-0140.png",
+    "sha256": "3A343949617746A47A67B37AF5C791B77C3EB4965D7E244C776B4CC3E2020FF0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\clip-0280.png",
+    "sha256": "6962859165F8F6B453C7E7A5FEBEFB75002075FE7D0F142E3CEBC7C6D0B7F352"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\food-vans\\independent-exe\\stress\\clip-0419.png",
+    "sha256": "10B9ACC11D22075DDEB296AA896639AE79E55D1A8191288EBECD3F09709F21D1"
+  }
+]

@@ -1,0 +1,991 @@
+{
+  "root": "C:/Users/99wil/AppData/Roaming/Godot/app_userdata/Festival Tycoon/saves",
+  "files": [
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-0.ftsave",
+      "sha256": "07A4D911847604BFBFC0EEC1E924A55F01B87319E86EF7733134C36B7DBA5327"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-0.ftsave.bak",
+      "sha256": "6B60F272E592D5B92F094A082332C16AF16168D0BA0582A7858B063917B3AADD"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-1.ftsave",
+      "sha256": "3FE4E0C8EA67460316E0C4AB831ABC6F837B3E35304B62A63E5A406251E201A9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-1.ftsave.bak",
+      "sha256": "32BB565A55187695726383743EF0CA738FDB5B535ADD6392F3AE2FD288148B18"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-2.ftsave",
+      "sha256": "160DC7ED9A80C6BD1E9E127C471BC79335480E378D1A9C851DB322447AD99666"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\autosave-2.ftsave.bak",
+      "sha256": "F2C7EB5E1D0D2D095A0F834908CFA3CDB3766240A2015DA0B24BAD38ED592F6A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\m1-shared-world.ftsave",
+      "sha256": "246D4880D9595651CC39595180934239EDA58BCD963C6C8F01CAE696A9348069"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\m1-shared-world.ftsave.bak",
+      "sha256": "26E182BA1F5895E7C94F9E441231D9CA851065C685EC1B88D4981D3AFC4E9345"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-campaign.ftsave",
+      "sha256": "5A6CB409BD0CAE85083B375C320F5B59ED06B27451EB4AC16B26F3F807A73315"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-campaign.ftsave.bak",
+      "sha256": "043C48847BA5048A8E4A75CFF20004C84F3663B03384BCF9E4B34260376CBFD5"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-foundation.ftsave",
+      "sha256": "C5BDF54948D3B25212B8EDE72908671A460203C396A8DB5906C59A0F233EF93C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-foundation.ftsave.bak",
+      "sha256": "DA060B22FAA7D17ACF801217659F7FF7CE8C077F02584BF1ED43BDEE301BF1CA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-preparation.ftsave",
+      "sha256": "02C3C14F177570D9E40E5258A61A9DEBDD83A6A94713447ACE9475A82B4AB272"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\manual-preparation.ftsave.bak",
+      "sha256": "A9488C12DD5CEC47F109384C525CEBFC69206B5489E83C58AB2D5162C0F61CE5"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v100\\autosave-0.ftsave",
+      "sha256": "5D745BF531CE2630C1CB95506EDCA7B9C2959A742290E409D73545A3D2689532"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v12\\autosave-0.ftsave",
+      "sha256": "FFF80B03E4DD1FE34961621FB22E8ED9E6C4C059F9722110846C9B2DFE012993"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v12\\autosave-1.ftsave",
+      "sha256": "B3A7D074A09B54C08ECD2C0FF47F02421AE733D663DCB77A3366AA8D8E83138A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v12\\autosave-2.ftsave",
+      "sha256": "BF730528EC4A18CABA60FBC3C5137DE4EA5A8A6B1DA4635F8D169EC7A29737A7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v13\\autosave-0.ftsave",
+      "sha256": "7A4DAC89BEAAF9310B441E15D557BEC8C0126285EC0579B1787944670047D21E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v13\\autosave-0.ftsave.bak",
+      "sha256": "F0EACDE7FAB8D44B6BD7DBCCE2F07B0A51330D0A9913931249ABA343AA5F2B3A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v13\\autosave-1.ftsave",
+      "sha256": "1ECBDBC3276F08373624CE5CD32BC70E32997E7B2D746393090080E1AC35263C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v13\\autosave-2.ftsave",
+      "sha256": "6FA0F62153F128534C3446D239C45C52878041F4F3E71442D23C94E74A55E955"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v14\\autosave-0.ftsave",
+      "sha256": "395786DD3033865839C12C08599B56AB3EB3AAFB48D5537A30D77852BA221089"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-0.ftsave",
+      "sha256": "0A763CDCF8B41C6348DDB9A845ABCDD83CA8F53869C45B081DE43DFBCF9E4685"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-0.ftsave.bak",
+      "sha256": "FE4FA59A17F12A88DC40FB432A15BDBBE176637978DB3CFD2521D691D90DAEF2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-1.ftsave",
+      "sha256": "3D7EEE7F21F4E27B6CF9608A17A1D259897EE95A205A2901BEF1B7FD7261C526"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-1.ftsave.bak",
+      "sha256": "A7D12DD785945C802DC5229B3A5C23F18DD4E3C15EF24F35D52B887E9116ECF4"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-2.ftsave",
+      "sha256": "8B46F986AA4C9CAC7837DE79B538B0A792F510640A9CD72BD22A685C1EB18912"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16\\autosave-2.ftsave.bak",
+      "sha256": "392CCA73689EFA44A4B5B013F2AB18E9ABDB6C07FB9E326B77F498EDA78D143F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17\\autosave-0.ftsave",
+      "sha256": "147BA2B74595E17D4CDFB57184466D1281C260E4BA50F336F5F5A0C39C3EBA6A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17\\autosave-0.ftsave.bak",
+      "sha256": "A446C731F7EDB1D2EFF089560BBDE1690CEC47B72525E6103402486DAB7BFCA6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17\\autosave-1.ftsave",
+      "sha256": "A1E21842BF2D8DCF7C44D97E0382296F15A2F6EC881FA55C4EEBF3EBCB66256E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17\\autosave-1.ftsave.bak",
+      "sha256": "B9B48F6AE09390FEDF05B503BF8A54F825B0F1A2CF9CD06FD852337BCA9F10F3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17\\autosave-2.ftsave",
+      "sha256": "325C64BB72721473C562909222267994BAB56F4ABCD60E4D6F48D47B7207658C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-0.ftsave",
+      "sha256": "CD24AF57D242C9BC8A2C2A2EAFA98E82652A9E7A5BA967DA8165E87427051A2D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-0.ftsave.bak",
+      "sha256": "D4224F1BA38544EDEB148AE211AE9C0CB478E38A42562CD66A8DDAADF8B82002"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-1.ftsave",
+      "sha256": "0AD468C3715DC0AB543C7A343B01A0B3539B02600EF90F381BE8BF469FD987D2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-1.ftsave.bak",
+      "sha256": "5117EF35830ACFC789CDB7870AB41A2D282514B2E08A7186D164F4789764F3AD"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-2.ftsave",
+      "sha256": "52711BEE62701E4D19C996DD46670F5A91A20C0F0AA82B8BF2933DC11C8485C0"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18\\autosave-2.ftsave.bak",
+      "sha256": "FDDE3B0C9D4D728F477153291304E7DD1350C24AFBCD775B07FBD67866B62E26"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v19\\autosave-0.ftsave",
+      "sha256": "AD77245A1268B44BF04EA8C0364D65AACE5D8F8ECC98EF35C1D9EEDF232FE400"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v19\\autosave-1.ftsave",
+      "sha256": "B382B6E9E2E800B872EF1490D9CE91205AF807B6308926C0E4C37F79978AB4A9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v19\\autosave-2.ftsave",
+      "sha256": "02A8E060D36AE977F67B079A586C8ECFE7915116A1CEE521D8DF45FBE6EE484D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v2\\autosave-0.ftsave",
+      "sha256": "D307F59FC3D4C6FC7E6C8E9BBDBD26CAC98DBABECBE9E572A84FD3C6FC7D2CF6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v2\\autosave-1.ftsave",
+      "sha256": "6C846AEC82246D20F32A35B5CCABCC2F190BFA168B08ECFC7E5B9A7B8EEDA310"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-0.ftsave",
+      "sha256": "D92542340AC3A980DEB9D394047A76CA8D9DCCC86B6455919B6E37C2D45BFF27"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-0.ftsave.bak",
+      "sha256": "4A3175A99CBE14B16E2C51B2B86B18673D4B794E57005F9C541E2E90EC9ADB6C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-1.ftsave",
+      "sha256": "BAA2D18FAE9C4BDF764E28B72E8DFF5B08E86260032799E61DC1E5B6643305F2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-1.ftsave.bak",
+      "sha256": "F8CBF07938D3516E8DCE865A6496881644EA4835E967BD42420519E7A39D9299"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-2.ftsave",
+      "sha256": "D1967AD76C30D5DD2A2416C8AFA9592DA3DD81404EA45DBC482811518BA57CAF"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20\\autosave-2.ftsave.bak",
+      "sha256": "3A01688F20AC3E17D1FB3C6490FFF295F05E2A37E34BD1A07C8FF8434295BF71"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-0.ftsave",
+      "sha256": "708E34B3477871D8420E0898150B1A8893774E25D019234478B5495137E9CAA8"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-0.ftsave.bak",
+      "sha256": "00700C434D024644A110C9D95F5D19B3AFCA1995B220C78CF0799B84AF31AE12"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-1.ftsave",
+      "sha256": "E1FFAAED6137DEEC44FBDFAECA074F7F99A4797F64EFF8E35CFEBF8A2F2C856A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-1.ftsave.bak",
+      "sha256": "883249C48E040E6C75CA38CA83EE25F2494F4AB33AC095EC30ABCC9E850A9778"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-2.ftsave",
+      "sha256": "A25F18FE8652C0DC0DC2841417F78E62AE152D58C9E046919E286522AADF8F3F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21\\autosave-2.ftsave.bak",
+      "sha256": "FA0A80F441FBD2A7303203F2A10163083018966D6C255C09D40F644458F70211"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v22\\autosave-0.ftsave",
+      "sha256": "0F83202C2280DB5D68C594D726289764FCC2EE478FEBD5AFF749DB543E0069AA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v22\\autosave-1.ftsave",
+      "sha256": "32679E76023C6B3A6165697EA10077B191104FD1247B2E0ECF629298B017BB07"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-0.ftsave",
+      "sha256": "BA3DF71028CE0A64064BCB40678A270DE8B4168C8D96B1937D3CB30CF87366AF"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-0.ftsave.bak",
+      "sha256": "9F9055EAD1F4033888506530B79876369A715A7A4E6859AAC219D1C6635ECEC1"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-1.ftsave",
+      "sha256": "46D174161BCE92551273E883A0725DACED9A166BACBDB8B49BCC1A02171DE330"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-1.ftsave.bak",
+      "sha256": "2BB3BA222BFBE2E6DA104C09235BF2374D1569984976CBE47D31F254821F5482"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-2.ftsave",
+      "sha256": "64C821A84CC67DA1AE896FFED5677D0874B9C94FDA7B2D69C8C4CC4700ED2B8F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23\\autosave-2.ftsave.bak",
+      "sha256": "FCF740C2AEC6557DDB7EDC706EC6A4836850A4353C1B377A5BE58E4DFEF4F02D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-0.ftsave",
+      "sha256": "C6F2D09C88B504BB2133C7A1320B94945598AFBB815B4B86914A01E240EEF277"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-0.ftsave.bak",
+      "sha256": "6E1946E3D98E5538EFFD461DCAFE12047C740773DFF5993B56C63EEEC5A01FE7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-1.ftsave",
+      "sha256": "6D04328B73C1628169E32AE37FB4BF7B821B07C2B5B30BD102A9937257118D67"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-1.ftsave.bak",
+      "sha256": "A33FBFDF21F8EE5458AD0B2B384FE82FA333C0B26ED512C9C2695270F4FFF109"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-2.ftsave",
+      "sha256": "5F4A1735156D7A483A47C207FAF96CB364D1828A25D359178CB730322B3BB64C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24\\autosave-2.ftsave.bak",
+      "sha256": "70E81FB32896A38989FE03CE0316A6B4110898AA3ECE8BC116A7EB20FBFDEF94"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v25\\autosave-0.ftsave",
+      "sha256": "37A86368E07D32F7B561A258A47CF86460C262422046C08074DA67089611A9DF"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v25\\autosave-1.ftsave",
+      "sha256": "CEB21669DFEC987CBC61E93B51C9445A44D87EA9263543C1805D4FD429BBFBC7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v26\\autosave-0.ftsave",
+      "sha256": "5C2953D4B8C706DCC0F2327367BB9452CDC7F21F4DEC24776BC8B9C5CA84A638"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v26\\autosave-1.ftsave",
+      "sha256": "C22A6B5A39966E53E2E775C4C8BD83F552106ACBA2377078D6D43F3654C46C49"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v28\\autosave-0.ftsave",
+      "sha256": "6C2D75511005B81615CCF7CDBEB1813209484A7E7B93C6A9F41E124507243793"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v28\\autosave-1.ftsave",
+      "sha256": "76D5DD141B4CFE6DEAFF1F4482C8C045BCEB2FA85E5B25C36C00C7A7DD430770"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v28\\autosave-2.ftsave",
+      "sha256": "29A0C8C0BD5BA699F95D72DA5AE252E39826147EA86D91D6BA3E76CA3041532F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-0.ftsave",
+      "sha256": "B3F7720A3D4F622AE73BA02F3BCA8181D6FB6A6C3A9FF8494E38F0D19C2F6966"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-0.ftsave.bak",
+      "sha256": "28AC6ADA4C977406B4D43C767F1235DBCED57771D4BF0CB452BDCCBEA5BB85CE"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-1.ftsave",
+      "sha256": "17A5703B9530B7E35BFFFD2BB1D884F27F7695D3D4C5308890AEDE789E02FA51"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-1.ftsave.bak",
+      "sha256": "16DF8DAE16944B84D150C14F2A7B1F739CCA8441047984A395B403546F752AAE"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-2.ftsave",
+      "sha256": "0DD10C1D6163EE445D8744368BF5594210D1644288FDECDDF8CBEFB3FB51B372"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29\\autosave-2.ftsave.bak",
+      "sha256": "0E4EAD51B17D964F93247348F9A59671F8528F76237FE8A2ED79BE6019F5AA31"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-0.ftsave",
+      "sha256": "F94DDDF1DB56327B05661D853675079B2995E1D51452BCC0AC09648384810487"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-0.ftsave.bak",
+      "sha256": "B616EE5C9DFCBB4DC2D9E24191E38DDC87965197D3529776D77CCAD36CA45DC1"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-1.ftsave",
+      "sha256": "9A5C1BF616CAC11D9EC2E78FC637D1F1DD6FF14900187A105C2B1E7F41FC163C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-1.ftsave.bak",
+      "sha256": "89111BF854D8F9BC265E2EA2A80298D57946AA229CE929A700FC7DB63E7E9CA2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-2.ftsave",
+      "sha256": "04BAA7EB6F6DA18EFC37EF2D1CB8C6BFCBDE050784C08D7E21FDB01A5FD242D2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30\\autosave-2.ftsave.bak",
+      "sha256": "0AB28CC9D86F9AC6E7DB9091E96440945418A46B245FE72BFE83C890C3B7A292"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v31\\autosave-0.ftsave",
+      "sha256": "81816D20CF0A80351DEA3EB420F7B68CFC2A934F156A9283402CCACDE6DCA36A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v32\\autosave-0.ftsave",
+      "sha256": "907D42D23D223FAF56BDBA7564C129235DFA4304D12A411B7F0D382B7FB0CB2C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v34\\autosave-0.ftsave",
+      "sha256": "0CE441C0BAB02A6C2FBA68CF1A9F9ED6E1AFE298649D8B3AF1200F014ACDD4B7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v34\\autosave-0.ftsave.bak",
+      "sha256": "BE9C5F6C14D3AFC8A721210D33B9A0A0B8A12CDDE9550283AE87C3EAD0CFDAA5"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v34\\autosave-1.ftsave",
+      "sha256": "A29B46167CE5F674EC44C2D503838913F69DCAD8EC1C75EC9C3BBD73967EADB7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v34\\autosave-2.ftsave",
+      "sha256": "A6BDA4D61BDF771A2200CBD4031BE328981818C171622944F806CE907004828E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v35\\autosave-0.ftsave",
+      "sha256": "A86FD7A0CA2FE63B64AC71A26C1832F9DA737F8FE788A7E338AC62278FFB6B98"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v35\\autosave-0.ftsave.bak",
+      "sha256": "E3A5EB7C0B0B09B18DD0406AF1B551C82CA8C30E84B9735D65BBA0BCF043A4BB"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v35\\autosave-1.ftsave",
+      "sha256": "1B922C61506AB009D3D83A58450B52A7E819A97AE829285856221862640334D1"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v35\\autosave-2.ftsave",
+      "sha256": "8EF11BDF78ADCDDBEAA9E2F248366442DE0C669F31D72AA3EBDBCFEC98A229DA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v36\\autosave-0.ftsave.bak",
+      "sha256": "AD3D0AF00504037D056EAD497F93A140AE9B99D4FB4BFA290AD5EF0114A40622"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v36\\autosave-1.ftsave.bak",
+      "sha256": "587A392F22434F89068ABC7E7419C8E61553584F088C2E96D3BEDD92C68621E7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v36\\autosave-2.ftsave.bak",
+      "sha256": "A2879C3BEE9DCECD4778AF1A8C7F38B17458A1C73D0BC2DD8ABF2FA8AA7B3622"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-0.ftsave",
+      "sha256": "A2AD2079B50C3389B4463B6A5ACB27F30AE793C5A29F004976CA9174337819C7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-0.ftsave.bak",
+      "sha256": "9C6566A62F53853EDC630DC6FCB1D0225C9A22B35B90DDC88148EF12D4E7BFA3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-1.ftsave",
+      "sha256": "BD67E207308E6CCDBD96F9E2F245D0ACD69E6D579149A998FABA2616803FB16A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-1.ftsave.bak",
+      "sha256": "EDFA820DE945F8D04140457832C0D12F1767653F65ECA49A53A86DFB40D1BC52"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-2.ftsave",
+      "sha256": "C35886339A61A46F29793FE27BF37B08E6F1C3A6C6FA715B4DBA7DBB2F893E1D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38\\autosave-2.ftsave.bak",
+      "sha256": "37FDFEA25947D9F1CB7AAD8EA4A9A4BC0525DD3C5F323A82187C3EC7337D343B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-0.ftsave",
+      "sha256": "36B9D2BD49622ED256DA7DA036C8493D7ED0927A5E8EDBD8689F3C049FBFF38C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-0.ftsave.bak",
+      "sha256": "FADCF0B5734F54CFAA57CD09A560F68D1540760A881D634334D20B7AA06FFE2C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-1.ftsave",
+      "sha256": "92B2F778CEB9F7EF358FD981CC9C6FD2EB2E5D2027EAE2C538615807A17C2D4C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-1.ftsave.bak",
+      "sha256": "4109F154D8962E57ADFB7512F74282C9AE2593C98E904C966C16ADAF4AA974B7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-2.ftsave",
+      "sha256": "10805EEDD2216428638E0F97C6CB3D7B87784360C817CE5E3EAEB931FA179D17"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40\\autosave-2.ftsave.bak",
+      "sha256": "858E855FE77D0689E2292C3463357B10F951C35F26F4611B8DE4A4F0B94411A3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-0.ftsave",
+      "sha256": "A46EA46D3560FA084234D11BEFCC0523203202F8F7A5A15336F46848FD8003B6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-0.ftsave.bak",
+      "sha256": "102EFD1390F3ED3258C6F1205488D8CDD13B72B066272CC928141699509DED44"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-1.ftsave",
+      "sha256": "6DF4F3C6BB9B61A6F2064C8EF167EA011ABACAE609F957CBB060AAFDA7AFDA3A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-1.ftsave.bak",
+      "sha256": "08815F53190D29F6B3B3C361A16C679C0B459DF4F23DE64A7872B4A90320DE63"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-2.ftsave",
+      "sha256": "27BB0193D95AF598D4CE34BCEB45B80A1019E5B533DD87EE43A1CF5AC49FD44A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41\\autosave-2.ftsave.bak",
+      "sha256": "F3CBE4B24474C0C72D4F330288585E6B8ACF326AE32DBEB0C0D9A2C6662994A8"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v44\\autosave-0.ftsave",
+      "sha256": "24578E8363CDE5EFBF02C11581BC0C8B64C2C23F46FB1B1202AC12E1D54A740D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v44\\autosave-1.ftsave",
+      "sha256": "346372E6648FEAC044189767CE6BB6C1FB5F4DD1939692AE6DA3E6354550030B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-0.ftsave",
+      "sha256": "4435471BD3000B8391C309EAFAAEC385CC79F940D5A0F65C6D8475B5341D6E4B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-0.ftsave.bak",
+      "sha256": "F78E4F8C849D2FF3FCB52D0739BFA997E7E624841037798C9900CB62762F4BDD"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-1.ftsave",
+      "sha256": "E2D8E8A503F3A643F94EF84F3F4F5F2BB3D5620277579F7704D37E624D89FD36"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-1.ftsave.bak",
+      "sha256": "63989926D03036F6B45F12D6B0AD8EC127631046456EC725B5F082F11EB79468"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-2.ftsave",
+      "sha256": "61E5E5368204AF086B6A7214AC9F66EDAEB95663FBFBCE5C51D4F75D3C8287AB"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5\\autosave-2.ftsave.bak",
+      "sha256": "65692154285E764F86BF73C96FF51349E15645B906BFC3DD2BD6CD54821EDB1B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-0.ftsave",
+      "sha256": "8D6C6DCA95E64CD5648BD5C15EF31C2AA9E003F2A29520059E33A9B963D1E9D3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-0.ftsave.bak",
+      "sha256": "937282AC274C56E398A04A5E89417D9A656F66335183B014DE8D95ED5C3F1F7E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-1.ftsave",
+      "sha256": "3F76A7A6C6C109DC7D138A117E53633AFA7C190FAA28A04CE315E7E5B4FB6C5F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-1.ftsave.bak",
+      "sha256": "5B40256B7508A9C7AE78F43B0722689FD17023D45EB9012D4AC09F7002117827"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-2.ftsave",
+      "sha256": "570E2A536BFFD4B51875FCC1123D1A64B518497E41A7E7DAF07BA82AB5D93D6B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58\\autosave-2.ftsave.bak",
+      "sha256": "3E874533CF8BDB251A198A37B84ECB533F0C272D91D8F0248C27ABBCB89C1A71"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v59\\autosave-0.ftsave",
+      "sha256": "9B5869587B5871DBD446D2D17374B4029DDFA2E01D1D77A002AFB1D7FDAAF67B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v60\\autosave-0.ftsave",
+      "sha256": "95B729F8FDB5D77238F11CC3C39E8D60A98D0A87249F21779B6D102848D3CB68"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v60\\autosave-1.ftsave",
+      "sha256": "76EF4C7BAB33A8DCEEB7EAAFBB4A3966F556608345C5580568B2AD53422E219A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v60\\autosave-2.ftsave",
+      "sha256": "710F943F3E1BFD5B8601C59725C2B3D7E55913ED1FEB47789C501B8968B7F9DD"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-0.ftsave",
+      "sha256": "E05756034626F7DACB0AEF5E682D322758957585FC9009BAB0E08F536866FB04"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-0.ftsave.bak",
+      "sha256": "CCEA616E0A91A25678B034199BA091DC8AE33E54646E0D60997B740AD35C505B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-1.ftsave",
+      "sha256": "015A0AA6CD6D972621DF6EC2EBF40C6379856BA8364F58740F6685E65D587AA0"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-1.ftsave.bak",
+      "sha256": "6149A655E128A92D91568DAA4AB8E7772F1E5E6408CCEC2AD05AB9D765FEF8BB"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-2.ftsave",
+      "sha256": "67D43398754F5C87DD3A53B1949BD2FD98A746975189195DC16967C2F9F9918E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift\\autosave-2.ftsave.bak",
+      "sha256": "65301191EA4EAAAAA3A2E7E0296CE3B4D84A2FDE53E1DF1ECA5AA2D7D0BC3466"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-0.ftsave",
+      "sha256": "E3F4ED9E0AB910BA4EEC09648B41A3534FD8E1E9950A4D4CA6B0BA4507B1668D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-0.ftsave.bak",
+      "sha256": "E469D9FD61240C654461F98F66F672CDB66CDAFA9DF194B70F8BE904B430B8A9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-1.ftsave",
+      "sha256": "A74ABF79D5275B4F6902FCA8D10C8AF68BF20F09F6133A71A87D2A44EACAC201"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-1.ftsave.bak",
+      "sha256": "60D8A01F9013AEABC5FE31987B11EC43441D16E3173020B851F3594CADDCB722"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-2.ftsave",
+      "sha256": "08DD0F51DA1CBAEC7D6F5852A6A2D729793D8DB745070A2FBB9243BEE085D92A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\autosave-2.ftsave.bak",
+      "sha256": "7178AC51D877C1A0611BB1B63B9D6D537CCD7B41E7DD0633CB1994683CFF47BE"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\press-photos\\4275470558112385615-t1-a1.png",
+      "sha256": "46CEE26163C6D71256F9C060FBBA918EFC430271695957DE74F489DD0ADF48AE"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\press-photos\\4275470558112385615-t1-a1.txt",
+      "sha256": "C3888A194CD7465C86C0923E99F736FB26E9B9580194C3A3602BBAEFAEF8C13F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\press-photos\\4275470558112385615-t2-a1.png",
+      "sha256": "95BC4B032E86A64772B5A5C008064D8A7B6BE51B290BB45B467798D2B42DEC31"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\press-photos\\4275470558112385615-t2-a1.txt",
+      "sha256": "E851D8079AF51AA7D9F11962D407F1B739E7B665FAD77BBF3BD61D5B59A3FB29"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v89-front-of-house\\autosave-0.ftsave",
+      "sha256": "E601454FD23A7B246273CBB5C0CF65F36A3941FB498CF0B44921448326957D8E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v89-steward-shift\\autosave-0.ftsave",
+      "sha256": "88FAB88F0C38D88BBF029B879EBBA842F974848FFD8FD80BD0DAEFF4DBA47BE8"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v91\\autosave-0.ftsave",
+      "sha256": "6D33137F5DA9AD31985FB98F6263EE5A076446AF4E9F5D92C08CB6B59E0EE47D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v92\\autosave-0.ftsave",
+      "sha256": "335F260950E12C3912761F0D1B145DD9893C3050FC970382A3183334388D2500"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v92\\autosave-1.ftsave",
+      "sha256": "5C903ADC44B72A31650B6F6D84E0E0FBFF0C8B5DA92929B8F3D3E4EC39D66F36"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v92\\autosave-2.ftsave",
+      "sha256": "9CC13A70B9591C4BEAEB85125AD2E00D7A0D8223B5AA17BE65AD00896EAF3F53"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v97\\autosave-0.ftsave",
+      "sha256": "04B05DA73F4F4373CFABA04071F64D56F8E48730148C94CBE4D257E52BAB7397"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-0.ftsave",
+      "sha256": "803831026AC44F41D71A46729ADAC6AD0A17D23BD3698423C2015E96B708585D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-0.ftsave.bak",
+      "sha256": "BB2A738FC4BBA4E14E2470767C44F3EA389895993179479F89AA35AB60810043"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-1.ftsave",
+      "sha256": "4BBD46F59BE7C3CEB523750885BB0AE9973BBE1AA20C9FF79D0C30B5FEF21DF7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-1.ftsave.bak",
+      "sha256": "A1D58CA1B21831E683BA790A773E9B047663F03FFDD8C1D8B39F52CC45D59AAA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-2.ftsave",
+      "sha256": "353A9090D1A5D9BA8CE802D1F6758EE5EA0E9329A9E450A008BE31BC5698F347"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99\\autosave-2.ftsave.bak",
+      "sha256": "BE4B9BAC1445D9217303FBECC39F850C2BDF321F62C091C119FCED9E0AC5CE24"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-0.ftsave",
+      "sha256": "0954718EA7D4D73E675B00E81660141C8C68E45257B231BCBBD3E94E6F1E983B"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-0.ftsave.bak",
+      "sha256": "CF7FB47833C010489079EBAB3C8221A7FE08A78840FF878975C5CB28FD47A872"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-1.ftsave",
+      "sha256": "80D6F788BF2878F8B345E4C9460322DE6CAE536DF08AA875C2CC76B4DA72A9D9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-1.ftsave.bak",
+      "sha256": "91C615F04272329B6937FFD0ED6B28A42828F57FC4401F23A133E126BC3880CE"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-2.ftsave",
+      "sha256": "781D07C86CE4A845FACCE4B91C6D26AE907FB1DFBEB0E2F0FDE1BA3E955EE1F6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\autosave-2.ftsave.bak",
+      "sha256": "9CE9440885071BE6E3C2F7E40764ED2AFE16719A4864EF54318CFF4C3B513614"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-next-festival.ftsave",
+      "sha256": "E21234C999766A64D1A7FEB8CC1402CB87613AC086F88F89D8164656E1AE2624"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-next-festival.ftsave.bak",
+      "sha256": "A309A76EB980343F2A7401068990B737C8289E1BEE3C98BB0C16EF72F08F7FC2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-optional-barn-inactive.ftsave",
+      "sha256": "8540ABE14C9E069EE08BF06F001F22E6DB7FE246BA3CE6760A012DFEA76AB51F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-optional-barn-inactive.ftsave.bak",
+      "sha256": "F7AAD11DA85C00E176F0BD24D4F9E8EF1AE8D85CA3994499C3FE8D237CDD8F15"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-finished.ftsave",
+      "sha256": "F14B7E2D46EE2891D44A9775BA4363B27B5B3D5EDAEB83D47991507D98469EAC"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-finished.ftsave.bak",
+      "sha256": "325486C9063BBA4F0B723A999B3675E07BF95B3F640AA3AFE6847C471D6BEE79"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-live.ftsave",
+      "sha256": "02CE59616CA4E4B8F3F85087B886821B39911E5B97B1E3AA88211FDCE4E6F233"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-live.ftsave.bak",
+      "sha256": "C07663105616A98024FF86142445728EA0B4C0A6527D68F3B1BE67F2E4FC47AA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-0.ftsave",
+      "sha256": "F2CFA2662BE9F89C7F67DB41C0E2A647304F041D5B3D352FA3070B44E9AF7138"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-0.ftsave.bak",
+      "sha256": "6D796F063B5E37E2EDB2E6A26933E2D943EC3E33E382B9EE14C2812423D99FB2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-1.ftsave",
+      "sha256": "4535879AEE609F17024A2A540D81C5EE183EC08EE9C1C2C5BA8C9E9D8F3A4941"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-1.ftsave.bak",
+      "sha256": "2940CCD1CF783215D8A899E4D6A1C3E67F75FF6A70A8AC674530AABF7C24C72C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-2.ftsave",
+      "sha256": "C50F70B4FE1DA22818C9DE01D1236ED539E185C02F5FFC0B0BEAFAD3E38CAC98"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\autosave-2.ftsave.bak",
+      "sha256": "9015B07ED54FB96B5D6BA23A2B5FB92F1C04367E8B1F81DF9A2B35D2EE90D7D2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\press-photos\\18321420239931752389-t1-a1.png",
+      "sha256": "9D4C2AECB994FB2485E445A4788180BDEFD43E2249B1629FD57D53824C11B101"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\press-photos\\18321420239931752389-t1-a1.txt",
+      "sha256": "9A275644A5ABD50545243CE4A240AABC7E41D0F7F0CBCC9CE35158987DB510FA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v102\\autosave-0.ftsave",
+      "sha256": "F5C5F08212EB5B129BE6D0D504EB08CA5C3B2C5C2942C82FB1B5D7544DAF89B2"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-0.ftsave",
+      "sha256": "F3AD9231F58EF4178BB9EA97E6DE290B1929559C40FEAD3189DB7948A0D4E23C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-0.ftsave.bak",
+      "sha256": "EDE0191A0C387A9F24CA42B7F5C93A98B58168395EAD5D2C49AAA7FFDFDFB8C8"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-1.ftsave",
+      "sha256": "5110C12697A53FFBA15FE35420E320EA2F388FFF0709188C1F2C7879B1CDBB65"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-1.ftsave.bak",
+      "sha256": "FEC03912B305C5D5490C1141E5ED370DD7C649DDA37524C444227837643F662F"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-2.ftsave",
+      "sha256": "6A1EFB407B9D194132AC7D2E73FC904E2728E7D590ACC5603E38790F54B31D80"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11\\autosave-2.ftsave.bak",
+      "sha256": "B1F26E50D10EBAEAB91E8EEF80DF0B0179EE726AACFD53492F4871714CFE009D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-0.ftsave",
+      "sha256": "0B03FFB871F372D9691136044B070191D0075EB06B992D794E7C81C76E35DAB0"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-0.ftsave.bak",
+      "sha256": "6857375885E1FF9A5BC9FEFF130EC7E8910D1A37B2F4DA9134DBA8C3EACF366C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-1.ftsave",
+      "sha256": "03ECA103484A05DDF202862CADEBBBF16FE31D5CD4EC12B889145A845FB374C6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-1.ftsave.bak",
+      "sha256": "AD36E9CA7546F547B3701F6A16C6F21C853403ACE78913F2EE5DD3D8FC1FDFB3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-2.ftsave",
+      "sha256": "F45505BA7A72F25AB84C795F5803B1778F33FD1756DCD7C1BDE9E109FF5B5CE7"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12\\autosave-2.ftsave.bak",
+      "sha256": "D0B81E5D2C65F41B7773803839108D9F2FA0C2CC5CBFA441650FF5C4EE2F526A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-0.ftsave",
+      "sha256": "6F8730B5355E8D3CA52C263ACD537071B0F3950F7076BE6354594659E3E231CD"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-0.ftsave.bak",
+      "sha256": "3CD6AE81925D60BFCDC284C52763E3956BA837CDDDA3E83E4E628E37906A1F9C"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-1.ftsave",
+      "sha256": "E35CB16B2E7944C9CF71818E43CADF9EB255E88061D479247C0CD126DD5CB5CA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-1.ftsave.bak",
+      "sha256": "D231CCFF1389FBAA1BA705337AEECB635555376E4631225F3B20005CEC142E70"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-2.ftsave",
+      "sha256": "ADEDD58156504EA0403496BB39FECF8E6B157EFBE62AB2387A50F38472170250"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13\\autosave-2.ftsave.bak",
+      "sha256": "89504D2B05416FCFDBAB7F765D1FC8BE9AF3D901CE95A25B1BB7E0C7B7EBEE2E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-0.ftsave",
+      "sha256": "7A6367DF9D428B8DE0F6C6242D1C29BE857F3D70D7D5FB8A137391C1EF19E234"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-0.ftsave.bak",
+      "sha256": "8C1A6400D12540C51B11B73D5EE8D459A6C4E2B7D4186444850BBE4133CB27F9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-1.ftsave",
+      "sha256": "B018DB829D8A9DDAB7776D9B123CA32622D95D1D8DD802EA68A655B34BD810A6"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-1.ftsave.bak",
+      "sha256": "AC0289DC7E66F347D2645E5AD46967D71C6318F8A6407DC0F91FC48100E56513"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-2.ftsave",
+      "sha256": "6ABCCC164FAC86E3BC46576A8F70DA401077CEA2FD1BC590470BCD2789339CD3"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1\\autosave-2.ftsave.bak",
+      "sha256": "4E7452C90F436B13B3A1C40216E7616C4B5FF2D1BA5049FA0A863C455ABDF7CC"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-0.ftsave",
+      "sha256": "8D5FB05AE25CC5FAEB1B0CEC13808888B7E7C4A230BD087D62C87766E9495518"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-0.ftsave.bak",
+      "sha256": "5C342BF48B442DA299DB55FC8AC385FE534C219A591BBD4B5C004BAF0E40FB78"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-1.ftsave",
+      "sha256": "B88256BA1E1063F78383864872C84A2C9CCF8D244E568D0172BB91AD2D3D3429"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-1.ftsave.bak",
+      "sha256": "FDB0C9A1FFFEB3B1F149378AAF85B99D36AC21A289F564A2B00E709B9C6B50C4"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-2.ftsave",
+      "sha256": "C5FAE57762D7B66B18157ED43E16CCE207C7820B294FF6B43D5E08169568D4D9"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1\\autosave-2.ftsave.bak",
+      "sha256": "B53445B3C11C0B7D2208B6BCDAC065EBC0E7EDE1D36EB05BAA7BEE4FF3BF4D48"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-0.ftsave",
+      "sha256": "DE77ED38CBEE88C98264ACCA6952E135000E691C08E652A0C4CC093B92958176"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-0.ftsave.bak",
+      "sha256": "A01ED6C6285C142B82D7112BB6EAABB10BEC3DA276B6A194FE77B8E9832AC5D5"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-1.ftsave",
+      "sha256": "0F1B753D31AA6B3F3E4C99037ABA67ADA35089132CA1B94F5407A6F66E2FE839"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-1.ftsave.bak",
+      "sha256": "DD959CEFACAADBE8C975E7E88DBC3CFFA0F4399902C47D95A3C42EC13D2F979D"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-2.ftsave",
+      "sha256": "E73E6A45CF311D40D225AE78E48AA9E2B33F423FB6651684AD2B35D33D468B8A"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1\\autosave-2.ftsave.bak",
+      "sha256": "8779757FA41B1E910DB27EB9B4E598B49B36DF738B07FCFD79C51A7DA1104FA1"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-0.ftsave",
+      "sha256": "0740622A7017709827BEBF2C3DE8262B3A28BC7372F3D93F454E9FD75658BBF5"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-0.ftsave.bak",
+      "sha256": "15162B65AD47FF3390E457BAF6A79909944D90C439CB36774873F9F208701985"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-1.ftsave",
+      "sha256": "0D6AE6C07C6AC92AFD833E1FE77D62BFB0947C2778A7747E8E07BE7E7C4B9214"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-1.ftsave.bak",
+      "sha256": "7BC79EF1A8501D14C77F541A2134533756389AFF2359D1A308E52B8929FC67CA"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-2.ftsave",
+      "sha256": "4C03807C86307D191720B58F9FF242AEBD84F7FF7C5932B7FC111AA02997871E"
+    },
+    {
+      "path": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1\\autosave-2.ftsave.bak",
+      "sha256": "EBD2A5E27524AC25DF864E5DBAE56BAE493B51B22F1AF570F6F9CE69C74E0271"
+    }
+  ],
+  "directories": [
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v100",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v12",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v13",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v14",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v16",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v17",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v18",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v19",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v2",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v20",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v21",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v22",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v23",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v24",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v25",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v26",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v28",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v29",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v30",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v31",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v32",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v34",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v35",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v36",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v38",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v40",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v41",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v44",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v5",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v58",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v59",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v60",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v70-steward-shift",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v73\\press-photos",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v89-front-of-house",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v89-steward-shift",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v91",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v92",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v97",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-build-v99",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v101\\press-photos",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-v102",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v11",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v12",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.04-layout-v13",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05-hearing-v1",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05k-unpaid-plan-v1",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05l-staff-autonomy-v1",
+    "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0.05n-booking-v1"
+  ]
+}

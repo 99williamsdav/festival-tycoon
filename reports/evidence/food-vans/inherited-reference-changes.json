@@ -1,0 +1,58 @@
+[
+  {
+    "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+    "group": "immutable-survival",
+    "priorTractorSha256": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4",
+    "inheritedCurrentSha256": "450DA71E9D7B1048C1CBBD90BE27C914A95256B505DD38E77195DC3F1F6B4860",
+    "lastCommit": "f3113cd5 Run the cheapest Survival parity guard in the everyday tests too, so an accidental Survival change is caught daily",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+    "group": "immutable-survival",
+    "priorTractorSha256": "3F4279928EB3EE94FF22AE8314367571AB29645E5B5583E0BAF35298D2510DA7",
+    "inheritedCurrentSha256": "74C114DCDE28EAC7F9DF88F46282F089CA2B2B2F2289460FA8EBB2675BF1148A",
+    "lastCommit": "d7c93183 Run the tests in Release with the server GC, and split everyday from full runs",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+    "group": "immutable-survival",
+    "priorTractorSha256": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418",
+    "inheritedCurrentSha256": "D5F4BA3F8C7631C2EEF221AAB82A02545C3C0EEAAF0CC93DB1A7D6E68AD5A973",
+    "lastCommit": "d7c93183 Run the tests in Release with the server GC, and split everyday from full runs",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+    "group": "immutable-survival",
+    "priorTractorSha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E",
+    "inheritedCurrentSha256": "62F5B148568F8AD1D5154BAF835F4A760A54A4123CCA290954265DEE8943FB49",
+    "lastCommit": "d7c93183 Run the tests in Release with the server GC, and split everyday from full runs",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "reports/evidence/classic-loop/survival-before/baseline-companion.json",
+    "group": "immutable-survival",
+    "priorTractorSha256": "12E77C5DB21EB3D9A8E530DD493355F1DFEC82BEB21BC1C43A05F9E13BC1343E",
+    "inheritedCurrentSha256": "821BB7765C18D52EB7E11AB300E87CF9744EBC9AD3F7A2051AEC28D76F8ECCE5",
+    "lastCommit": "0544b6af Re-record the Survival and incident parity baselines for listeners who step aside",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "reports/evidence/classic-loop/survival-before/baseline.json",
+    "group": "immutable-survival",
+    "priorTractorSha256": "272848B02CD14D14059EE903C82DE3D0EFCD4CE7DE54A0C5684FD2D2E668DC0A",
+    "inheritedCurrentSha256": "6E73D46157E1B1928B236816531135D2C415FBE0BAFBD420484622B6C83C51F8",
+    "lastCommit": "0544b6af Re-record the Survival and incident parity baselines for listeners who step aside",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  },
+  {
+    "path": "reports/evidence/classic-loop/survival-before/incident-consequence-baseline.json",
+    "group": "immutable-survival",
+    "priorTractorSha256": "278EB7215AAABD62AD08B6EC2E5EE9BB9A476B68BC15981F34758526C7B3F969",
+    "inheritedCurrentSha256": "60DB0956F7FA09FA8EC8777CEC4231B75351F6B155973C4528556CAF591FDEF2",
+    "lastCommit": "0544b6af Re-record the Survival and incident parity baselines for listeners who step aside",
+    "reason": "Changed by intervening committed work before food-van integration; original tractor checkpoint remains unchanged. Food task neither restores nor records these references."
+  }
+]

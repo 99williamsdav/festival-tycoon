@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "payloadCount": 194,
+  "sourceCount": 2123,
+  "exportedSourceSnapshotCount": 8,
+  "liveSourceDifferences": [
+    "game/Main.Classic.cs",
+    "game/Main.cs",
+    "game/Main.HandsOn.cs",
+    "game/Main.StewardShift.cs",
+    "src/Festival.Simulation/CrowdStanding.cs",
+    "src/Festival.Simulation/GameSession.Navigation.cs",
+    "src/Festival.Simulation/LivePerformance.cs",
+    "src/Festival.Simulation/MedicalIncident.cs"
+  ],
+  "preservationCount": 1300,
+  "failures": []
+}

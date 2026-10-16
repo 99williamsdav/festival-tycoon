@@ -1,0 +1,444 @@
+using System.Diagnostics;
+
+namespace Festival.Simulation;
+
+public sealed partial class GameSession
+{
+    public const int WalkingSpeedMillimetresPerFestivalSecond = 120;
+    private const int RouteProgressMicrometresPerTick = 30_000;
+    /// <summary>Guests stroll at seven-tenths of the staff's pace; anyone carrying food or drink at 85% of their own.</summary>
+    public const int GuestPacePermille = 700, CarryingPacePermille = 850;
+
+    /// <summary>Someone's own pace: a guest's festival stroll, slowed further while carrying food or drink.</summary>
+    private int PersonPacePermille(ulong id, bool includeCarrying = true) =>
+        (_persons.TryGet(id, out var person) && person.Role == ProtectedPersonRole.Guest ? GuestPacePermille : 1_000) *
+        (includeCarrying && PersonIn(PersonView.Consumption, id)?.Held is not null ? CarryingPacePermille : 1_000) / 1_000 *
+        // Heading home after the music, each guest at their own tired pace.
+        (person is { Role: ProtectedPersonRole.Guest, Intent: MedicalIntent.Leaving } && ImmersionDepartureActive ? DeparturePacePermille(CampaignSeed, id) : 1_000) / 1_000;
+    private static readonly int[] WalkingSpeedPermillePattern = [850, 900, 950, 1_000, 1_050, 1_100, 1_150];
+    // Prototype centre clearance: below the 500 mm queue-slot spacing, but large enough to
+    // prevent sustained near-superposition while still allowing compressed single-file flow.
+    public const int SeparationRadiusMillimetres = 300;
+    private readonly SortedDictionary<EntityId, NavigationAgentState> _navigationAgents = [];
+    private TraversalGrid? _traversalGrid;
+
+    public TraversalGrid? TraversalGrid => _traversalGrid;
+    internal IReadOnlyDictionary<EntityId, NavigationAgentState> NavigationAgents => _navigationAgents;
+
+    /// <summary>Stable, replay-safe prototype variation of -15% through +15%; identity-derived, so no extra save field is required.</summary>
+    public static int GetWalkingSpeedPermille(EntityId id) => WalkingSpeedPermillePattern[(int)((id.Value - 1) % (ulong)WalkingSpeedPermillePattern.Length)];
+
+    private CommandResult? ValidateInitializeNavigation(EntityId? targetId, InitializeNavigationFixtureCommand command)
+    {
+        if (targetId is not null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Navigation fixture creation does not accept a target.");
+        if (_traversalGrid is not null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A traversal grid already exists.");
+        TraversalGrid grid;
+        try { grid = new TraversalGrid(command.Terrain); }
+        catch (ArgumentException exception) { return CommandResult.Rejected(CommandReasonCode.InvalidParameter, exception.Message); }
+        if (!grid.Contains(command.Start) || !grid.Get(command.Start).IsWalkable)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Navigation agent start must be a walkable in-bounds cell.");
+        return null;
+    }
+
+    private CommandResult? ValidateAgentDestination(EntityId? targetId, SetAgentDestinationCommand command)
+    {
+        if (targetId is null || !_navigationAgents.ContainsKey(targetId.Value))
+            return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Navigation attendee does not exist.");
+        if (_traversalGrid is null || !_traversalGrid.Contains(command.Destination) || string.IsNullOrWhiteSpace(command.IntentId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "AI destination requires an in-bounds cell and intent ID.");
+        return null;
+    }
+
+    private EntityId ApplyInitializeNavigation(InitializeNavigationFixtureCommand command)
+    {
+        _traversalGrid = new TraversalGrid(command.Terrain);
+        var id = new EntityId(NextEntityId++);
+        var position = TraversalGrid.CellCentre(command.Start);
+        _navigationAgents.Add(id, new NavigationAgentState
+        {
+            Id = id, XMillimetres = position.XMillimetres, ZMillimetres = position.ZMillimetres,
+            SegmentOriginXMillimetres = position.XMillimetres, SegmentOriginZMillimetres = position.ZMillimetres,
+            Action = AgentNavigationAction.Idle,
+        });
+        return id;
+    }
+
+    private void ApplyAgentDestination(EntityId agentId, SetAgentDestinationCommand command, bool avoidanceReplan = false)
+    {
+        // Only the player moves the player's steward.
+        if (IsPlayerSteward(agentId.Value)) return;
+        var agent = _navigationAgents[agentId];
+        if (!command.IntentId.StartsWith("litter.", StringComparison.Ordinal))
+        {
+            InterruptCleanup(agentId.Value);
+            if (agent.IntentId == "litter.dispose")
+            {
+                EnsureWasteIndices();
+                if (_carriedByPerson.TryGetValue(agentId.Value, out var waste)) DropWaste(_wasteById[waste], false);
+            }
+            if (agent.IntentId == "litter.goody-pickup")
+            {
+                ReleaseGoodyPickup(agentId.Value);
+                if (_carriedByPerson.TryGetValue(agentId.Value, out var picked)) DropWaste(_wasteById[picked], false);
+            }
+        }
+        var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+        var searchStart = Stopwatch.GetTimestamp();
+        // Wet and muddy ground costs more, so people go round a swamp if there is a reasonable way.
+        var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination,
+            avoidanceReplan ? CowDetourCost(agent) ?? _groundRouteCost : _crowdRouteCost ?? _groundRouteCost);
+        ScaleDiagnosticProbe?.AddRouteSearch(Stopwatch.GetTimestamp() - searchStart, search.ExpandedNodes, avoidanceReplan);
+        agent.Destination = command.Destination;
+        agent.Route = search.Path.ToList();
+        agent.RouteIndex = search.Found && search.Path.Count > 1 ? 1 : 0;
+        agent.SegmentOriginXMillimetres = agent.XMillimetres;
+        agent.SegmentOriginZMillimetres = agent.ZMillimetres;
+        agent.SegmentProgressMicrometres = 0;
+        agent.MovementRemainder = 0;
+        agent.LastSearchExpandedNodes = search.ExpandedNodes;
+        agent.IntentId = command.IntentId is "performance.listen-local" or "performance.listen-local-retreat" && search.Path.Any(cell =>
+            cell.X is < 103 or > 126 || cell.Z is < 131 or > 169) ? "performance.listen" : command.IntentId;
+        agent.Action = !search.Found ? AgentNavigationAction.NoRoute
+            : search.Path.Count == 1 ? AgentNavigationAction.Arrived : AgentNavigationAction.Travelling;
+    }
+
+    private void AdvanceNavigation(List<SessionEvent> events)
+    {
+        if (_traversalGrid is null) return;
+        RefreshHerdReturnRoutes();
+        var moving = _navigationAgents.Values.Where(item => item.Action == AgentNavigationAction.Travelling).ToArray();
+        var backups = moving.ToDictionary(item => item.Id, MovementBackup.Capture);
+        var arrived = new HashSet<EntityId>();
+        foreach (var agent in moving)
+        {
+            if (AdvanceAgentOneTick(agent)) arrived.Add(agent.Id);
+        }
+
+        // Resolve proposals together against stationary and already accepted occupancy through
+        // the spatial index. Remaining-corridor progress then stable ID is the deterministic tie.
+        // A deterministic lateral offset preserves route progress while giving proposals a
+        // meaningful prototype centre clearance. This is steering/yielding, not body physics.
+        var occupied = new SpatialNeighbourIndex();
+        var priorMovingOccupancy = new SpatialNeighbourIndex(moving.Where(agent => MovementOccupant(agent.Id.Value)).Select(agent =>
+        {
+            var prior = backups[agent.Id];
+            return new NavigationAgentSnapshot(agent.Id, prior.X, prior.Z, prior.Action, null, [], 0,
+                prior.X, prior.Z, 0, 0, 0, null, agent.WalkingSpeedPermille);
+        }));
+        // A crowd stands a person to a half-metre cell, closer than walkers keep apart, so anyone may squeeze past whoever is
+        // standing still in an audience (a listener, someone picking up litter); only one standing on the walker's own goal
+        // still holds them up. Nobody comes to rest that way: a sidestep must be clear of everyone, and anyone who does stop
+        // on a listener's place sends that listener aside (ClaimedAudienceCells).
+        _crowdStanders.Clear();
+        foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id) && MovementOccupant(item.Id.Value)))
+        {
+            occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
+            if (agent.Action != AgentNavigationAction.Travelling &&
+                TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres) is var standing && InStagesAudience(standing))
+                _crowdStanders[agent.Id] = standing;
+        }
+        AddCowOccupancy(occupied);
+        AddLavSuckerOccupancy(occupied);
+        // Walkers sharing a goal: the one nearest it (then lowest ID) has it; the others treat it as held.
+        var goalLeaders = new Dictionary<GridCell, (long DistanceSquared, EntityId Id)>();
+        foreach (var agent in moving.OrderBy(item => item.Id))
+        {
+            if (agent.Destination is not { } goal) continue;
+            var centre = TraversalGrid.CellCentre(goal);
+            long gx = centre.XMillimetres - backups[agent.Id].X, gz = centre.ZMillimetres - backups[agent.Id].Z;
+            if (!goalLeaders.TryGetValue(goal, out var leader) || gx * gx + gz * gz < leader.DistanceSquared)
+                goalLeaders[goal] = (gx * gx + gz * gz, agent.Id);
+        }
+        foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
+        {
+            // A band member on their way on or off stage never waits on the player steward (StewardShiftStage.cs).
+            var passing = PlayerPassedBy(agent);
+            var proposalConflicts = !BarnSweepClear(backups[agent.Id].X,backups[agent.Id].Z,agent.XMillimetres,agent.ZMillimetres) ||
+                !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
+                HasConflictPastCrowd(occupied, agent.XMillimetres, agent.ZMillimetres, passing, agent.Destination) ||
+                HasConflict(priorMovingOccupancy, agent.XMillimetres, agent.ZMillimetres, agent.Id);
+            // An arrival must be at its exact authoritative destination. Lateral yielding is
+            // valid only in transit; otherwise service could begin from an offset position.
+            if (proposalConflicts)
+            {
+                var destination = agent.Destination;
+                var intent = agent.IntentId;
+                if (GoalHeld(agent, backups[agent.Id], occupied, goalLeaders, passing) is { } goalDistance)
+                {
+                    // Sidestepping round someone standing on your own goal only bounces you back into
+                    // them: the old knot of a walker shuffling against a stander. Stop instead. Where
+                    // standing just short of the spot does the job, that counts as arriving; anywhere
+                    // that needs the exact cell, wait here until the stander moves off.
+                    backups[agent.Id].Restore(agent);
+                    arrived.Remove(agent.Id);
+                    if (goalDistance <= NearArrivalMillimetres && NearArrivalAllowed(intent))
+                    {
+                        agent.Action = AgentNavigationAction.Arrived;
+                        agent.RouteIndex = Math.Max(0, agent.Route.Count - 1);
+                        agent.SegmentOriginXMillimetres = agent.XMillimetres;
+                        agent.SegmentOriginZMillimetres = agent.ZMillimetres;
+                        agent.SegmentProgressMicrometres = 0;
+                        arrived.Add(agent.Id);
+                    }
+                    ScaleDiagnosticProbe?.RecordBlocked(agent.Id);
+                }
+                else if (!arrived.Contains(agent.Id) && destination is { } target && intent is not null &&
+                    HerdReturnCow(agent) is null && TryApplySeparationOffset(agent, backups[agent.Id], occupied, priorMovingOccupancy))
+                {
+                    // The offset is authoritative movement, so rebase route interpolation at
+                    // the accepted position instead of snapping back to the old segment next tick.
+                    ApplyAgentDestination(agent.Id, new SetAgentDestinationCommand(target, intent), avoidanceReplan: true);
+                    ScaleDiagnosticProbe?.RecordProgress(agent.Id);
+                }
+                else
+                {
+                    backups[agent.Id].Restore(agent);
+                    arrived.Remove(agent.Id);
+                    ScaleDiagnosticProbe?.RecordBlocked(agent.Id);
+                }
+            }
+            else ScaleDiagnosticProbe?.RecordProgress(agent.Id);
+            if (MovementOccupant(agent.Id.Value)) occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
+        }
+        foreach (var id in arrived.Order()) events.Add(new SessionEvent(CurrentTick, "navigation_arrived", id));
+    }
+
+    private bool AdvanceAgentOneTick(NavigationAgentState agent)
+    {
+            var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
+            var effectiveCost = checked(terrainCost * GroundSlowPermille(agent.Route[agent.RouteIndex]));
+            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) * StaffGaitPermille(agent.Id.Value) / 1000 *
+                PersonPacePermille(agent.Id.Value) / 1000 + agent.MovementRemainder);
+            var next = TraversalGrid.CellCentre(agent.Route[agent.RouteIndex]);
+            var allowance = HerdReturnMovementBudget(agent, checked((int)(numerator / effectiveCost)),
+                next.XMillimetres - agent.XMillimetres, next.ZMillimetres - agent.ZMillimetres);
+            agent.MovementRemainder = checked((int)(numerator % effectiveCost));
+            var arrived = false;
+
+            while (allowance > 0 && agent.Action == AgentNavigationAction.Travelling)
+            {
+                var from = (XMillimetres: agent.SegmentOriginXMillimetres, ZMillimetres: agent.SegmentOriginZMillimetres);
+                var to = TraversalGrid.CellCentre(agent.Route[agent.RouteIndex]);
+                var dx = to.XMillimetres - from.XMillimetres;
+                var dz = to.ZMillimetres - from.ZMillimetres;
+                var segmentLength = checked((int)IntegerSquareRoot((long)dx * dx * 1_000_000L + (long)dz * dz * 1_000_000L));
+                var remaining = segmentLength - agent.SegmentProgressMicrometres;
+                var consumed = Math.Min(allowance, remaining);
+                agent.SegmentProgressMicrometres += consumed;
+                allowance -= consumed;
+
+                if (agent.SegmentProgressMicrometres >= segmentLength)
+                {
+                    agent.XMillimetres = to.XMillimetres;
+                    agent.ZMillimetres = to.ZMillimetres;
+                    agent.SegmentOriginXMillimetres = to.XMillimetres;
+                    agent.SegmentOriginZMillimetres = to.ZMillimetres;
+                    agent.RouteIndex++;
+                    agent.SegmentProgressMicrometres = 0;
+                    if (agent.RouteIndex >= agent.Route.Count)
+                    {
+                        agent.RouteIndex = agent.Route.Count - 1;
+                        agent.Action = AgentNavigationAction.Arrived;
+                        arrived = true;
+                    }
+                }
+                else
+                {
+                    agent.XMillimetres = from.XMillimetres + (int)((long)dx * agent.SegmentProgressMicrometres / segmentLength);
+                    agent.ZMillimetres = from.ZMillimetres + (int)((long)dz * agent.SegmentProgressMicrometres / segmentLength);
+                }
+            }
+            return arrived;
+    }
+
+    /// <summary>How close a walker must be to a goal held by someone standing to count as having arrived.</summary>
+    public const int NearArrivalMillimetres = 600;
+    /// <summary>Within this of its goal, a walker whose goal is held by someone standing stops rather than sidesteps.</summary>
+    private const int HeldGoalStopMillimetres = 1_000;
+
+    /// <summary>
+    /// Goals where standing a step short of the cell serves as well as standing on it: watching the
+    /// show, resting, settling back at an idle place, or a goody fetching litter (who gives the piece
+    /// up rather than reach under someone's feet). Queues, services, doors, posts and repairs need
+    /// the exact cell, so those walkers wait instead.
+    /// </summary>
+    private static bool NearArrivalAllowed(string? intent) => intent is "performance.listen" or "performance.listen-local" or
+        "performance.listen-local-retreat" or "medical.return" or "medical.rest" or "disorder.water-closure-rest" or "litter.goody-pickup" or ShelterRules.Intent or StrawJobRules.Intent;
+
+    /// <summary>
+    /// The distance to this walker's goal when it is close to it and the goal is held: someone (or a cow,
+    /// or the tanker) is standing on the goal cell or has already stepped onto it this tick, or another
+    /// walker bound for the same cell is nearer it. Otherwise null. Measured from where the walker stood
+    /// before this tick.
+    /// </summary>
+    private static long? GoalHeld(NavigationAgentState agent, MovementBackup before, SpatialNeighbourIndex occupied,
+        IReadOnlyDictionary<GridCell, (long DistanceSquared, EntityId Id)> goalLeaders, EntityId? passing = null)
+    {
+        if (agent.Destination is not { } goal) return null;
+        var centre = TraversalGrid.CellCentre(goal);
+        long dx = centre.XMillimetres - before.X, dz = centre.ZMillimetres - before.Z;
+        var distanceSquared = dx * dx + dz * dz;
+        if (distanceSquared > (long)HeldGoalStopMillimetres * HeldGoalStopMillimetres) return null;
+        var standing = occupied.Query(centre.XMillimetres, centre.ZMillimetres, SeparationRadiusMillimetres - 1).Any(id => id != agent.Id && id != passing);
+        var sharedAhead = goalLeaders.TryGetValue(goal, out var leader) && leader.Id != agent.Id;
+        return standing || sharedAhead ? IntegerSquareRoot(distanceSquared) : null;
+    }
+
+    /// <summary>
+    /// Whether someone other than <paramref name="except"/> stands (rather than walks) on this cell's
+    /// centre. Used when choosing a goal, so nobody is sent to a cell already under someone's feet.
+    /// </summary>
+    private bool CellHeldByStander(GridCell cell, ulong except)
+    {
+        var centre = TraversalGrid.CellCentre(cell);
+        const long reach = (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres;
+        foreach (var other in _navigationAgents.Values)
+        {
+            if (other.Id.Value == except || other.Action == AgentNavigationAction.Travelling || !MovementOccupant(other.Id.Value)) continue;
+            long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
+            if (dx * dx + dz * dz < reach) return true;
+        }
+        return false;
+    }
+
+    // Everyone standing still in an audience this tick, by the cell they stand on; walkers may squeeze past them.
+    private readonly Dictionary<EntityId, GridCell> _crowdStanders = [];
+
+    /// <summary>Whether anyone but <paramref name="except"/> is too close, a listener standing in a crowd only if on <paramref name="goal"/>.</summary>
+    private bool HasConflictPastCrowd(SpatialNeighbourIndex occupied, int x, int z, EntityId? except, GridCell? goal)
+    {
+        foreach (var id in occupied.Query(x, z, SeparationRadiusMillimetres - 1))
+            if (id != except && !(_crowdStanders.TryGetValue(id, out var standing) && standing != goal)) return true;
+        return false;
+    }
+
+    // A sidestep never lands on anyone, a crowd's listeners included: a walker can come to rest on a sidestep.
+    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>
+        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Count > 0;
+
+    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z, EntityId except) =>
+        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Any(id => id != except);
+
+    private bool TryApplySeparationOffset(NavigationAgentState agent, MovementBackup backup, SpatialNeighbourIndex occupied,
+        SpatialNeighbourIndex priorMovingOccupancy)
+    {
+        var dx = agent.XMillimetres - backup.X;
+        var dz = agent.ZMillimetres - backup.Z;
+        var lateralX = dz == 0 ? 0 : Math.Sign(dz);
+        var lateralZ = dx == 0 ? (lateralX == 0 ? 1 : 0) : -Math.Sign(dx);
+        var preferred = (agent.Id.Value & 1UL) == 0 ? 1 : -1;
+        for (var distance = SeparationRadiusMillimetres; distance <= 600; distance += SeparationRadiusMillimetres)
+        foreach (var side in new[] { preferred, -preferred })
+        {
+            var x = agent.XMillimetres + lateralX * distance * side;
+            var z = agent.ZMillimetres + lateralZ * distance * side;
+            var cell = TraversalGrid.WorldToCell(x, z);
+            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) ||
+                !BarnSweepClear(backup.X,backup.Z,x,z) ||
+                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
+            if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
+            agent.XMillimetres = x; agent.ZMillimetres = z;
+            return true;
+        }
+        return false;
+    }
+
+    private sealed record MovementBackup(
+        int X, int Z, AgentNavigationAction Action, int RouteIndex, int OriginX, int OriginZ,
+        int Progress, int Remainder)
+    {
+        public static MovementBackup Capture(NavigationAgentState agent) => new(agent.XMillimetres, agent.ZMillimetres,
+            agent.Action, agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+            agent.SegmentProgressMicrometres, agent.MovementRemainder);
+        public void Restore(NavigationAgentState agent)
+        {
+            agent.XMillimetres = X; agent.ZMillimetres = Z; agent.Action = Action; agent.RouteIndex = RouteIndex;
+            agent.SegmentOriginXMillimetres = OriginX; agent.SegmentOriginZMillimetres = OriginZ;
+            agent.SegmentProgressMicrometres = Progress; agent.MovementRemainder = Remainder;
+        }
+    }
+
+    private NavigationAgentSnapshot[] CaptureNavigationAgents() => _navigationAgents.Values.Select(agent => new NavigationAgentSnapshot(
+        agent.Id, agent.XMillimetres, agent.ZMillimetres, agent.Action, agent.Destination,
+        agent.Route.ToArray(), agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+        agent.SegmentProgressMicrometres,
+        agent.MovementRemainder, agent.LastSearchExpandedNodes, agent.IntentId, agent.WalkingSpeedPermille)).ToArray();
+
+    private PersistedTraversalGrid? CaptureTraversalGrid() => _traversalGrid is null ? null : new PersistedTraversalGrid(
+        TraversalGrid.Width, TraversalGrid.Depth, TraversalGrid.CellSizeMillimetres,
+        _traversalGrid.Overrides.Values.Select(item => new PersistedTerrainCell(
+            item.Cell.X, item.Cell.Z, (int)item.Surface, item.IsWalkable,
+            item.CostPermille, item.ElevationMillimetres, item.SlopePermille)).ToArray());
+
+    private PersistedNavigationAgent[]? CapturePersistedNavigationAgents() => _traversalGrid is null ? null :
+        _navigationAgents.Values.Select(agent => new PersistedNavigationAgent(
+            agent.Id.Value, agent.XMillimetres, agent.ZMillimetres, (int)agent.Action,
+            agent.Destination?.X, agent.Destination?.Z,
+            agent.Route.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
+            agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+            agent.SegmentProgressMicrometres, agent.MovementRemainder,
+            agent.LastSearchExpandedNodes, agent.IntentId, agent.WalkingSpeedPermille)).ToArray();
+
+    private void RestoreNavigation(PersistedTraversalGrid? grid, PersistedNavigationAgent[]? agents)
+    {
+        _navigationAgents.Clear();
+        if (grid is null) { _traversalGrid = null; return; }
+        _traversalGrid = new TraversalGrid(grid.Cells.Select(item => new TerrainCellOverride(
+            new GridCell(item.X, item.Z), (GroundSurface)item.Surface, item.IsWalkable,
+            item.CostPermille, item.ElevationMillimetres, item.SlopePermille)));
+        foreach (var item in agents ?? [])
+        {
+            var id = new EntityId(item.Id);
+            _navigationAgents.Add(id, new NavigationAgentState
+            {
+                Id = id, XMillimetres = item.XMillimetres, ZMillimetres = item.ZMillimetres,
+                Action = (AgentNavigationAction)item.Action,
+                Destination = item.DestinationX is { } x && item.DestinationZ is { } z ? new GridCell(x, z) : null,
+                Route = item.Route.Select(cell => new GridCell(cell.X, cell.Z)).ToList(),
+                RouteIndex = item.RouteIndex, SegmentOriginXMillimetres = item.SegmentOriginXMillimetres,
+                SegmentOriginZMillimetres = item.SegmentOriginZMillimetres, SegmentProgressMicrometres = item.SegmentProgressMicrometres,
+                MovementRemainder = item.MovementRemainder, LastSearchExpandedNodes = item.LastSearchExpandedNodes, IntentId = item.IntentId,
+                WalkingSpeedPermille = item.WalkingSpeedPermille == 0 ? 1_000 : item.WalkingSpeedPermille,
+            });
+        }
+    }
+
+    private static string? ValidatePersistedNavigation(PersistedTraversalGrid? grid, PersistedNavigationAgent[]? agents)
+    {
+        if (grid is null && agents is null) return null;
+        if (grid is null || agents is null) return "Traversal grid and navigation agents must both be present or absent.";
+        if (grid.Width != TraversalGrid.Width || grid.Depth != TraversalGrid.Depth || grid.CellSizeMillimetres != TraversalGrid.CellSizeMillimetres || grid.Cells is null)
+            return "Traversal grid dimensions or cells are invalid.";
+        TraversalGrid restored;
+        try { restored = new TraversalGrid(grid.Cells.Select(item => new TerrainCellOverride(new GridCell(item.X, item.Z), (GroundSurface)item.Surface, item.IsWalkable, item.CostPermille, item.ElevationMillimetres, item.SlopePermille))); }
+        catch (ArgumentException exception) { return $"Traversal grid is invalid: {exception.Message}"; }
+        if (!StrictlyIncreasing(agents.Select(item => item.Id)) || agents.Any(item => item.Route is null || item.Id == 0 || !Enum.IsDefined(typeof(AgentNavigationAction), item.Action)))
+            return "Navigation agents must have sorted unique IDs, valid actions and routes.";
+        foreach (var item in agents)
+        {
+            if (item.Route.Any(cell => !restored.Contains(new GridCell(cell.X, cell.Z)) || !restored.Get(new GridCell(cell.X, cell.Z)).IsWalkable))
+                return $"Navigation agent {item.Id} route enters an invalid or blocked cell.";
+            if (item.RouteIndex < 0 || (item.Route.Length > 0 && item.RouteIndex >= item.Route.Length) || item.SegmentProgressMicrometres < 0 || item.MovementRemainder < 0 || item.LastSearchExpandedNodes < 0 ||
+                item.WalkingSpeedPermille != 0 && item.WalkingSpeedPermille is < 850 or > 1_150)
+                return $"Navigation agent {item.Id} movement progress is invalid.";
+            if (item.Action == (int)AgentNavigationAction.Travelling && (item.Route.Length < 2 || item.RouteIndex < 1))
+                return $"Navigation agent {item.Id} travelling route is incomplete.";
+        }
+        return null;
+    }
+
+    private static long IntegerSquareRoot(long value)
+    {
+        if (value <= 0) return 0;
+        long low = 0;
+        long high = 1;
+        while (high <= value / high) high *= 2;
+        while (low + 1 < high)
+        {
+            var middle = low + (high - low) / 2;
+            if (middle <= value / middle) low = middle;
+            else high = middle;
+        }
+        return low;
+    }
+}
