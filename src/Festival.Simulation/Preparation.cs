@@ -453,7 +453,8 @@ public sealed partial class GameSession
                     if(used.Any(other=>Math.Abs(other.X-x)<2&&Math.Abs(other.Z-z)<2)||!Reachable(cell))continue;
                     chosen=cell;break;
                 }
-                places[i]=chosen??throw new InvalidOperationException("No reachable diagnostic arrival destination remains.");
+                // This runs during ticks, so a layout that walls the apron off keeps the legacy place rather than ending the session.
+                places[i]=chosen??origin;
                 used.Add(places[i]);
             }
             _developmentArrivalLayout=layout;_developmentArrivalPlaces=places;
