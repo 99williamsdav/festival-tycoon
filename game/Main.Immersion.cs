@@ -64,13 +64,14 @@ public partial class Main
         }
         // Others' speech comes first; this waits for a gap in the crowd's three bubbles.
         if (_immersionRemarkPerson is null || _session.CurrentTick >= _immersionRemarkUntil) { if (SpeechCrowded()) return; }
-        if (_immersionRemarkPerson is { } active && _session.CurrentTick < _immersionRemarkUntil &&
-            _attendeeVisuals.TryGetValue(new EntityId(active), out var activeBody))
+        // A remark stays with someone on site and in view; a guest who has left (or not yet come in) is hidden, not talking.
+        if (_immersionRemarkPerson is { } active && _session.CurrentTick < _immersionRemarkUntil && onSite.Contains(active) &&
+            _attendeeVisuals.TryGetValue(new EntityId(active), out var activeBody) && activeBody.Visible)
         { _immersionRemark!.Position = activeBody.Position + new Vector3(0, 2.35f, 0); _immersionRemark.Visible = true; return; }
         if (_session.CurrentTick - _immersionLastGlobalRemark < 640) return;
-        var candidate = state.People.FirstOrDefault(p => p.Intoxication is >= 2500 and < 7500 && _session.ImmersionHandsAvailable(p.AgentId) &&
+        var candidate = state.People.FirstOrDefault(p => p.Intoxication is >= 2500 and < 7500 && onSite.Contains(p.AgentId) && _session.ImmersionHandsAvailable(p.AgentId) &&
             (!_immersionLastRemark.TryGetValue(p.AgentId, out var last) || _session.CurrentTick - last >= 3200));
-        if (candidate is null || !_attendeeVisuals.TryGetValue(new EntityId(candidate.AgentId), out var visual)) return;
+        if (candidate is null || !_attendeeVisuals.TryGetValue(new EntityId(candidate.AgentId), out var visual) || !visual.Visible) return;
         if (_immersionRemark is null)
         {
             _immersionRemark = WorldText.Speech(new Label3D { Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 36);
