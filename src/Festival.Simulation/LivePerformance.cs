@@ -249,6 +249,8 @@ public sealed partial class GameSession
             if (AudienceNavigationOwned(listener.AgentId) ||
                 PersonIn(PersonView.Roster, listener.AgentId) is not { Admitted: true, Departed: false }) continue;
             var since = CurrentTick - listener.LastDecisionTick;
+            // Someone with nowhere free to step to tries again a second later, not every tick of the claim.
+            if (aside && since < CrowdStanding.AsideRetryTicks) continue;
             var full = aside || since >= CrowdStanding.DwellTicks;
             if (!full && (since < CrowdStanding.ShuffleDwellTicks || listener.Place is null)) continue;
             if (full) listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
@@ -271,6 +273,9 @@ public sealed partial class GameSession
             var crowdingHere = listener.Place is null ? 0 : ground.CrowdingAt(startCell);
             ground.LeaveOut(null);
             var moved = false;
+            // Each try below plans a route; if none can be reached, the listener carries on exactly as they were.
+            var was = (start.Action, start.Destination, Route: start.Route.ToList(), start.RouteIndex, start.SegmentOriginXMillimetres,
+                start.SegmentOriginZMillimetres, start.SegmentProgressMicrometres, start.MovementRemainder, start.LastSearchExpandedNodes, start.IntentId);
             foreach (var option in options)
             {
                 var near = def.NearGround;
@@ -289,9 +294,13 @@ public sealed partial class GameSession
                 moved = true;
                 break;
             }
-            // Nowhere reachable after all: back to the place they had.
-            if (!moved && options.Length > 0 && listener.Place is { } back)
-                ApplyAgentDestination(new(listener.AgentId), new(back, "performance.listen"));
+            if (!moved && options.Length > 0)
+            {
+                start.Action = was.Action; start.Destination = was.Destination; start.Route = was.Route; start.RouteIndex = was.RouteIndex;
+                start.SegmentOriginXMillimetres = was.SegmentOriginXMillimetres; start.SegmentOriginZMillimetres = was.SegmentOriginZMillimetres;
+                start.SegmentProgressMicrometres = was.SegmentProgressMicrometres; start.MovementRemainder = was.MovementRemainder;
+                start.LastSearchExpandedNodes = was.LastSearchExpandedNodes; start.IntentId = was.IntentId;
+            }
         }
         Person[]? rewardedPeople = null;
         // How the set is playing, once for every listener this tick.
@@ -549,7 +558,8 @@ public sealed partial class GameSession
     {
         if (_livePerformances.All(live => live is null)) return null;
         var queues = WaterPoints().SelectMany(point => CaptureWaterQueueCells(point.Id))
-            .Concat(_immersion is null ? [] : Vendors.SelectMany(VendorQueueCells))
+            // A legacy vendor without saved queue cells sizes its line from current shoppers, never checking places, so it is left out.
+            .Concat(_immersion is null ? [] : Vendors.SelectMany(vendor => vendor.QueueCells ?? []))
             .Concat(EffectiveToilets(_facilities).SelectMany(toilet => toilet.QueueCells ?? [])).ToHashSet();
         foreach (var live in _livePerformances)
             foreach (var listener in live?.Listeners ?? [])

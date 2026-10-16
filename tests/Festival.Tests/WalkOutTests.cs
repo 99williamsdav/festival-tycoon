@@ -233,13 +233,13 @@ public sealed class WalkOutTests
     [TestMethod]
     public void AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame()
     {
-        var s = Started("management-only", 20260922);
+        var s = Started("management-only", 20260923);
         // Dav empties the loos before the headliner (a default day fills both, and a full loo takes nobody).
         s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
         foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
         var close = RunToClose(s);
-        // Partway out, with someone in a loo line and someone at a tap on the way, both at once (on this seed they are, for
-        // 544 ticks of the walk-out, 14 Oct).
+        // Partway out, with someone in a loo line and someone at a tap on the way, both at once (on this seed they are; it moved
+        // from 20260922 when crowds began stepping aside, 16 Oct).
         GameSession? saved = null;
         while (s.PreparedStatus == PreparationStatus.Departing && saved is null)
         {
@@ -392,7 +392,8 @@ public sealed class WalkOutTests
     [TestMethod]
     public void AQuickDrinkOnTheWayOutIsABoundaryOnTheTickItEnds()
     {
-        var s = Started("management-only", 20260922);
+        // No taps breaking: a bodged tap runs every other tick and keeps its own (later) end.
+        var s = BuildSession.WithoutFaults(Started("management-only", 20260922));
         var close = RunToClose(s);
         var checkedDrinks = 0;
         while (s.PreparedStatus == PreparationStatus.Departing && checkedDrinks < 2)
@@ -412,6 +413,35 @@ public sealed class WalkOutTests
             checkedDrinks++;
         }
         Assert.IsTrue(checkedDrinks >= 1, "Someone had a quick drink on the way out.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AQuickDrinkAtABodgedTapIsABoundaryOnTheFlowingTickItEnds()
+    {
+        // This default day's only tap is broken and bodged by the close: it flows every other tick, and a drink can only
+        // end on a tick it flows.
+        var s = Started("management-only", 20260922);
+        var close = RunToClose(s);
+        var checkedDrinks = 0;
+        var heldBack = 0;
+        while (s.PreparedStatus == PreparationStatus.Departing && checkedDrinks < 2)
+        {
+            Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks);
+            var drinking = s.CaptureWaterPoints().FirstOrDefault(w => w.OwnerId is { } id && s.CapturePerson(id)!.Thirst > 200 &&
+                s.TapBodged(w.Id) && w.DrinkTicks + 1 >= GameSession.DepartureDrinkTicks);
+            if (drinking is null) { s.AdvanceWithoutSnapshot(1); continue; }
+            var drinker = drinking.OwnerId!.Value;
+            var predicted = s.MedicalBoundaryOnNextTick;
+            s.AdvanceWithoutSnapshot(1);
+            var ended = s.CaptureWaterPoints().Single(w => w.Id == drinking.Id).OwnerId != drinker;
+            // Never a tick early: on a tick it doesn't flow the drink carries on, and nothing calls it a boundary.
+            if (!ended) { Assert.IsFalse(predicted, $"A non-flowing tick was flagged at +{s.CurrentTick - close}."); heldBack++; continue; }
+            Assert.IsTrue(predicted, "The flowing tick the drink ends on is a boundary.");
+            checkedDrinks++;
+        }
+        Assert.IsTrue(checkedDrinks >= 1, "Someone had a quick drink at the bodged tap on the way out.");
+        Assert.IsTrue(heldBack >= 1, "And at least once the drink ran a tick past its length, waiting for the water.");
     }
 
     [TestCategory("Slow")]

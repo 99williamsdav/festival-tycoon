@@ -134,8 +134,8 @@ public sealed partial class GameSession
         {
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
             if (agent.Action != AgentNavigationAction.Travelling &&
-                TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres) is var standing && InStagesAudience(standing))
-                _crowdStanders[agent.Id] = standing;
+                InStagesAudience(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres)))
+                _crowdStanders[agent.Id] = (agent.XMillimetres, agent.ZMillimetres);
         }
         AddCowOccupancy(occupied);
         AddLavSuckerOccupancy(occupied);
@@ -171,7 +171,11 @@ public sealed partial class GameSession
                     // that needs the exact cell, wait here until the stander moves off.
                     backups[agent.Id].Restore(agent);
                     arrived.Remove(agent.Id);
-                    if (goalDistance <= NearArrivalMillimetres && NearArrivalAllowed(intent))
+                    // In an audience, stopping a step short is only right where they stand clear of everyone: a walker who
+                    // squeezed into a crowd edges to a free spot beside it, or waits on the move rather than stop on someone.
+                    if (goalDistance <= NearArrivalMillimetres && NearArrivalAllowed(intent) &&
+                        (!InStagesAudience(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres)) ||
+                         !HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) || TryStopClear(agent, occupied)))
                     {
                         agent.Action = AgentNavigationAction.Arrived;
                         agent.RouteIndex = Math.Max(0, agent.Route.Count - 1);
@@ -301,14 +305,23 @@ public sealed partial class GameSession
         return false;
     }
 
-    // Everyone standing still in an audience this tick, by the cell they stand on; walkers may squeeze past them.
-    private readonly Dictionary<EntityId, GridCell> _crowdStanders = [];
+    // Everyone standing still in an audience this tick, by where they stand; walkers may squeeze past them.
+    private readonly Dictionary<EntityId, (int X, int Z)> _crowdStanders = [];
 
-    /// <summary>Whether anyone but <paramref name="except"/> is too close, a listener standing in a crowd only if on <paramref name="goal"/>.</summary>
+    /// <summary>
+    /// Whether anyone but <paramref name="except"/> is too close; someone standing still in a crowd only if they stand on
+    /// <paramref name="goal"/> (within the separation radius of its centre), so nobody arrives on top of them.
+    /// </summary>
     private bool HasConflictPastCrowd(SpatialNeighbourIndex occupied, int x, int z, EntityId? except, GridCell? goal)
     {
+        var centre = goal is { } cell ? TraversalGrid.CellCentre(cell) : default;
         foreach (var id in occupied.Query(x, z, SeparationRadiusMillimetres - 1))
-            if (id != except && !(_crowdStanders.TryGetValue(id, out var standing) && standing != goal)) return true;
+        {
+            if (id == except) continue;
+            if (!_crowdStanders.TryGetValue(id, out var at)) return true;
+            long dx = at.X - centre.XMillimetres, dz = at.Z - centre.ZMillimetres;
+            if (goal is not null && dx * dx + dz * dz < (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres) return true;
+        }
         return false;
     }
 
@@ -318,6 +331,30 @@ public sealed partial class GameSession
 
     private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z, EntityId except) =>
         occupied.Query(x, z, SeparationRadiusMillimetres - 1).Any(id => id != except);
+
+    /// <summary>
+    /// Moves a walker about to stop a step short of its goal to the nearest point clear of everyone, within half a metre
+    /// and still within <see cref="NearArrivalMillimetres"/> of the goal; false if there is none.
+    /// </summary>
+    private bool TryStopClear(NavigationAgentState agent, SpatialNeighbourIndex occupied)
+    {
+        if (agent.Destination is not { } goal) return false;
+        var centre = TraversalGrid.CellCentre(goal);
+        foreach (var reach in new[] { 250, 500 })
+        foreach (var (ux, uz) in new[] { (1000, 0), (-1000, 0), (0, 1000), (0, -1000), (707, 707), (-707, 707), (707, -707), (-707, -707) })
+        {
+            var x = agent.XMillimetres + ux * reach / 1000;
+            var z = agent.ZMillimetres + uz * reach / 1000;
+            long gx = x - centre.XMillimetres, gz = z - centre.ZMillimetres;
+            var cell = TraversalGrid.WorldToCell(x, z);
+            if (gx * gx + gz * gz > (long)NearArrivalMillimetres * NearArrivalMillimetres || !_traversalGrid!.Contains(cell) ||
+                !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) || !BarnSweepClear(agent.XMillimetres, agent.ZMillimetres, x, z) ||
+                !TraversalSweep.IsWalkable(_traversalGrid, agent.XMillimetres, agent.ZMillimetres, x, z) || HasConflict(occupied, x, z)) continue;
+            agent.XMillimetres = x; agent.ZMillimetres = z;
+            return true;
+        }
+        return false;
+    }
 
     private bool TryApplySeparationOffset(NavigationAgentState agent, MovementBackup backup, SpatialNeighbourIndex occupied,
         SpatialNeighbourIndex priorMovingOccupancy)

@@ -274,13 +274,20 @@ public sealed partial class GameSession
 
     /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
     public MedicalSnapshot? CaptureMedical() => MedicalView;
+    /// <summary>
+    /// Whether a drinker at this tap drinks on the next tick, as AdvanceTaps decides it: nobody drinks at a broken tap, and a
+    /// bodged one only flows every <see cref="FaultRules.BodgedFlowDivisor"/>th tick, so only then can a drink end.
+    /// </summary>
+    private bool TapFlowsNextTick(WaterPointState point) => ActiveFault(point.Id) is null &&
+        (!TapBodged(point.Id) || (CurrentTick + 1) % FaultRules.BodgedFlowDivisor == 0);
     internal string? MedicalCanonicalJson => MedicalView is not { } m ? null : System.Text.Json.JsonSerializer.Serialize(m);
     public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick ||
         // The taps stay open through the walk-out: a drinker finishing there is a boundary as during the day.
         !IsPaused && _medical is not null && ImmersionDepartureActive && WaterPoints().Any(point => point.OwnerId is { } departingDrinker &&
+            TapFlowsNextTick(point) &&
             (_persons[departingDrinker].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(departingDrinker) || point.DrinkTicks + 1 >= DepartureDrinkTicks)) ||
         !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
-        (WaterPoints().Any(point => point.OwnerId is { } waterOwner &&
+        (WaterPoints().Any(point => point.OwnerId is { } waterOwner && TapFlowsNextTick(point) &&
              _persons[waterOwner].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner)) ||
          PeopleIn(PersonView.Medical).Any(item => item.NeedProfile != MedicalNeedProfile.Staff &&
              (item.HealthStage == MedicalStage.Clear && item.Thirst >= MedicalDistressThirst - 1 && item.HeatExposure >= MedicalDistressHeat - 1 ||

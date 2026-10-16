@@ -309,28 +309,74 @@ public sealed class CrowdStandingTests
 
     [TestCategory("Slow")]
     [TestMethod]
-    public void NobodyAtRestSharesACellWithAListener()
+    public void NoTwoPeopleAtRestShareACellInAnAudience()
     {
         var s = TwoHundred();
         var shared = new List<string>();
         var started = s.CurrentTick;
+        // Pairs of people standing still in an audience closer than walkers keep apart (300 mm): anyone not walking, so
+        // listeners, a litter picker, a patient, a medic.
+        HashSet<(ulong, ulong)> Overlapping()
+        {
+            var departed = s.CapturePreparation()!.People.Where(p => p.Departed).Select(p => p.AgentId).ToHashSet();
+            var still = s.CaptureSnapshot().NavigationAgents
+                .Where(a => a.Action != AgentNavigationAction.Travelling && !departed.Contains(a.Id.Value) &&
+                    s.Stages.Any(stage => stage.InAudienceArea(TraversalGrid.WorldToCell(a.XMillimetres, a.ZMillimetres))))
+                .OrderBy(a => a.Id.Value).ToArray();
+            var pairs = new HashSet<(ulong, ulong)>();
+            for (var i = 0; i < still.Length; i++)
+            for (var j = i + 1; j < still.Length; j++)
+            {
+                long dx = still[i].XMillimetres - still[j].XMillimetres, dz = still[i].ZMillimetres - still[j].ZMillimetres;
+                if (dx * dx + dz * dz < 300L * 300) pairs.Add((still[i].Id.Value, still[j].Id.Value));
+            }
+            return pairs;
+        }
+        string Who(ulong id) => $"{id} ({s.CaptureSnapshot().NavigationAgents.Single(a => a.Id.Value == id).IntentId})";
         while (s.PreparedStatus is PreparationStatus.Running && s.CurrentTick - started < Trailer.SlotEnds[2])
         {
             s.AdvanceWithoutSnapshot(400);
-            var standing = s.CaptureLivePerformances().SelectMany(live => live.Listeners).Where(l => l.AtPlace && l.Place is not null)
-                .ToDictionary(l => l.AgentId, l => l.Place!.Value);
-            var departed = s.CapturePreparation()!.People.Where(p => p.Departed).Select(p => p.AgentId).ToHashSet();
-            var cells = standing.Values.ToHashSet();
-            foreach (var agent in s.CaptureSnapshot().NavigationAgents)
-            {
-                if (agent.Action == AgentNavigationAction.Travelling || departed.Contains(agent.Id.Value)) continue;
-                var here = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
-                if (cells.Contains(here) && !(standing.TryGetValue(agent.Id.Value, out var own) && own == here))
-                    shared.Add($"{s.CurrentTick - started}: {agent.Id.Value} ({agent.IntentId}) on a listener's cell {here}");
-            }
+            var close = Overlapping();
+            if (close.Count == 0) continue;
+            // Someone who has just stopped gets a second to step aside (a listener sent aside retries once a second).
+            s.AdvanceWithoutSnapshot(80);
+            foreach (var pair in close.Intersect(Overlapping()))
+                shared.Add($"{s.CurrentTick - started}: {Who(pair.Item1)} and {Who(pair.Item2)} stand on each other");
         }
         Console.WriteLine($"Checked to {s.CurrentTick - started}; {shared.Count} shared.");
         Assert.AreEqual(0, shared.Count, string.Join("\n", shared.Take(10)));
+    }
+
+    [TestMethod]
+    public void AListenerWithNowhereToStepAsideRetriesOnceASecond()
+    {
+        var s = LiveSession(20260922);
+        var live = s.CaptureLivePerformance()!;
+        var on = live.Listeners.Where(l => s.CapturePerson(l.AgentId) is { Admitted: true, Departed: false }).Select(l => l.AgentId).Take(2).ToArray();
+        var (listener, intruder) = (on[0], on[1]);
+        var place = new GridCell(Trailer.Front + 4, Trailer.Sightline);
+        Teleport(s, listener, place, "performance.listen");
+        // Someone else comes to rest on their place; every other cell of the audience's ground is blocked off.
+        Teleport(s, intruder, place, "labelled.rest-on-a-listener");
+        BuildSession.SetMainLive(s, live with { Listeners = live.Listeners.Select(l => l.AgentId == listener
+            ? l with { Place = place, AtPlace = true, LastDecisionTick = s.CurrentTick - 800 }
+            : l with { Place = null, AtPlace = false, LastDecisionTick = s.CurrentTick + 1_000_000 }).ToArray() });
+        var field = typeof(GameSession).GetField("_traversalGrid", Hidden)!;
+        var grid = (TraversalGrid)field.GetValue(s)!;
+        var cells = grid.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
+        foreach (var cell in Trailer.AudienceCells().Where(c => c != place)) cells[cell] = new(cell, GroundSurface.Grass, false);
+        field.SetValue(s, new TraversalGrid(cells.Values));
+        var decisions = new HashSet<long>();
+        for (var tick = 0; tick < 800; tick++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            decisions.Add(s.CaptureLivePerformance()!.Listeners.Single(l => l.AgentId == listener).LastDecisionTick);
+        }
+        Console.WriteLine($"Tries in ten seconds with nowhere to go: {decisions.Count}");
+        Assert.IsTrue(decisions.Count <= 11, $"A listener with nowhere free re-weighed {decisions.Count} times in 800 ticks.");
+        Assert.AreEqual(place, s.CaptureLivePerformance()!.Listeners.Single(l => l.AgentId == listener).Place, "Still where they were.");
+        s.AdvanceWithoutSnapshot(1_600);
+        Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus, "The day plays on.");
     }
 
     // ---- Set-up ----
