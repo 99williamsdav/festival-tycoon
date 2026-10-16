@@ -335,8 +335,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         }).ToUpperInvariant();
         _phase.AddThemeColorOverride("font_color", preparing ? Ui.Gold : Ui.Warn);
         _liveDot!.Visible = live;
-        var finance = session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
-        _cash.Text = FestivalCurrency.Format(finance.CashPennies);
+        _cash.Text = FestivalCurrency.Format(session.FestivalCashPennies(p.FinanceOwnerId));
         // The festival day (eight festival hours on one stage, longer with the Pond Stage), at 80 ticks a minute; past that, people are only leaving. Its length is the session's.
         var dayTicks = session.PreparedEditionDurationTicks;
         _clock!.Text = preparing ? "Not started" : session.CurrentTick - p.StartedTick >= dayTicks ? "Closing time" : $"{FestivalClockText(session.CurrentTick - p.StartedTick)} / {FestivalDurationText(dayTicks)}";

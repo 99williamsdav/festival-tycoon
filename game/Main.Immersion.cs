@@ -444,7 +444,7 @@ private void BuildImmersionControls(VBoxContainer parent)
     {
         RefreshImmersionNeedBars(id);
         if (_session.CaptureImmersion()?.People.SingleOrDefault(p => p.AgentId == id) is not { } person) return "";
-        var wallet = _session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id).CashPennies;
+        var wallet = _session.WalletCashPennies(id);
         return $"\nFOOD & DRINK • adult\nBudget {FestivalCurrency.Format(wallet)} remaining / {FestivalCurrency.Format(person.OpeningBudgetPennies)} opening\n" +
             $"Hunger {person.Hunger / 100m:0}% • toilet need {person.ToiletNeed / 100m:0}% • intoxication {person.Intoxication / 100m:0}%\n" +
             (person.ToiletStage != ToiletVisitStage.None ? $"Toilet: {person.ToiletStage.ToString().ToLowerInvariant()}\n" : "") +

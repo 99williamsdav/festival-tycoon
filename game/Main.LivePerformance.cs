@@ -218,7 +218,7 @@ public partial class Main
                 (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : TroubleLine(disorder,
                     DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "one of the crew" : null) + "\n") +
                 (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)}\n" : "") +
-                (immersion is null ? "" : $"Budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
+                (immersion is null ? "" : $"Budget {FestivalCurrency.Format(_session.WalletCashPennies(id.Value))}\n") +
                 StaffInterventionTargetText(id.Value) +
                 (worker is null ? "" : ResponseStaffInspectorText(id.Value));
         }

@@ -79,6 +79,8 @@ public sealed partial class GameSession
 {
     /// <summary>A festival account's cash, read without capturing (and hashing) a whole snapshot.</summary>
     public long FestivalCashPennies(ulong ownerId) => _festivalFinances[new(ownerId)].CashPennies;
+    /// <summary>A person's wallet, read the same way.</summary>
+    public long WalletCashPennies(ulong ownerId) => _wallets[new(ownerId)].CashPennies;
 }
 
 internal sealed class FestivalFinanceState
