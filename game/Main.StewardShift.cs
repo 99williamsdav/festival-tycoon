@@ -29,7 +29,7 @@ public partial class Main
 
     private bool StewardShiftActive => _shiftActive;
     private string StewardShiftSaveDirectory => _architectureEvidenceOutput is not null
-        ? System.IO.Path.Combine(_architectureEvidenceOutput, "steward-saves") : ProjectSettings.GlobalizePath("user://saves/r0-build-v99-steward-shift");
+        ? System.IO.Path.Combine(_architectureEvidenceOutput, "steward-saves") : ProjectSettings.GlobalizePath("user://saves/r0-build-v100-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
