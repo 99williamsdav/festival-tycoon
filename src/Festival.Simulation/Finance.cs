@@ -75,6 +75,12 @@ internal sealed class WalletState
     public long CashPennies { get; set; }
 }
 
+public sealed partial class GameSession
+{
+    /// <summary>A festival account's cash, read without capturing (and hashing) a whole snapshot.</summary>
+    public long FestivalCashPennies(ulong ownerId) => _festivalFinances[new(ownerId)].CashPennies;
+}
+
 internal sealed class FestivalFinanceState
 {
     public required EntityId OwnerId { get; init; }

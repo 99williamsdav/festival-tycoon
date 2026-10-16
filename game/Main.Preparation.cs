@@ -146,23 +146,23 @@ public partial class Main
     private void RefreshPreparationHud()
     {
         var p = _session.CapturePreparation()!;
-        var snapshot = _session.CaptureSnapshot();
-        var finance = snapshot.FestivalFinances.Single(item => item.OwnerId.Value == p.FinanceOwnerId);
+        // A whole snapshot is hashed on capture, so it is only taken for the old stock line.
+        var cash = _session.FestivalCashPennies(p.FinanceOwnerId);
         var immersion = _session.CaptureImmersion();
-        var stockDescription = immersion is null ? $"stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
+        var stockDescription = immersion is null ? $"stock {_session.CaptureSnapshot().OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
             $"soft {immersion.SoftStock} • beer {immersion.BeerStock}";
         var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
         _preparationSummary.Text = (_session.IsClassicCampaign?$"Classic · Festival {_session.FestivalNumber}":$"Tier {p.Tier}")+
             $" • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
-            $"{FestivalCurrency.Format(finance.CashPennies)} • {stockDescription}\n" +
+            $"{FestivalCurrency.Format(cash)} • {stockDescription}\n" +
             $"{(_session.IsClassicCampaign ? _session.CurrentFestival.Attendance : FestivalTickets.Sold(p.Tier))} guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
             $"8 live minutes + preparation/pauses; provisional pace.\n{_preparationMessage}";
         _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
         if (p.Plan is { Committed: false } planned)
             _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";
-        Booking.Refresh();
-        RefreshStaffPanel();
+        // The booking table and staff sheet live in the workspace, which only shows while preparing.
+        if (p.Status == PreparationStatus.Preparing) { Booking.Refresh(); RefreshStaffPanel(); }
         RefreshImmersionControls();
         var offersById = _session.GetPreparationOffers().ToDictionary(offer => offer.Id);
         foreach (var (id, card) in _offerCards)
@@ -327,6 +327,8 @@ private void RebuildPreparationOffers()
             .Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
         var rainy = _session.IsRainyFestival;
         var rainNow = _session.RainNow;
+        // Looked up once a frame: a roster capture and scan per agent grew with the square of the crowd.
+        var departed = _session.CapturePreparation()!.People.Where(person => person.Departed).Select(person => person.AgentId).ToHashSet();
         foreach (var agent in _session.CaptureObservation().NavigationAgents)
         {
             var position = _foundationPresentation.Sample(agent.Id, _host.Clock.InterpolationFraction);
@@ -340,7 +342,7 @@ private void RebuildPreparationOffers()
                 if (_selectedAttendeeId == agent.Id) ClearSelection();
                 continue;
             }
-            if (_session.CapturePreparation()!.People.Any(person => person.AgentId == agent.Id.Value && person.Departed))
+            if (departed.Contains(agent.Id.Value))
             {
                 visual.Hide();
                 foreach (var key in _attendeePickRegistry.Where(pair => pair.Value == agent.Id).Select(pair => pair.Key).ToArray()) _attendeePickRegistry.Remove(key);

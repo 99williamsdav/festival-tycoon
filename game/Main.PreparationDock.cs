@@ -55,7 +55,7 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     void ITopBarActions.ToggleMenu()
     {
         _hudMenu!.Visible = !_hudMenu.Visible;
-        if (_hudMenu.Visible) _hudMenu.GetParent().MoveChild(_hudMenu, -1);
+        if (_hudMenu.Visible) { _hudMenu.GetParent().MoveChild(_hudMenu, -1); RefreshHudDiagnostics(); }
     }
     void ITopBarActions.TogglePerks() => Perks.ToggleExpanded();
     void ITopBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;

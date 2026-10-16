@@ -7,4 +7,9 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
+  <!-- Godot exports with ExportRelease, which the SDK only optimises for a configuration named Release.
+       Without this the shipped simulation, persistence and content libraries run with the JIT optimiser off. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ExportRelease'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
 </Project>

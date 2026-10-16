@@ -214,7 +214,7 @@ public partial class Main
         if(_forecastMenuButton is not null)_forecastMenuButton.Visible=preparing&&_session.IsClassicCampaign;
         var placing = _buildGhostKind is not null;
         if (placing) _hudWorkspaceOpen = false;
-        var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
+        var cash = _session.FestivalCashPennies(p.FinanceOwnerId);
         _hudStatus!.Text = placing ? "Placement preview · no change until a valid click" : _preparationMessage;
         if (_buildGhostKind is not null) _hudStatus.Text = _preparationMessage;
         if (p.Status == PreparationStatus.Departing)
@@ -236,8 +236,7 @@ public partial class Main
                 ? string.Join("\n", blockers.Select(blocker => blocker.Message)) : issue.Message;
         if (_session.CapturePreparationPlan() is { Committed: false })
         {
-            var funds = _session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
-            var costs = $"Available {FestivalCurrency.Format(funds + _session.PlannedPitchFeePennies)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
+            var costs = $"Available {FestivalCurrency.Format(cash +_session.PlannedPitchFeePennies)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
             _hudStartReason.Text = costs + "\n" + _hudStartReason.Text;
             _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
             _hudStartConfirmation.DialogText = Drawer.CostSummary() + "\nPay this complete setup once and open the festival?";
@@ -258,14 +257,14 @@ public partial class Main
         }
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudMenu!.Size = new Vector2(250, 270);
-        _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
+        if (_hudMenu.Visible) RefreshHudDiagnostics();
         _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · eight-minute festival day")}\n" +
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +
             $"Sound: {(_session.HiredStaff(StaffRole.Sound) is { } sound ? $"{sound.Name} · sound engineer hired · {FestivalCurrency.Format(sound.WagePennies)}" : "hire a sound engineer before opening")}\n" +
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
         if (preparing && p.Plan is { } plan)
         {
-            _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies + _session.PlannedPitchFeePennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
+            _preparationSummary.Text = $"Available {FestivalCurrency.Format(cash + _session.PlannedPitchFeePennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
                 $"{(_session.IsClassicCampaign ? "Bands paid" : "Unpaid lineup")}: {plan.ActIds.Count(id => id != "")}/{_session.Stages.Count * 3} acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected people: {_session.ExpectedPreparedPeopleCount}\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
         }
         if (_medicalActionInspector is not null)
@@ -274,7 +273,8 @@ public partial class Main
             if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Send steward";
         }
         RefreshHudAlerts();
-        Drawer.Refresh();
+        // The build drawer only opens while preparing, and opening it refreshes it.
+        if (preparing) Drawer.Refresh();
         Dock.Refresh();
         if (_mapControls is not null)
         {
@@ -284,6 +284,13 @@ public partial class Main
             if(Dock.Readiness is { } readiness&&readiness.IsVisibleInTree()&&readiness.GetGlobalRect().Intersects(_mapControls.GetGlobalRect()))
                 _mapControls.Position=new(readiness.GetGlobalRect().Position.X-Ui.Gutter-Ui.S(148),_mapControls.Position.Y);
         }
+    }
+
+    /// <summary>The menu's tick and state hash. Hashing the whole session is costly, so only while the menu shows.</summary>
+    private void RefreshHudDiagnostics()
+    {
+        if (_hudDiagnosticsText is null || _session.CapturePreparation() is not { } p) return;
+        _hudDiagnosticsText.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
     }
 
     private void RefreshHudPreparationReadiness()
