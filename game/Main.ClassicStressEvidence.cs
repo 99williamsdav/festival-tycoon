@@ -149,9 +149,9 @@ public partial class Main
             if(frame==184)
             {
                 StressCheck("camera-controls-clear-readiness",_mapControls is null||!_mapControls.IsVisibleInTree()||Dock.Readiness is null||!Dock.Readiness.GetGlobalRect().Intersects(_mapControls.GetGlobalRect()));
-                StressPicture("15-food-traders-page-one");ArchitecturePress("BuildTradersNext");
+                StressPicture("15-food-traders-page-one");OpenTraderBoard(_session.PlacedVans.Skip(1).FirstOrDefault()??Stalls.FirstVan);
             }
-            if(frame==192){StressPicture("16-food-traders-page-two");OpenBuildCatalogue(BuildServiceKind.Bin);ArchitecturePress("BuildExpandBin");}
+            if(frame==192){StressPicture("16-food-traders-board");TraderFlyerBoard.Close();OpenBuildCatalogue(BuildServiceKind.Bin);ArchitecturePress("BuildExpandBin");}
             if(frame==200){StressPicture("17-placed-bins-page-one");ArchitecturePress("BuildPlacedNextBin");}
             if(frame==208)
             {

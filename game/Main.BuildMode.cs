@@ -15,9 +15,26 @@ public partial class Main : IBuildActions
     void IBuildActions.RemovePlacement(string id) => RemoveBuildPlacement(id);
     void IBuildActions.ApplyDefaults() => ApplyBuildDefaults();
     void IBuildActions.ApplyLastLayout() => ApplyLastFestivalLayout();
-    void IBuildActions.CloseDrawer() { _buildDrawerOpen = false; RefreshHudWorkspace(); }
+    void IBuildActions.CloseDrawer() { _buildDrawerOpen = false; TraderFlyerBoard.Close(); RefreshHudWorkspace(); }
     void IBuildActions.OpenCatalogue(BuildServiceKind kind) => OpenBuildCatalogue(kind);
     void IBuildActions.OpenTab(string name) => SelectHudTab(name);
+    void IBuildActions.OpenTraderBoard(string vanId) => OpenTraderBoard(vanId);
+    string? IBuildActions.TraderBoardVan => _traderBoardView?.Van;
+
+    private TraderBoard? _traderBoardView;
+    private TraderBoard TraderFlyerBoard => _traderBoardView ??= new(this, RefreshHudWorkspace);
+
+    /// <summary>
+    /// Opens the trader flyer board on a placed van's tab, with the Build drawer's Food &amp; drink tab beside it (the board
+    /// dims only the map). From a van clicked on the field, its drawer line, or a van just placed.
+    /// </summary>
+    private void OpenTraderBoard(string vanId)
+    {
+        if (_session.PreparedStatus != PreparationStatus.Preparing || _buildGhostKind is not null || !_session.PlacedVans.Contains(vanId)) return;
+        _buildDrawerOpen = true; _hudWorkspaceOpen = false;
+        Drawer.ShowRow(BuildServiceKind.FoodVan);
+        TraderFlyerBoard.Open(vanId);
+    }
     private bool _buildDrawerOpen;
     private BuildServiceKind? _buildGhostKind;
     private string? _buildMovingId;
@@ -55,6 +72,8 @@ public partial class Main : IBuildActions
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
         _buildDrawerOpen = true; _hudWorkspaceOpen = false;
+        // Showing a Build row (or any other part of the catalogue) puts the trader board away, so it can't pop back later.
+        if (focus is not BuildServiceKind.FoodVan) TraderFlyerBoard.Dismiss();
         RefreshHudWorkspace();
         if (focus is { } kind) Drawer.FocusRow(kind);
     }
@@ -98,6 +117,8 @@ public partial class Main : IBuildActions
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
 CancelBuildPlacement();
+        // Placing or moving anything but a van puts the trader board away; a van keeps it (a new van opens its own tab).
+        if (kind != BuildServiceKind.FoodVan) TraderFlyerBoard.Dismiss();
         _buildGhostKind = kind; _buildMovingId = movingId;
         _buildClickRejected = false;
         _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :
@@ -167,11 +188,15 @@ CancelBuildPlacement();
         { _preparationMessage = issue; _buildClickRejected = true; RefreshPreparationHud(); return; }
         var command = _buildMovingId is null ? (SessionCommand)new PlaceBuildServiceCommand(kind, cell, _buildQuarterTurns) :
             new MoveBuildServiceCommand(_buildMovingId, cell, _buildQuarterTurns);
+        var placingVan = kind == BuildServiceKind.FoodVan && _buildMovingId is null;
+        var vansBefore = _session.PlacedVans.ToArray();
         var before = _session.CaptureSnapshot().AuthoritativeHash;
         CommitEquipmentAction(command);
         if (_session.CaptureSnapshot().AuthoritativeHash == before) return;
         CancelBuildPlacement(); SyncBuildWorld();
         _buildDrawerOpen = true;
         RefreshHudWorkspace(); Drawer.Refresh();
+        // A new van opens the trader board on its tab, to choose who pitches there: the van the placement actually added.
+        if (placingVan && _session.PlacedVans.Except(vansBefore).FirstOrDefault() is { } newVan) OpenTraderBoard(newVan);
     }
 }
