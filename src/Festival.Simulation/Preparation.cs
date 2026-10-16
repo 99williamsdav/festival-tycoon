@@ -327,7 +327,7 @@ public sealed partial class GameSession
             _preparation = _preparation with { ClassicBooking = ClassicBookingLedger.Open(CampaignSeed, FestivalNumber, booking) };
         CommitPreparationPlan();
         var p = _preparation!;
-        _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(BarnStageOpen));
+        _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(BarnStageOpen,BarnTractorPresent));
         if (_equipment is { } unit)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
@@ -578,7 +578,7 @@ public sealed partial class GameSession
             return "Festival reputation or scene credibility invalid.";
         if ((p.BuildPlacements is null || p.Plan is null ||
             !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier, SavedClassic(snapshot)) is not null))
+            ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier, SavedClassic(snapshot),snapshot.BarnGeometryVersion) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (ValidatePreviousLayout(p, snapshot.PondStageTrial,SavedClassic(snapshot),

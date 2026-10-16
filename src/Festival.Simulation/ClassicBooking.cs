@@ -123,7 +123,7 @@ public sealed partial class GameSession
     private void SetClassicTicketRoster(int count, ClassicAnnouncedAct[] announced)
     {
         var p = PreparationView!; var currentIds = p.People.Where(a => a.Role == ProtectedPersonRole.Guest).Select(a => a.AgentId).ToHashSet();
-        var baseline = CreateBuildCampaign(CampaignSeed, 1, p.CarriedIn, CampaignId, identity: _identity, classicFestivalNumber: FestivalNumber,classicDevelopment:_classicDevelopment);
+        var baseline = CreateBuildCampaign(CampaignSeed, 1, p.CarriedIn, CampaignId, identity: _identity, classicFestivalNumber: FestivalNumber,classicDevelopment:_classicDevelopment,barnGeometryVersion:BarnGeometryVersion);
         var candidates = baseline.PreparationView!.People.Where(a => a.Role == ProtectedPersonRole.Guest).OrderBy(a => a.AgentId).ToArray();
         var selected = candidates.Take(count).Select(a => a.AgentId).ToHashSet();
         var existing = p.People.Where(a => a.Role == ProtectedPersonRole.Guest).ToDictionary(a => a.AgentId);

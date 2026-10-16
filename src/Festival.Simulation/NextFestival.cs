@@ -73,7 +73,7 @@ public sealed partial class GameSession
         if(IsClassicCampaign)return CreateNextClassicFestival();
         var p = _preparation!;
         var next = CreateLaterFestivalFor(_identity, CampaignSeed, CampaignId, definition.Tier, CarryOverFrom(p),
-            new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
+            new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial,BarnGeometryVersion);
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
         // Popularity moves here too, from the newcomers each set won over, never during a festival.
         var (history, relationships, popularity) = RelationshipsForNextFestival(definition.Tier);
@@ -92,10 +92,10 @@ public sealed partial class GameSession
         CreateLaterFestivalFor(CampaignIdentity.FromLegacy(mode),seed,campaignId,tier,carry,standing,seenActs,identity,pondStageTrial);
 
     private static GameSession CreateLaterFestivalFor(CampaignIdentity control, ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
-        FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial)
+        FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial,int barnGeometryVersion=0)
     {
         // Keep the legacy trial flag and mode; Tier 2's authoritative allocation always converts the Barn.
-        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, identity: control);
+        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, identity: control,barnGeometryVersion:barnGeometryVersion);
         next.PreparationView = next.PreparationView! with { Reputation = standing.Reputation,
             SceneCredibility = standing.SceneCredibility.ToArray(), SeenActs = seenActs.ToArray() };
         if (identity is not null)

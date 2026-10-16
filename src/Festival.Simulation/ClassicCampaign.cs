@@ -50,7 +50,7 @@ public sealed partial class GameSession
             p.SeenActs.ToArray(),p.OwnedEquipment.ToArray(),p.BuildPlacements.OrderBy(b=>b.Id,StringComparer.Ordinal).ToArray())
             { Booking = CaptureClassicBooking(), StockPurchasesPennies = CompletedFestivalAccounts!.StockPurchasesPennies,Development=_classicDevelopment };
         var number=checked(FestivalNumber+1);
-        var next=CreateBuildCampaign(CampaignSeed,1,CarryOverFrom(p),CampaignId,identity:_identity,classicFestivalNumber:number,classicDevelopment:_classicDevelopment);
+        var next=CreateBuildCampaign(CampaignSeed,1,CarryOverFrom(p),CampaignId,identity:_identity,classicFestivalNumber:number,classicDevelopment:_classicDevelopment,barnGeometryVersion:BarnGeometryVersion);
         next._classicHistory=new([..CaptureClassicHistory()!.CompletedFestivals,record],[]);
         next._campaignPlanning!.FestivalName=_campaignPlanning!.FestivalName;next._campaignPlanning.Palette=_campaignPlanning.Palette;
         next._campaignPlanning.Loan=_campaignPlanning.Loan;

@@ -403,7 +403,7 @@ public sealed partial class GameSession
     {
         var cell = TraversalGrid.WorldToCell(toX, toZ);
         if (!StewardShiftRules.InField(cell) || !_traversalGrid!.Get(cell).IsWalkable || CubicleClosedTo(id, cell) ||
-            !BarnLayout.MovementSweepClear(fromX,fromZ,toX,toZ,BarnStageOpen) ||
+            !BarnLayout.MovementSweepClear(fromX,fromZ,toX,toZ,BarnStageOpen,BarnTractorPresent) ||
             !TraversalSweep.IsWalkable(_traversalGrid, fromX, fromZ, toX, toZ)) return false;
         // Working by themselves, the steward never steps from the ground onto a stage's steps or deck, sliding or turning.
         if (_stewardShift?.Autopilot is not null && OnStageCells(Stages, cell) && !OnStageCells(Stages, TraversalGrid.WorldToCell(fromX, fromZ))) return false;

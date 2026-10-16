@@ -18,9 +18,10 @@ public sealed partial class GameSession
     /// usual bar stock (with eight straw bales on a rainy day). The festival starts at once and the second steward is the player's.
     /// </para>
     /// </summary>
-    public static GameSession CreateStewardShift(ulong seed, int tier = 1)
+    public static GameSession CreateStewardShift(ulong seed, int tier = 1,bool currentBarnGeometry=false)
     {
         var s = CreateDevelopmentFestival(seed, tier);
+        if(currentBarnGeometry)s.WithCurrentBarnGeometry();
         s.PlanStewardShift();
         s.RunSetupCommand(new StartPreparedEditionCommand());
         var player = s._preparation!.StaffProfiles.Single(profile => profile.Role == ResponseRole.Steward).AgentId;

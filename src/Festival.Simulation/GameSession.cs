@@ -513,6 +513,7 @@ public sealed partial class GameSession
             PondStageTrial = _pondStageTrial,
             Identity = _identity,
             ClassicDevelopment = _classicDevelopment,
+            BarnGeometryVersion = BarnGeometryVersion,
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
@@ -581,6 +582,7 @@ public sealed partial class GameSession
         session._identity = snapshot.Identity!;
         session._classicHistory = snapshot.ClassicHistory is {} classicHistory?CloneClassicHistory(classicHistory):null;
         session._classicDevelopment = snapshot.ClassicDevelopment;
+        session.BarnGeometryVersion = snapshot.BarnGeometryVersion;
         session._stageGenerators = snapshot.StageGenerators?.ToArray();
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
@@ -615,6 +617,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
         if(CampaignIdentity.Issue(snapshot.Identity) is {} identityIssue)return identityIssue;
+
         if(ValidateClassicDevelopment(snapshot) is {} developmentIssue)return developmentIssue;
         if(SavedClassic(snapshot)&&(snapshot.Preparation is not{Tier:1,Attempt:1}||snapshot.CampaignPlanning is not{EditionNumber:>=1}||
             snapshot.ClassicHistory is not{CompletedFestivals:not null,DeathPenalties:not null}))return "Classic current festival identity or history is invalid.";
@@ -668,6 +671,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if(snapshot.Preparation is {} postPrep && new[]{FirstAidPlacement(postPrep),StewardPostPlacement(postPrep)}.Any(p=>p is not null && (p.QuarterTurns is <0 or >3 || p.Cell.X is <0 or >255 || p.Cell.Z is <0 or >255)))return "Saved response post scalar fields invalid.";
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
+        if(ValidateBarnGeometry(snapshot) is {} barnGeometryIssue)return barnGeometryIssue;
         var resultError = ValidateFestivalResult(snapshot);
         if (resultError is not null) return resultError;
         var classicError=ValidateClassicHistory(snapshot);

@@ -343,6 +343,7 @@ internal static class CanonicalStateHasher
         if (session.StewardShiftCanonicalJson is { } shift) { writer.Write("steward-shift-v1"); writer.Write(shift); writer.Flush(); }
         if (session.ClassicHistoryCanonicalJson is { } classic) { writer.Write("classic-history-v1"); writer.Write(classic); writer.Flush(); }
         if (session.ClassicDevelopmentCanonicalJson is { } development) { writer.Write("classic-development-v1"); writer.Write(development); writer.Flush(); }
+        if(session.BarnGeometryVersion>0){writer.Write("barn-geometry");writer.Write(session.BarnGeometryVersion);writer.Flush();}
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

@@ -28,7 +28,7 @@ public static class NavigationFixture
             fixture.Session.CurrentTick, fixture.Session.NextSubmissionSequence,
             fixture.AgentId, new SetAgentDestinationCommand(fixture.ServiceCell, ServiceIntentId)));
 
-    public static IReadOnlyList<TerrainCellOverride> CreateLowerWitteringTerrain(bool barnStage = true)
+    public static IReadOnlyList<TerrainCellOverride> CreateLowerWitteringTerrain(bool barnStage = true,bool tractorPresent=false)
     {
         var cells = new SortedDictionary<GridCell, TerrainCellOverride>();
         for (var z = 0; z < TraversalGrid.Depth; z++)
@@ -41,6 +41,7 @@ public static class NavigationFixture
         BlockRectangle(cells, -28_500, -15_500, -19_500, -8_500); // farmhouse
         BlockRectangle(cells, 11_000, 27_000, -22_500, -11_500);  // small barn +Z front; same padded extents rotated to yaw0
         foreach (var (cell,walkable) in BarnLayout.Terrain(barnStage)) cells[cell] = new(cell,GroundSurface.Grass,walkable);
+        if(tractorPresent&&!barnStage)foreach(var cell in BarnTractorLayout.SolidCells())cells[cell]=new(cell,GroundSurface.Grass,false);
         // Tree trunks, a quarter-metre clear around each; their crowns overhang freely.
         BlockRectangle(cells, -32_700, -31_300, 8_300, 9_700);     // oak in the west hedge
         BlockRectangle(cells, 28_950, 30_050, -30_050, -28_950);   // field maple behind the small barn

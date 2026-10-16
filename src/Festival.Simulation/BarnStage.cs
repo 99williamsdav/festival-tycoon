@@ -20,7 +20,8 @@ public static class BarnLayout
     public static bool StairSweepClear(int fromX,int fromZ,int toX,int toZ) =>
         !CrossesStairBox(fromX,fromZ,toX,toZ,6_000,6_650,1_485,3_385) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,7_100,8_000,1_255,3_585);
-    public static bool MovementSweepClear(int fromX,int fromZ,int toX,int toZ,bool stageActive = true) =>
+    public static bool MovementSweepClear(int fromX,int fromZ,int toX,int toZ,bool stageActive = true,bool tractorPresent=false) =>
+        (!tractorPresent||BarnTractorLayout.SweepClear(fromX,fromZ,toX,toZ))&&
         (!stageActive || StairSweepClear(fromX,fromZ,toX,toZ)) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,-11_000,-8_270,5_193,6_850) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,-7_050,-3_500,5_193,6_850) &&

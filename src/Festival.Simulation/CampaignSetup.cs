@@ -37,9 +37,10 @@ public sealed partial class GameSession
     /// carried forward. The same seed, tier and guest count always give the same identities.
     /// </summary>
     private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null,
-        bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null,ClassicDevelopmentSnapshot? classicDevelopment=null)
+        bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null,ClassicDevelopmentSnapshot? classicDevelopment=null,int barnGeometryVersion=0)
     {
         var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber,classicDevelopment);
+        session.BarnGeometryVersion=barnGeometryVersion;
         SetUpPerks(session, session.FestivalSeed, tier);
         // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
         if (session.CurrentFestival.ExtraMedicSlot) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
