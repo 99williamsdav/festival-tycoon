@@ -17,6 +17,10 @@ internal interface IBuildActions
     void OpenCatalogue(BuildServiceKind kind);
     void OpenTab(string name);
     void BeginCover(GroundCoverAction action);
+    /// <summary>Opens the trader flyer board on a placed van's tab.</summary>
+    void OpenTraderBoard(string vanId);
+    /// <summary>The van whose flyer board tab is open, or null.</summary>
+    string? TraderBoardVan { get; }
 }
 
 /// <summary>
@@ -56,6 +60,13 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     private string _buildPlacedKey = "";
 
     public PanelContainer? Panel => _buildDrawer;
+
+    /// <summary>Opens the tab holding a service without moving keyboard focus.</summary>
+    public void ShowRow(BuildServiceKind kind)
+    {
+        var tab = Array.FindIndex(Categories, category => category.Kinds.Contains(kind));
+        if (tab >= 0) SelectTab(tab);
+    }
 
     /// <summary>Opens the tab holding a service and focuses its Place button.</summary>
     public void FocusRow(BuildServiceKind kind)
@@ -218,7 +229,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
         var placed = new VBoxContainer { Visible = false }; placed.AddThemeConstantOverride("separation", 0); block.AddChild(placed);
         _buildCatalogueRows.Add(kind, new CatalogueRow(chevron, price, dots, count, action, placed));
-        if (kind == BuildServiceKind.FoodVan) block.AddChild(TraderPicker());
+        if (kind == BuildServiceKind.FoodVan) block.AddChild(TraderLines());
         return block;
     }
 
@@ -296,80 +307,70 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
     }
 
-    private readonly List<(string Van, FoodTrader Trader, Button Button)> _traderButtons = [];
     private VBoxContainer? _traderBox;
     private string? _traderKey;
-    private int _traderPage;
-    private const int TraderVansPerPage = 4;
 
-    /// <summary>The traders to choose from, a set for each van the tier allows: each pays the festival to pitch.</summary>
-    private VBoxContainer TraderPicker()
+    /// <summary>The food van traders: a line per placed van, opening the trader flyer board on that van's tab.</summary>
+    private VBoxContainer TraderLines()
     {
-        _traderBox = new VBoxContainer(); _traderBox.AddThemeConstantOverride("separation", Ui.Px(3));
-        var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(6));
-        var wrapper = new VBoxContainer(); wrapper.AddChild(margin); margin.AddChild(_traderBox);
-        return wrapper;
+        var wrapper = new VBoxContainer(); wrapper.AddThemeConstantOverride("separation", Ui.Px(6));
+        var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(8));
+        margin.AddChild(wrapper);
+        wrapper.AddChild(Ui.Caps("Food van traders · they pay you to pitch", Ui.InkMuted, 9.5f));
+        _traderBox = new VBoxContainer(); _traderBox.AddThemeConstantOverride("separation", Ui.Px(6)); wrapper.AddChild(_traderBox);
+        var outer = new VBoxContainer(); outer.AddChild(margin);
+        return outer;
     }
 
     /// <summary>
-    /// Four van pickers per page. Unavailable traders remain visible and explain why.
+    /// One 382 x 44 line per placed van, in van order: the trader's van, "VAN n", their name, the fee and a chevron. The
+    /// line whose board tab is open is edged in gold. No paging: each van is one line, and the drawer scrolls.
     /// </summary>
-    private void RefreshTraderPicker()
+    private void RefreshTraderLines()
     {
         if (_traderBox is null) return;
         var session = _hud.Session;
-        var vans = session.FoodVanCatalogueIds.ToArray();
         var placed = session.PlacedVans;
-        var pages = Math.Max(1, (vans.Length + TraderVansPerPage - 1) / TraderVansPerPage);
-        _traderPage = Math.Clamp(_traderPage, 0, pages - 1);
-        var key = $"{session.CapturePreparation()?.Tier}:{_traderPage}:" + string.Join(",", vans.Select(van => van + (placed.Contains(van) ? "+" : "-")));
-        if (key != _traderKey)
+        var open = _actions.TraderBoardVan;
+        var key = $"{open}|" + string.Join(",", placed.Select(van => van + "=" + session.TraderAt(van).Id));
+        if (key == _traderKey) return;
+        _traderKey = key;
+        var focused = _traderBox.GetViewport()?.GuiGetFocusOwner() is { } owner && _traderBox.IsAncestorOf(owner) ? owner.Name.ToString() : null;
+        foreach (var child in _traderBox.GetChildren()) { _traderBox.RemoveChild(child); child.QueueFree(); }
+        if (placed.Count == 0)
+            _traderBox.AddChild(Ui.Text("Place a van, then choose who pitches.", 11.5f, Ui.InkMuted));
+        foreach (var van in placed)
         {
-            _traderKey = key;
-            foreach (var child in _traderBox.GetChildren()) { _traderBox.RemoveChild(child); child.QueueFree(); }
-            _traderButtons.Clear();
-            if (pages > 1)
-            {
-                var navigation = new HBoxContainer();
-                var previous = ButtonText("Previous", () => { _traderPage--; RefreshTraderPicker(); });
-                var next = ButtonText("Next", () => { _traderPage++; RefreshTraderPicker(); });
-                previous.Name="BuildTradersPrevious";next.Name="BuildTradersNext";
-                previous.Disabled = _traderPage == 0; next.Disabled = _traderPage == pages - 1;
-                navigation.AddChild(previous);
-                navigation.AddChild(Ui.Caps($"Vans · page {_traderPage + 1}/{pages}", Ui.InkMuted, 9.5f));
-                navigation.AddChild(next); _traderBox.AddChild(navigation);
-            }
-            foreach (var van in vans.Skip(_traderPage * TraderVansPerPage).Take(TraderVansPerPage))
-            {
-                _traderBox.AddChild(Ui.Caps(vans.Length == 1 ? "Trader · they pay you to pitch"
-                    : $"Van {Stalls.Number(van)} trader · {(placed.Contains(van) ? "pays you to pitch" : "if you place it")}", Ui.InkMuted, 9.5f));
-                foreach (var trader in FoodTraders.All)
-                {
-                    var button = new Button { Text = $"{trader.Name} · {trader.Menu.ToLowerInvariant()} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}" +
-                            (trader.SlowService ? " · slower service" : "") + (trader.FromTier > (session.CapturePreparation()?.Tier ?? 1) ? $" · from Tier {trader.FromTier}" : ""), ToggleMode = true,
-                        Alignment = HorizontalAlignment.Left, MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
-                    var (chosen, at) = (trader, van);
-                    button.Pressed += () => _hud.Commit(new ChooseFoodTraderCommand(chosen.Id, at));
-                    _traderBox.AddChild(button); _traderButtons.Add((van, trader, button));
-                }
-            }
+            var trader = session.TraderAt(van);
+            var line = new Button { Name = "TraderLine_" + van.Replace('.', '_'), CustomMinimumSize = Ui.S(382, 44), SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = $"Choose van {Stalls.Number(van)}'s trader" };
+            var normal = van == open ? Ui.Box(new Color("fbf0d4"), 6, Ui.Gold, 2) : Ui.Box(Ui.PaperBright, 6, Ui.PaperRule, 1);
+            foreach (var state in new[] { "normal", "pressed", "disabled" }) line.AddThemeStyleboxOverride(state, normal);
+            line.AddThemeStyleboxOverride("hover", van == open ? normal : Ui.Box(Colors.White, 6, Ui.PaperEdge, 1));
+            line.AddThemeStyleboxOverride("focus", Ui.Box(new Color(0, 0, 0, 0), 6, Ui.Gold, 2));
+            var thumb = new Panel { Position = Ui.S(6, 5), Size = Ui.S(54, 34), MouseFilter = Control.MouseFilterEnum.Ignore };
+            thumb.AddThemeStyleboxOverride("panel", Ui.Box(new Color(new Color(trader.CardColour), 0.16f), 4));
+            thumb.AddChild(new TextureRect { Texture = GD.Load<Texture2D>(TraderFlyers.ArtPath(trader.Art)), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Position = Ui.S(2, 1), Size = Ui.S(50, 32), MouseFilter = Control.MouseFilterEnum.Ignore });
+            line.AddChild(thumb);
+            var number = Ui.Caps($"Van {Stalls.Number(van)}", Ui.InkMuted, 9); number.Position = Ui.S(68, 6); line.AddChild(number);
+            var name = Ui.Text(trader.Name, 13.5f, Ui.Ink, Ui.Slab); name.Position = Ui.S(68, 18); line.AddChild(name);
+            var fee = Ui.Text(FestivalCurrency.Format(trader.PitchFeePennies), 12, Ui.Teal, Ui.BodyBold);
+            fee.Position = Ui.S(250, 12); fee.Size = Ui.S(100, 20); fee.HorizontalAlignment = HorizontalAlignment.Right; fee.VerticalAlignment = VerticalAlignment.Center;
+            line.AddChild(fee);
+            var chevron = Ui.IconRect("chevron-right", 14, Ui.InkMuted); chevron.Position = Ui.S(358, 15); chevron.Size = Ui.S(14, 14); line.AddChild(chevron);
+            var chosen = van;
+            line.Pressed += () => Callable.From(() => _actions.OpenTraderBoard(chosen)).CallDeferred();
+            _traderBox.AddChild(line);
         }
-        foreach (var (van, trader, button) in _traderButtons)
-        {
-            var current = session.TraderAt(van).Id == trader.Id;
-            var issue = current ? null : session.TraderUnavailable(van, trader);
-            button.SetPressedNoSignal(current);
-            button.Disabled = issue is not null;
-            button.Modulate = issue is null ? Colors.White : new Color(1, 1, 1, .5f);
-            button.TooltipText = issue ?? trader.Blurb;
-            Tight(Ui.Style(button, current ? Ui.ButtonKind.Secondary : Ui.ButtonKind.Quiet, 12), 12);
-        }
+        if (focused is not null && _traderBox.FindChild(focused, false, false) is Control again) again.GrabFocus();
+        Shrink();
     }
 
     public void Refresh()
     {
         if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is null) return;
-        RefreshTraderPicker();
+        RefreshTraderLines();
         RefreshGroundCover();
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";

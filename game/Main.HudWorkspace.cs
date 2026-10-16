@@ -166,7 +166,7 @@ public partial class Main
         BuildMoments(layer, size);
         BuildFieldNotes(layer, size);
         Perks.Build(layer);
-        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); BoxOfficeView.Build(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); BoxOfficeView.Build(layer, size); TraderFlyerBoard.Build(layer); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -223,6 +223,9 @@ public partial class Main
         var briefing = BoxOfficeOpen;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true && !briefing;
         if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true && !briefing;
+        // The trader board belongs to the Build drawer: it goes when the drawer does, and hides while anything else owns the screen.
+        if (!preparing || !_buildDrawerOpen) TraderFlyerBoard.Dismiss();
+        TraderFlyerBoard.Refresh(Drawer.Panel?.Visible == true);
         BoxOfficeView.Refresh(briefing);
         Top.Briefing = briefing;
         LayoutOwnedPerkWorkspace();
@@ -445,7 +448,7 @@ public partial class Main
         if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (!Top.IsBuilt) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < Ui.TopBar || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock : Ui.S(64))) return true;
-        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _mapControls, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, Stage.Panel, LiveBottom.Panel }
+        return new Control?[] { _hudWorkspace, Drawer.Panel, _traderBoardView?.Panel, Dock.Readiness, _mapControls, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, Stage.Panel, LiveBottom.Panel }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 

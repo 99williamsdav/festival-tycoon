@@ -178,6 +178,7 @@ public partial class Main : Node, IHudHost
             if (_buildGhostKind is not null && key.Keycode is Key.Comma or Key.Period)
             { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
             if(key.Keycode==Key.Escape && Perks.ConfirmationPending){Perks.CancelConfirmation();return;}
+            if (key.Keycode == Key.Escape && _traderBoardView?.IsOpen == true) { TraderFlyerBoard.Close(); return; }
             if (key.Keycode == Key.Escape && EyeViewActive) { ExitEyeView(); return; }
             if (key.Keycode == Key.Escape) { ClearSelection(); return; }
             if (EyeViewActive) { if (key.Keycode == Key.Space) { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); } return; }
@@ -447,6 +448,9 @@ public partial class Main : Node, IHudHost
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && TrySelectBarnGenerator(collider)) { }
         else if (collider is not null && TrySelectPond(collider)) { }
+        // While preparing, a placed van opens its trader flyer board.
+        else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vanId) && Stalls.IsVan(vanId) &&
+            _session.PreparedStatus == PreparationStatus.Preparing && _session.PlacedVans.Contains(vanId)) OpenTraderBoard(vanId);
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         // A double-click on an occupied toilet picks whoever is inside, as there's nothing else of them to click.
         else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId))

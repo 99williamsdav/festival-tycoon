@@ -25,6 +25,12 @@ public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionPr
 {
     /// <summary>Slower to serve than the standard chip van: the one thing the picker warns about.</summary>
     public bool SlowService => ServicePermille > 1_000;
+
+    /// <summary>The flyer's music-pun line, shown in curly quotes under the name. Presentation only: never saved.</summary>
+    public string Strapline { get; init; } = "";
+
+    /// <summary>The flyer's colour, as hex ("4fa3d9"): its cuisine tag, pips and art panel. Presentation only: never saved.</summary>
+    public string CardColour { get; init; } = "";
 }
 
 /// <param name="VanId">Which van: the first ("food") unless said otherwise.</param>
@@ -51,13 +57,15 @@ public static class FoodTraders
     // Tier 2 adds curry: slow from the pot and the dearest, but the most filling for the money.
     public static readonly FoodTrader[] All =
     [
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 300, 40, 0),
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 300, 40, 0)
+            { Strapline = "Fry Me to the Moon", CardColour = "4fa3d9" },
         new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, PizzaAppealPennies,
-            EnjoymentPercent: 140, FillingPercent: 115),
+            EnjoymentPercent: 140, FillingPercent: 115) { Strapline = "That's Amore", CardColour = "c4573a" },
         new("trader.korma-chameleon", "Korma Chameleon", "Curry", ImmersionProduct.Curry, "korma",
             "Curry and rice. Slow from the pot, but it fills them up for the money. Hold the line: it's worth the wait.",
             CurryPitchFeePennies, CurryServicePermille, CurryPricePennies, CurryPortionCostPennies, CurryAppealPennies,
-            EnjoymentPercent: CurryEnjoymentPercent, FillingPercent: CurryFillingPercent, FromTier: 2),
+            EnjoymentPercent: CurryEnjoymentPercent, FillingPercent: CurryFillingPercent, FromTier: 2)
+            { Strapline = "Karma karma korma", CardColour = "5b2a4f" },
     ];
 
     // Pizza's appeal and curry's numbers, named so the probe and DECISIONS.md can point at them. Pizza's covers its 6 s
@@ -167,13 +175,19 @@ public sealed partial class GameSession
     /// <summary>Why a van can't have this trader, or null if it can.</summary>
     public string? TraderUnavailable(string vanId, FoodTrader trader) =>
         trader.FromTier > (_preparation?.Tier ?? 1) ? $"{trader.Name} trade from Tier {trader.FromTier}."
-        // Two vans selling the same food would just split one queue: one cuisine per van, for now. A pick for a van not yet
-        // placed counts too, so placing it later never switches anyone's food.
-        : !IsClassicCampaign && PitchedVans(_preparation).Where(van => van != vanId).Select(van => (VanId: van, Trader: TraderAt(van)))
-            .Concat(ChosenTraders(_preparation?.Plan).Where(item => item.VanId != vanId))
-            .FirstOrDefault(item => item.Trader.Id == trader.Id) is { VanId: { } other }
+        : TraderBookedElsewhere(vanId, trader) is { } other
             ? $"{trader.Name} are already at van {Stalls.Number(other)}: pick a different food, or change that van first."
         : null;
+
+    /// <summary>
+    /// The other van that holds this trader under Survival's one-van-per-trader rule, or null (always null in Classic).
+    /// Two vans selling the same food would just split one queue: one cuisine per van, for now. A pick for a van not yet
+    /// placed counts too, so placing it later never switches anyone's food.
+    /// </summary>
+    public string? TraderBookedElsewhere(string vanId, FoodTrader trader) =>
+        IsClassicCampaign ? null : PitchedVans(_preparation).Where(van => van != vanId).Select(van => (VanId: van, Trader: TraderAt(van)))
+            .Concat(ChosenTraders(_preparation?.Plan).Where(item => item.VanId != vanId))
+            .FirstOrDefault(item => item.Trader.Id == trader.Id).VanId;
 
     private CommandResult? ValidateChooseFoodTrader(EntityId? target, ChooseFoodTraderCommand command)
     {
