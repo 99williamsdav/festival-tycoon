@@ -220,9 +220,10 @@ public partial class Main
             return ResponseStaffInspectorText(id);
         var person = d.People.SingleOrDefault(item => item.AgentId == id);
         if (person is null) return "";
+        var agents = _session.CaptureObservation().NavigationAgents;
         var counterpartLine = DisorderCuePlanner.CurrentCounterpartInspectorLine(d, person,
             otherId => _session.CapturePreparation()!.People.SingleOrDefault(item => item.AgentId == otherId)?.Name ?? $"person {otherId}",
-            otherId => _session.CaptureObservation().NavigationAgents.SingleOrDefault(item => item.Id.Value == otherId) is { } position
+            otherId => agents.SingleOrDefault(item => item.Id.Value == otherId) is { } position
                 ? $"{position.XMillimetres / 1000m:0.0}, {position.ZMillimetres / 1000m:0.0} m" : null);
         return $"DISORDER • {person.Stage} • pressure {person.Pressure / 100m:0}%\n" +
             $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : person.Grievance == DisorderGrievance.WaterWait ? "dispatch a steward; attendees choose their taps" : "reduce pressure or dispatch a steward")}\n" +

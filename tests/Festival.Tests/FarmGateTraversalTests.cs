@@ -16,7 +16,8 @@ public sealed class FarmGateTraversalTests
         foreach (var x in new[] { -1830, 1830 }) Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(x, 30_000)).IsWalkable);
         var inside = TraversalGrid.WorldToCell(0, 25_000); var gate = TraversalGrid.WorldToCell(0, 30_000);
         Assert.IsTrue(grid.Get(gate).IsWalkable);
-        // Every existing guest arrival/exit lane, including the off-site waiting rows.
+        // Every existing guest arrival/exit lane, including the off-site waiting rows. These are the first of the
+        // waiting start cells (GameSession.GuestWaitingStart); the test below covers the whole table.
         for (var i = 0; i < 60; i++)
         {
             var endpoint = FarmGateGeometry.GuestWaitingCell(new(122 + i % 6 * 2, 190 + i / 6 * 2));

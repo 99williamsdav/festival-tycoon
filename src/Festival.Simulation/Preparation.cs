@@ -425,8 +425,9 @@ public sealed partial class GameSession
 
     // The lane outside the gate holds 198 in its six even columns before the map's edge (Z 255). Past that, the odd
     // columns between them on the odd rows below the hedge ends (Z 193 on) take over, so a big crowd still starts on the
-    // map and can reach the gate. Anyone past even those shares a start cell; they're released at different times, and
-    // wait hidden until then.
+    // map and can reach the gate. Anyone past even those shares a start cell and its walk-home goal: two released in the
+    // same second set off overlapping, and the second home waits for the first. Rosters are far below 358 today; extend
+    // the table, or offset release by the wrap, before that changes.
     private static readonly GridCell[] GuestWaitingCells =
         Enumerable.Range(0, 33 * 6).Select(i => FarmGateGeometry.GuestWaitingCell(new(122 + i % 6 * 2, 190 + i / 6 * 2)))
             .Concat(Enumerable.Range(0, 32 * 5).Select(i => new GridCell(123 + i % 5 * 2, 193 + i / 5 * 2))).ToArray();
