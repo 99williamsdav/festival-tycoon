@@ -52,7 +52,7 @@ public sealed class NextFestivalTests
         Assert.AreEqual((new GridCell(148, 137), 0), (tap.Cell, tap.QuarterTurns));
         var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (var pond in new[] { false, true })
-            Assert.IsNull(validate.Invoke(null, [GameSession.StandardBuildLayout(2), FestivalStages.For(pond), null, false, 2, false]), $"pond open: {pond}");
+            Assert.IsNull(validate.Invoke(null, [GameSession.StandardBuildLayout(2), FestivalStages.For(pond), null, false, 2, false, 0]), $"pond open: {pond}");
         // Tier 1's default is unchanged.
         Assert.IsFalse(GameSession.StandardBuildLayout(1).Any(item => item.Id is "water.extra-1" or "toilet.extra-2"));
         var s = Drafted(TierTwo());

@@ -229,7 +229,7 @@ public sealed class StallNamesTests
         {
             var next = placed.Append(item).OrderBy(other => other.Id, StringComparer.Ordinal).ToArray();
             if (placed.Count(other => other.Kind == item.Kind) >= s.ServiceLimit(item.Kind) ||
-                validate.Invoke(null, [next, s.Stages, s.CaptureEquipment(), p.WaterTowerOwned, p.Tier, false]) is not null) skipped++;
+                validate.Invoke(null, [next, s.Stages, s.CaptureEquipment(), p.WaterTowerOwned, p.Tier, false, s.BarnGeometryVersion]) is not null) skipped++;
             else placed = [.. next];
         }
         return (placed.ToArray(), skipped);
@@ -361,6 +361,6 @@ public sealed class StallNamesTests
         foreach (var stage in FestivalStages.All)
             Assert.IsFalse(GameSession.BuildFootprint(placement).Concat(GameSession.ToiletSolidCells(toilet)).Any(stage.InAudienceArea), stage.Id);
         var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.Static | BindingFlags.NonPublic)!;
-        Assert.IsNull(validate.Invoke(null, [new[] { placement }, FestivalStages.All, null, false, 2, false]));
+        Assert.IsNull(validate.Invoke(null, [new[] { placement }, FestivalStages.All, null, false, 2, false, 0]));
     }
 }
