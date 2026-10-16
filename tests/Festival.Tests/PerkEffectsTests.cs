@@ -10,8 +10,16 @@ public sealed class PerkEffectsTests
 
     private static readonly ulong[] Seeds = [20260922, 20260924, 20260925, 20260928];
 
-    /// <summary>Two seeded days, with plenty of stock, totalled; and each must still restore.</summary>
-    private static Day Days(string? perk)
+    /// <summary>
+    /// The seeded days for a perk (or none), played once a run: every test compares against the same no-perk days, and
+    /// they only read the totals, so the five tests share them rather than each replaying all four seeds.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<Day>> Played = new(StringComparer.Ordinal);
+
+    private static Day Days(string? perk) => Played.GetOrAdd(perk ?? "", _ => new Lazy<Day>(() => Play(perk))).Value;
+
+    /// <summary>Four seeded days, with plenty of stock, totalled; and each must still restore.</summary>
+    private static Day Play(string? perk)
     {
         var days = Seeds.AsParallel().Select(seed =>
         {

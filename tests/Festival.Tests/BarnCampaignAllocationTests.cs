@@ -82,6 +82,7 @@ public sealed class BarnCampaignAllocationTests
         Assert.IsFalse(BuildSession.Send(prepared,new MoveBuildServiceCommand("drinks",TraversalGrid.WorldToCell(generator.XMillimetres,generator.ZMillimetres),0)).IsAccepted);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void RealTierTwoBandAudienceAndPaidEngineerReachBarnInRainAndSecondActChangesOver()
     {

@@ -31,6 +31,7 @@ public sealed class BeerFestivalTests
         Assert.IsTrue(Started(20260922).Teetotal(abstainers[0]), "Without the perk they don't.");
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void MoreBeerIsSoldForMoreAndTheDayStillRestores()
     {

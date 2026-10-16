@@ -135,6 +135,7 @@ public sealed class ClassicDevelopmentTests
             Assert.IsTrue(DeterministicPathfinder.FindPath(s.TraversalGrid!,GameSession.MedicalExitCell,destination).Found,$"Arrival destination {index}: {destination}");
         }
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void HundredAttendeesAndThreeStagesCompleteAndCarryThroughASecondPaidFestival()
     {

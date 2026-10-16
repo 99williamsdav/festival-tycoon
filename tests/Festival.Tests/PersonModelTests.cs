@@ -45,6 +45,7 @@ public sealed class PersonModelTests
         }
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void OnePersonCarriesEveryPerSystemRecordThroughAFestivalAndRestore()

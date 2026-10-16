@@ -54,6 +54,7 @@ public sealed class FestivalResultsTests
     {
         Assert.IsNull(FestivalResult.Rating(0, 0)); Assert.AreEqual(1, FestivalResult.Rating(3999, 2));
     }
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void NaturalDepartureFrozenReportAndActualFileReload()

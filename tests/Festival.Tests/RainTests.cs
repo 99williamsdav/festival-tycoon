@@ -115,6 +115,7 @@ public sealed class RainTests
         return count;
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void StrawAndMattingResistChurning()
     {
@@ -211,6 +212,7 @@ public sealed class RainTests
         Assert.IsTrue(peakMarquee <= MarqueeRules.RestCapacity);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void APonchoBuyerStaysDryAndPonchosAreInTheAccounts()
     {
@@ -305,6 +307,7 @@ public sealed class RainTests
     }
 
     /// <summary>The gates close mid-job: nobody spreads straw on the way home, and a save at once still loads.</summary>
+    [TestCategory("Slow")]
     [TestMethod]
     public void AStrawJobEndsAsTheCrowdGoesHome()
     {

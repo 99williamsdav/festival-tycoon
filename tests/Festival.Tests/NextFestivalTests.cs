@@ -223,6 +223,8 @@ public sealed class NextFestivalTests
         BuildSession.Restored(copied);
     }
 
+    [TestCategory("Everyday")]
+    [TestCategory("Slow")]
     [TestMethod]
     public void TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt()
     {
@@ -396,6 +398,7 @@ public sealed class NextFestivalTests
         return s;
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void APondStageTrialTransitionsToBarnAtTierTwo()
     {

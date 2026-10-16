@@ -72,6 +72,7 @@ public sealed class ClassicCampaignTests
         StringAssert.Contains(GameSession.Restore(snapshot with {Identity=CampaignIdentity.Management}).Error!,"Classic");
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void FourPaidFestivalsCarryActualHoldingsRelationshipsAndResetOnlyTheDay()
     {

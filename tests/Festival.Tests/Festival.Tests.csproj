@@ -4,6 +4,9 @@
     <AssemblyName>Festival.Tests</AssemblyName>
     <RootNamespace>Festival.Tests</RootNamespace>
     <TestingExtensionsProfile>None</TestingExtensionsProfile>
+    <!-- Twenty parallel workers each simulating festival days: the workstation GC stalled them all (a full run went from
+         23 to 8.5 minutes with the server GC). Test runner only; the game's own GC settings are untouched. -->
+    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\game\PondMotion.cs" Link="Presentation\PondMotion.cs" />

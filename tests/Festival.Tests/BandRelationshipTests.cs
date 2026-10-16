@@ -352,6 +352,7 @@ public sealed class BandRelationshipTests
         Assert.AreEqual(record.Quotes.Length, record.Quotes.Select(quote => quote.GuestId).Distinct().Count());
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void RecordsAndQuotesAreTheSameEveryRunAndRestoreAfterASave()
     {

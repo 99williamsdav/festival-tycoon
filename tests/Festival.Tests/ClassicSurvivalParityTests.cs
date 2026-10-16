@@ -107,6 +107,7 @@ public sealed class ClassicSurvivalParityTests
         }
         return observations;
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic()
     {

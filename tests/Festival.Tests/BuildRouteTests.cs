@@ -55,6 +55,7 @@ public sealed class BuildRouteTests
             liveStages, liveSets, listened, medical, disorder, hash!, checkpoint!);
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void DefaultPlanEditionFinishesWithEveryoneSafelyGone()
@@ -65,6 +66,7 @@ public sealed class BuildRouteTests
         Assert.IsTrue(s.CapturePreparation()!.People.All(person => person.Admitted && person.Departed));
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void EveryBookedSetGoesLiveAndListenersAccrueTime()
@@ -75,6 +77,7 @@ public sealed class BuildRouteTests
         Assert.IsTrue(run.ListenedTicks > 0);
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void GuestsUseToiletsAndBuyFoodDrinkAndBeer()
@@ -88,6 +91,7 @@ public sealed class BuildRouteTests
         Assert.IsTrue(run.Session.CaptureSnapshot().FestivalFinances.Single().CashPennies > run.StartingCash);
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void OpenFreeWaterKeepsDefaultGuestsOutOfHeatDistress()
@@ -98,6 +102,7 @@ public sealed class BuildRouteTests
         Assert.IsFalse(run.Session.CaptureMedical()!.Fatal);
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void CrowdedSiteDisorderEscalatesAndStewardsResolveIt()
@@ -122,6 +127,7 @@ public sealed class BuildRouteTests
         Assert.IsTrue(stages.Contains(DisorderStage.Resolved));
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void MidEditionSaveContinuesIdentically()

@@ -221,6 +221,7 @@ public sealed class ClassicBookingIntegrationTests
         RoundTrip(s);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     [DataRow(14UL)]
     [DataRow(20260922UL)]
