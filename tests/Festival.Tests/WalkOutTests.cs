@@ -417,6 +417,35 @@ public sealed class WalkOutTests
 
     [TestCategory("Slow")]
     [TestMethod]
+    public void AQuickDrinkAtABodgedTapIsABoundaryOnTheFlowingTickItEnds()
+    {
+        // This default day's only tap is broken and bodged by the close: it flows every other tick, and a drink can only
+        // end on a tick it flows.
+        var s = Started("management-only", 20260922);
+        var close = RunToClose(s);
+        var checkedDrinks = 0;
+        var heldBack = 0;
+        while (s.PreparedStatus == PreparationStatus.Departing && checkedDrinks < 2)
+        {
+            Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks);
+            var drinking = s.CaptureWaterPoints().FirstOrDefault(w => w.OwnerId is { } id && s.CapturePerson(id)!.Thirst > 200 &&
+                s.TapBodged(w.Id) && w.DrinkTicks + 1 >= GameSession.DepartureDrinkTicks);
+            if (drinking is null) { s.AdvanceWithoutSnapshot(1); continue; }
+            var drinker = drinking.OwnerId!.Value;
+            var predicted = s.MedicalBoundaryOnNextTick;
+            s.AdvanceWithoutSnapshot(1);
+            var ended = s.CaptureWaterPoints().Single(w => w.Id == drinking.Id).OwnerId != drinker;
+            // Never a tick early: on a tick it doesn't flow the drink carries on, and nothing calls it a boundary.
+            if (!ended) { Assert.IsFalse(predicted, $"A non-flowing tick was flagged at +{s.CurrentTick - close}."); heldBack++; continue; }
+            Assert.IsTrue(predicted, "The flowing tick the drink ends on is a boundary.");
+            checkedDrinks++;
+        }
+        Assert.IsTrue(checkedDrinks >= 1, "Someone had a quick drink at the bodged tap on the way out.");
+        Assert.IsTrue(heldBack >= 1, "And at least once the drink ran a tick past its length, waiting for the water.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
     public void AGuestCollapsingOnTheWayOutHoldsTheDayOpenUntilTheyAreSeenTo()
     {
         var s = Started("management-only", 2);
