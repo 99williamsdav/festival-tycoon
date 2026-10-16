@@ -25,7 +25,8 @@ public partial class Main
         ResetFinanceFeedback();
         ResultsPaper.Open(this, () =>
         {
-            SaveMilestone("Return to menu");
+            // Play carries on through a failed save, but leaving must not: the completed festival would exist only in memory.
+            if (!SaveMilestone("Return to menu")) return false;
             _newCampaignOnEnter = true; ResultsPaper.Close(); BuildStartSplash();
             return true;
         }, _session.CanStartNextFestival ? StartNextFestival : null);
@@ -34,8 +35,7 @@ public partial class Main
     /// <summary>The paper's "Next festival": save the completed festival, then open the next tier's preparation.</summary>
     private bool StartNextFestival()
     {
-        if (!_session.CanStartNextFestival) return false;
-        SaveMilestone("Next festival");
+        if (!_session.CanStartNextFestival || !SaveMilestone("Next festival")) return false;
         var next = _session.CreateNextFestival();
         ResultsPaper.Close();
         SwitchToFestival(next);
