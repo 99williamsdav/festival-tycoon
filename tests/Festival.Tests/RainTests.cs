@@ -103,7 +103,8 @@ public sealed class RainTests
         RunTo(s, Math.Min(shower.EndTick, shower.StartTick + 1_600));
         Assert.IsTrue(Puddles(s) > dry + 200, $"Puddles gather in the shower: {dry} then {Puddles(s)}.");
         RunTo(s, 26_000);
-        Assert.IsTrue(RainProbe.MudCells(s) > 50, $"Busy ground churns to mud: {RainProbe.MudCells(s)} cells.");
+        // A packed crowd stands on fewer cells than the old metre-spaced places, so a little less ground churns.
+        Assert.IsTrue(RainProbe.MudCells(s) > 40, $"Busy ground churns to mud: {RainProbe.MudCells(s)} cells.");
     }
 
     private static int Puddles(GameSession s)

@@ -294,7 +294,8 @@ public sealed class HandsOnAutopilotTests
         // A fight the hired steward handles, then the same fight while they're busy elsewhere; the player stands by both.
         void Fight(bool busy)
         {
-            var s = Started();
+            // A day whose crew are still mending when the fight is over (crowds now part for walkers, so a mend can end sooner).
+            var s = Started(seed: 20260926);
             BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
             s.AdvanceWithoutSnapshot(9_000);
             var initiator = StandingGuest(s);
@@ -305,7 +306,7 @@ public sealed class HandsOnAutopilotTests
             Argue(s, initiator, 4_500);
             Call(s, "BeginDisorderFight", initiator, opponent, "test:fight");
             s.AdvanceWithoutSnapshot(1);
-            var call = Shift(s).Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Fight);
+            var call = Shift(s).Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Fight && c.OpenedTick >= s.CurrentTick - 1);
             var score = Shift(s).Score!;
             for (var i = 0; i < 6_000 && Shift(s).Calls!.Single(c => c.Id == call.Id).Open; i++) s.AdvanceWithoutSnapshot(1);
             var closed = Shift(s).Calls!.Single(c => c.Id == call.Id);

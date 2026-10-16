@@ -91,7 +91,9 @@ public sealed class WalkOutTests
             {
                 Assert.IsFalse(people.Single(person => person.AgentId == id).Departed, $"Staff {id} left at +{s.CurrentTick - close} with guests still on site.");
                 var intent = navs.Single(n => n.Id.Value == id).IntentId;
-                Assert.IsTrue(intent is "disorder.departure-standby" or "medical.departure-standby", $"Staff {id} is on '{intent}' at +{s.CurrentTick - close}.");
+                // A medic still seeing to someone who went down before the close finishes that first.
+                var onCall = intent is "medical.dispatch" && s.GetMedicResponses().Any(job => job.WorkerId == id && job.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);
+                Assert.IsTrue(onCall || intent is "disorder.departure-standby" or "medical.departure-standby", $"Staff {id} is on '{intent}' at +{s.CurrentTick - close}.");
             }
             // The player's own steward stands where control went back.
             if (mode == "all-rounder" && s.CurrentTick - close > 1)
@@ -334,7 +336,7 @@ public sealed class WalkOutTests
     [TestMethod]
     public void AGuestWhoCantReachTheirLooOrTapOnTheWayOutGoesHomeInstead()
     {
-        var s = Started("management-only", 20260922);
+        var s = Started("management-only", 20260925); // a day where two guests set off for a tap on the way out
         s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
         foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
         var close = RunToClose(s);

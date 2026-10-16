@@ -41,7 +41,7 @@ public sealed class CampaignIdentityTests
     }
     private static GameSession Retried(int tier)
     {
-        var session=GameSession.CreateStewardShift(20260922,tier);session.AdvanceWithoutSnapshot(6000);
+        var session=GameSession.CreateStewardShift(20260922,tier);session.AdvanceWithoutSnapshot(6500); // late enough that the radio has taken a call
         var victim=session.CapturePreparation()!.People.First(p=>p.Role==ProtectedPersonRole.Performer&&session.CapturePerson(p.AgentId)!.Admitted);var tick=session.CurrentTick;
         typeof(GameSession).GetMethod("UpdatePerson",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(session,[victim.AgentId,(Func<Person,Person>)(p=>p with{HealthStage=MedicalStage.Critical,Thirst=10000,HeatExposure=10000,Intent=MedicalIntent.Collapsed,HealthWarningTick=tick-4000,HealthCollapseTick=tick-GameSession.MedicalDeathDelayTicks,HealthCriticalTick=tick-1})]);
         for(var i=0;i<6000&&session.PreparedStatus==PreparationStatus.Running;i++)session.AdvanceWithoutSnapshot(1);

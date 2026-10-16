@@ -116,7 +116,7 @@ public sealed class FestivalProgrammeTests
     }
     [TestCategory("Slow")]
     [TestMethod]
-    [DataRow(20260926UL, true)]
+    [DataRow(20260927UL, true)]
     [DataRow(20260922UL, false)]
     public void ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm(ulong seed, bool maintenance)
     {

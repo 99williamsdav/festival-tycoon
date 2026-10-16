@@ -145,6 +145,8 @@ public sealed class StewardRadioTests
     {
         var s = Started(faults: true);
         s.AdvanceWithoutSnapshot(9_000);
+        // A moment the hired steward is free (they may be off mending a tap that broke).
+        for (var i = 0; i < 60 && s.StewardRadioCrew().First(member => !member.Maintenance).Busy is not null; i++) s.AdvanceWithoutSnapshot(80);
         var crew = s.StewardRadioCrew();
         Assert.IsTrue(crew.Count >= 1, "Tier 1's hired steward is on the radio.");
         Assert.IsFalse(crew.Any(member => member.WorkerId == Me(s)), "Never the player's own steward.");
@@ -300,6 +302,8 @@ public sealed class StewardRadioTests
     {
         var s = Started(faults: true);
         s.AdvanceWithoutSnapshot(9_000);
+        // A moment the hired steward is free (they may be off mending a tap that broke).
+        for (var i = 0; i < 60 && !s.StewardRadioCrew().Any(member => !member.Maintenance && member.Busy is null); i++) s.AdvanceWithoutSnapshot(80);
         var steward = s.StewardRadioCrew().First(member => !member.Maintenance && member.Busy is null);
         // A fight 12–30 m from the steward, so they take a while to get there.
         long Apart(ulong id) { var a = At(s, id); return (long)(a.X - steward.XMillimetres) * (a.X - steward.XMillimetres) + (long)(a.Z - steward.ZMillimetres) * (a.Z - steward.ZMillimetres); }

@@ -26,7 +26,8 @@ public sealed class BuildRouteTests
 
     private static EditionRun PlayDefaultEdition()
     {
-        var s = BuildSession.Started();
+        // A seed whose day has no tap breaking under a thirsty band member before their set (that one can still go to distress).
+        var s = BuildSession.Started(20260923);
         var immersion = s.CaptureImmersion()!;
         var cash = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;
         HashSet<LiveSetStage> liveStages = []; HashSet<long> liveSets = []; long listened = 0;

@@ -398,9 +398,10 @@ public sealed partial class StewardShiftActionTests
         Assert.IsTrue(Math.Abs(me.Thirst - 9_000 / 4) <= 100, $"Thirst {me.Thirst}: a point every four ticks.");
         Assert.IsTrue(Math.Abs(me.HeatExposure - 9_000 / 4) <= 100, $"Heat {me.HeatExposure}: in the sun of a heatwave.");
         Assert.AreEqual(MedicalIntent.WatchShow, me.Intent, "Thirsty or not, they go nowhere by themselves.");
-        // A drink at the tap.
+        // A drink at the tap; if a guest broke it on the way, the player bodges it first.
         var tap = s.StewardTargetPoint("tap:water.main")!.Value;
         StandBeside(s, tap.X, tap.Z);
+        if (s.ActiveFault("water.main") is { Kind: FacilityFaultKind.BrokenTap }) Assert.IsTrue(Hold(s, StewardActionKind.BodgeTap, "tap:water.main"), Outcome(s));
         Assert.IsTrue(Hold(s, StewardActionKind.Drink, "tap:water.main"), Outcome(s));
         Assert.AreEqual(0, s.CapturePerson(id)!.Thirst);
         Assert.AreEqual(1, Score(s).Drinks);
