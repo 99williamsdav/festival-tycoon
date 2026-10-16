@@ -1,0 +1,430 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:1 Mem:47.36M (Peak 48.43M) | Time:00:06.82 | Syncing LWF_Attendee_Body
+Fra:1 Mem:47.57M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_Attendee_Rig
+Fra:1 Mem:47.57M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_RightHand_Cup
+Fra:1 Mem:47.57M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_RightHand_Food
+Fra:1 Mem:47.58M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_Server_Apron
+Fra:1 Mem:47.59M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_Hair_DefaultUnderCap
+Fra:1 Mem:47.61M (Peak 48.43M) | Time:00:08.98 | Syncing LWF_Hat_Cap
+Fra:1 Mem:47.66M (Peak 48.43M) | Time:00:08.98 | Syncing Wheel hub.001
+Fra:1 Mem:47.69M (Peak 48.43M) | Time:00:08.98 | Syncing Wheel hub
+Fra:1 Mem:47.70M (Peak 48.43M) | Time:00:08.98 | Syncing Waist trim.001
+Fra:1 Mem:47.71M (Peak 48.43M) | Time:00:08.98 | Syncing Waist trim
+Fra:1 Mem:47.72M (Peak 48.43M) | Time:00:08.98 | Syncing Staff step
+Fra:1 Mem:47.73M (Peak 48.43M) | Time:00:08.98 | Syncing Staff door hinge.001
+Fra:1 Mem:47.74M (Peak 48.43M) | Time:00:08.98 | Syncing Staff door hinge
+Fra:1 Mem:47.75M (Peak 48.43M) | Time:00:08.98 | Syncing Staff door handle
+Fra:1 Mem:47.76M (Peak 48.43M) | Time:00:08.98 | Syncing Staff door frame
+Fra:1 Mem:47.77M (Peak 48.43M) | Time:00:08.98 | Syncing Staff door closed
+Fra:1 Mem:47.79M (Peak 48.43M) | Time:00:08.98 | Syncing Stabiliser leg.003
+Fra:1 Mem:47.80M (Peak 48.43M) | Time:00:08.98 | Syncing Stabiliser leg.002
+Fra:1 Mem:47.81M (Peak 48.43M) | Time:00:08.98 | Syncing Stabiliser leg.001
+Fra:1 Mem:47.82M (Peak 48.43M) | Time:00:08.99 | Syncing Stabiliser leg
+Fra:1 Mem:47.83M (Peak 48.43M) | Time:00:08.99 | Syncing Stabiliser foot.003
+Fra:1 Mem:47.84M (Peak 48.43M) | Time:00:08.99 | Syncing Stabiliser foot.002
+Fra:1 Mem:47.85M (Peak 48.43M) | Time:00:08.99 | Syncing Stabiliser foot.001
+Fra:1 Mem:47.86M (Peak 48.43M) | Time:00:08.99 | Syncing Stabiliser foot
+Fra:1 Mem:47.86M (Peak 48.43M) | Time:00:08.99 | Syncing Side reflector.001
+Fra:1 Mem:47.87M (Peak 48.43M) | Time:00:08.99 | Syncing Side reflector
+Fra:1 Mem:47.88M (Peak 48.43M) | Time:00:08.99 | Syncing Serving counter fixed top1.235
+Fra:1 Mem:47.90M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce nozzle.002
+Fra:1 Mem:47.91M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce nozzle.001
+Fra:1 Mem:47.92M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce nozzle
+Fra:1 Mem:47.93M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce bottle.002
+Fra:1 Mem:47.94M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce bottle.001
+Fra:1 Mem:47.95M (Peak 48.43M) | Time:00:08.99 | Syncing Sauce bottle
+Fra:1 Mem:47.96M (Peak 48.43M) | Time:00:08.99 | Syncing Rear red lamp.001
+Fra:1 Mem:47.97M (Peak 48.43M) | Time:00:08.99 | Syncing Rear red lamp
+Fra:1 Mem:47.98M (Peak 48.43M) | Time:00:08.99 | Syncing Rear lamp housing.001
+Fra:1 Mem:47.99M (Peak 48.43M) | Time:00:08.99 | Syncing Rear lamp housing
+Fra:1 Mem:48.00M (Peak 48.43M) | Time:00:08.99 | Syncing Rear kitchen top
+Fra:1 Mem:48.01M (Peak 48.43M) | Time:00:08.99 | Syncing Rear kitchen base
+Fra:1 Mem:48.02M (Peak 48.43M) | Time:00:08.99 | Syncing Rear amber lamp.001
+Fra:1 Mem:48.03M (Peak 48.43M) | Time:00:08.99 | Syncing Rear amber lamp
+Fra:1 Mem:48.04M (Peak 48.43M) | Time:00:08.99 | Syncing Public lower body
+Fra:1 Mem:48.05M (Peak 48.43M) | Time:00:08.99 | Syncing Paper tray stack.003
+Fra:1 Mem:48.06M (Peak 48.43M) | Time:00:08.99 | Syncing Paper tray stack.002
+Fra:1 Mem:48.07M (Peak 48.43M) | Time:00:08.99 | Syncing Paper tray stack.001
+Fra:1 Mem:48.08M (Peak 48.43M) | Time:00:08.99 | Syncing Paper tray stack
+Fra:1 Mem:48.09M (Peak 48.43M) | Time:00:08.99 | Syncing Jockey wheel
+Fra:1 Mem:48.10M (Peak 48.43M) | Time:00:08.99 | Syncing Interior floor
+Fra:1 Mem:48.11M (Peak 48.43M) | Time:00:08.99 | Syncing Hub cap.001
+Fra:1 Mem:48.12M (Peak 48.43M) | Time:00:08.99 | Syncing Hub cap
+Fra:1 Mem:48.14M (Peak 48.43M) | Time:00:08.99 | Syncing Hitch post
+Fra:1 Mem:48.15M (Peak 48.43M) | Time:00:08.99 | Syncing Hatch jamb.001
+Fra:1 Mem:48.16M (Peak 48.43M) | Time:00:08.99 | Syncing Hatch jamb
+Fra:1 Mem:48.17M (Peak 48.43M) | Time:00:08.99 | Syncing Hatch end panel.001
+Fra:1 Mem:48.18M (Peak 48.43M) | Time:00:08.99 | Syncing Hatch end panel
+Fra:1 Mem:48.19M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer well
+Fra:1 Mem:48.20M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer enclosure
+Fra:1 Mem:48.21M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.008
+Fra:1 Mem:48.22M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.007
+Fra:1 Mem:48.23M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.006
+Fra:1 Mem:48.24M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.005
+Fra:1 Mem:48.24M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.004
+Fra:1 Mem:48.25M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.003
+Fra:1 Mem:48.26M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.002
+Fra:1 Mem:48.27M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips.001
+Fra:1 Mem:48.28M (Peak 48.43M) | Time:00:08.99 | Syncing Fryer chips
+Fra:1 Mem:48.29M (Peak 48.43M) | Time:00:08.99 | Syncing End lower colour wrap.001
+Fra:1 Mem:48.30M (Peak 48.43M) | Time:00:08.99 | Syncing End lower colour wrap
+Fra:1 Mem:48.31M (Peak 48.43M) | Time:00:08.99 | Syncing Enclosed shaped end wall.001
+Fra:1 Mem:48.33M (Peak 48.43M) | Time:00:08.99 | Syncing Enclosed shaped end wall
+Fra:1 Mem:48.34M (Peak 48.43M) | Time:00:08.99 | Syncing Curved back upper wall
+Fra:1 Mem:48.35M (Peak 48.43M) | Time:00:08.99 | Syncing Cupboard handle.002
+Fra:1 Mem:48.36M (Peak 48.43M) | Time:00:08.99 | Syncing Cupboard handle.001
+Fra:1 Mem:48.37M (Peak 48.43M) | Time:00:08.99 | Syncing Cupboard handle
+Fra:1 Mem:48.38M (Peak 48.43M) | Time:00:08.99 | Syncing Cream wheel arch.001
+Fra:1 Mem:48.40M (Peak 48.43M) | Time:00:08.99 | Syncing Cream wheel arch
+Fra:1 Mem:48.42M (Peak 48.43M) | Time:00:08.99 | Syncing Coupling
+Fra:1 Mem:48.43M (Peak 48.43M) | Time:00:08.99 | Syncing Counter bracket.001
+Fra:1 Mem:48.44M (Peak 48.44M) | Time:00:08.99 | Syncing Counter bracket
+Fra:1 Mem:48.45M (Peak 48.45M) | Time:00:08.99 | Syncing Chassis
+Fra:1 Mem:48.46M (Peak 48.46M) | Time:00:08.99 | Syncing Back lower wall
+Fra:1 Mem:48.47M (Peak 48.47M) | Time:00:08.99 | Syncing Axle
+Fra:1 Mem:48.48M (Peak 48.48M) | Time:00:08.99 | Syncing A frame towbar.001
+Fra:1 Mem:48.49M (Peak 48.49M) | Time:00:08.99 | Syncing A frame towbar
+Fra:1 Mem:48.50M (Peak 48.50M) | Time:00:08.99 | Syncing 12 sided tyre.001
+Fra:1 Mem:48.51M (Peak 48.51M) | Time:00:08.99 | Syncing 12 sided tyre
+Fra:1 Mem:48.52M (Peak 48.52M) | Time:00:08.99 | Syncing REVIEW_Sun
+Fra:1 Mem:48.52M (Peak 48.52M) | Time:00:08.99 | Syncing REVIEW_Fill
+Fra:1 Mem:48.52M (Peak 48.52M) | Time:00:08.99 | Syncing REVIEW_Ground
+Fra:1 Mem:48.57M (Peak 48.57M) | Time:00:10.62 | Syncing REVIEW_Camera
+Fra:1 Mem:48.47M (Peak 48.57M) | Time:00:10.63 | Rendering 1 / 64 samples
+Fra:1 Mem:48.25M (Peak 48.57M) | Time:00:13.03 | Rendering 26 / 64 samples
+Fra:1 Mem:48.25M (Peak 48.57M) | Time:00:13.21 | Rendering 51 / 64 samples
+Fra:1 Mem:48.25M (Peak 48.57M) | Time:00:13.33 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\chips-07-review-cutaway-not-exported.png'
+Time: 00:14.91 (Saving: 00:01.55)
+
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:1 Mem:49.59M (Peak 49.59M) | Time:00:00.04 | Syncing LWF_Attendee_Body
+Fra:1 Mem:49.77M (Peak 49.77M) | Time:00:00.04 | Syncing LWF_Attendee_Rig
+Fra:1 Mem:49.77M (Peak 49.77M) | Time:00:00.04 | Syncing LWF_RightHand_Cup
+Fra:1 Mem:49.77M (Peak 49.77M) | Time:00:00.04 | Syncing LWF_RightHand_Food
+Fra:1 Mem:49.77M (Peak 49.77M) | Time:00:00.04 | Syncing LWF_Server_Apron
+Fra:1 Mem:49.79M (Peak 49.79M) | Time:00:00.04 | Syncing LWF_Hair_DefaultUnderCap
+Fra:1 Mem:49.81M (Peak 49.81M) | Time:00:00.04 | Syncing LWF_Hat_Cap
+Fra:1 Mem:49.85M (Peak 49.85M) | Time:00:00.04 | Syncing Wheel hub.001
+Fra:1 Mem:49.88M (Peak 49.88M) | Time:00:00.04 | Syncing Wheel hub
+Fra:1 Mem:49.90M (Peak 49.90M) | Time:00:00.04 | Syncing Terracotta lower service skirt
+Fra:1 Mem:49.91M (Peak 49.91M) | Time:00:00.04 | Syncing Terracotta back skirt
+Fra:1 Mem:49.92M (Peak 49.92M) | Time:00:00.04 | Syncing Staff step
+Fra:1 Mem:49.93M (Peak 49.93M) | Time:00:00.04 | Syncing Staff door hinge.001
+Fra:1 Mem:49.94M (Peak 49.94M) | Time:00:00.04 | Syncing Staff door hinge
+Fra:1 Mem:49.95M (Peak 49.95M) | Time:00:00.04 | Syncing Staff door handle
+Fra:1 Mem:49.96M (Peak 49.96M) | Time:00:00.04 | Syncing Staff door frame
+Fra:1 Mem:49.97M (Peak 49.97M) | Time:00:00.04 | Syncing Staff door closed
+Fra:1 Mem:49.98M (Peak 49.98M) | Time:00:00.04 | Syncing Stabiliser leg.003
+Fra:1 Mem:49.99M (Peak 49.99M) | Time:00:00.04 | Syncing Stabiliser leg.002
+Fra:1 Mem:50.00M (Peak 50.00M) | Time:00:00.04 | Syncing Stabiliser leg.001
+Fra:1 Mem:50.01M (Peak 50.01M) | Time:00:00.04 | Syncing Stabiliser leg
+Fra:1 Mem:50.02M (Peak 50.02M) | Time:00:00.04 | Syncing Stabiliser foot.003
+Fra:1 Mem:50.03M (Peak 50.03M) | Time:00:00.04 | Syncing Stabiliser foot.002
+Fra:1 Mem:50.04M (Peak 50.04M) | Time:00:00.04 | Syncing Stabiliser foot.001
+Fra:1 Mem:50.05M (Peak 50.05M) | Time:00:00.04 | Syncing Stabiliser foot
+Fra:1 Mem:50.06M (Peak 50.06M) | Time:00:00.04 | Syncing Side reflector.001
+Fra:1 Mem:50.07M (Peak 50.07M) | Time:00:00.04 | Syncing Side reflector
+Fra:1 Mem:50.08M (Peak 50.08M) | Time:00:00.04 | Syncing Serving counter fixed top1.235
+Fra:1 Mem:50.10M (Peak 50.10M) | Time:00:00.04 | Syncing Rear red lamp.001
+Fra:1 Mem:50.10M (Peak 50.10M) | Time:00:00.04 | Syncing Rear red lamp
+Fra:1 Mem:50.11M (Peak 50.11M) | Time:00:00.04 | Syncing Rear lamp housing.001
+Fra:1 Mem:50.12M (Peak 50.12M) | Time:00:00.04 | Syncing Rear lamp housing
+Fra:1 Mem:50.13M (Peak 50.13M) | Time:00:00.04 | Syncing Rear kitchen top
+Fra:1 Mem:50.14M (Peak 50.14M) | Time:00:00.04 | Syncing Rear kitchen base
+Fra:1 Mem:50.15M (Peak 50.15M) | Time:00:00.04 | Syncing Rear amber lamp.001
+Fra:1 Mem:50.16M (Peak 50.16M) | Time:00:00.04 | Syncing Rear amber lamp
+Fra:1 Mem:50.17M (Peak 50.17M) | Time:00:00.04 | Syncing Pizza oven
+Fra:1 Mem:50.19M (Peak 50.19M) | Time:00:00.04 | Syncing Paper tray stack.003
+Fra:1 Mem:50.20M (Peak 50.20M) | Time:00:00.04 | Syncing Paper tray stack.002
+Fra:1 Mem:50.21M (Peak 50.21M) | Time:00:00.04 | Syncing Paper tray stack.001
+Fra:1 Mem:50.22M (Peak 50.22M) | Time:00:00.04 | Syncing Paper tray stack
+Fra:1 Mem:50.23M (Peak 50.23M) | Time:00:00.04 | Syncing Oven warm opening
+Fra:1 Mem:50.24M (Peak 50.24M) | Time:00:00.04 | Syncing Oven arch black
+Fra:1 Mem:50.25M (Peak 50.25M) | Time:00:00.04 | Syncing Jockey wheel
+Fra:1 Mem:50.26M (Peak 50.26M) | Time:00:00.04 | Syncing Interior floor
+Fra:1 Mem:50.27M (Peak 50.27M) | Time:00:00.04 | Syncing Hub cap.001
+Fra:1 Mem:50.28M (Peak 50.28M) | Time:00:00.04 | Syncing Hub cap
+Fra:1 Mem:50.29M (Peak 50.29M) | Time:00:00.04 | Syncing Hitch post
+Fra:1 Mem:50.30M (Peak 50.30M) | Time:00:00.04 | Syncing Heavy corner post.003
+Fra:1 Mem:50.31M (Peak 50.31M) | Time:00:00.04 | Syncing Heavy corner post.002
+Fra:1 Mem:50.32M (Peak 50.32M) | Time:00:00.04 | Syncing Heavy corner post.001
+Fra:1 Mem:50.33M (Peak 50.33M) | Time:00:00.04 | Syncing Heavy corner post
+Fra:1 Mem:50.34M (Peak 50.34M) | Time:00:00.04 | Syncing Hatch timber plank.013
+Fra:1 Mem:50.35M (Peak 50.35M) | Time:00:00.04 | Syncing Hatch timber plank.012
+Fra:1 Mem:50.36M (Peak 50.36M) | Time:00:00.04 | Syncing Hatch timber plank.011
+Fra:1 Mem:50.37M (Peak 50.37M) | Time:00:00.04 | Syncing Hatch timber plank.010
+Fra:1 Mem:50.38M (Peak 50.38M) | Time:00:00.04 | Syncing Hatch timber plank.009
+Fra:1 Mem:50.39M (Peak 50.39M) | Time:00:00.04 | Syncing Hatch timber plank.008
+Fra:1 Mem:50.40M (Peak 50.40M) | Time:00:00.04 | Syncing Hatch timber plank.007
+Fra:1 Mem:50.41M (Peak 50.41M) | Time:00:00.04 | Syncing Hatch timber plank.006
+Fra:1 Mem:50.42M (Peak 50.42M) | Time:00:00.04 | Syncing Hatch timber plank.005
+Fra:1 Mem:50.43M (Peak 50.43M) | Time:00:00.04 | Syncing Hatch timber plank.004
+Fra:1 Mem:50.44M (Peak 50.44M) | Time:00:00.04 | Syncing Hatch timber plank.003
+Fra:1 Mem:50.45M (Peak 50.45M) | Time:00:00.04 | Syncing Hatch timber plank.002
+Fra:1 Mem:50.46M (Peak 50.46M) | Time:00:00.04 | Syncing Hatch timber plank.001
+Fra:1 Mem:50.47M (Peak 50.47M) | Time:00:00.04 | Syncing Hatch timber plank
+Fra:1 Mem:50.48M (Peak 50.48M) | Time:00:00.05 | Syncing Hatch jamb.001
+Fra:1 Mem:50.49M (Peak 50.49M) | Time:00:00.05 | Syncing Hatch jamb
+Fra:1 Mem:50.50M (Peak 50.50M) | Time:00:00.05 | Syncing End timber plank.013
+Fra:1 Mem:50.51M (Peak 50.51M) | Time:00:00.05 | Syncing End timber plank.012
+Fra:1 Mem:50.52M (Peak 50.52M) | Time:00:00.05 | Syncing End timber plank.011
+Fra:1 Mem:50.53M (Peak 50.53M) | Time:00:00.05 | Syncing End timber plank.010
+Fra:1 Mem:50.54M (Peak 50.54M) | Time:00:00.05 | Syncing End timber plank.009
+Fra:1 Mem:50.55M (Peak 50.55M) | Time:00:00.05 | Syncing End timber plank.008
+Fra:1 Mem:50.56M (Peak 50.56M) | Time:00:00.05 | Syncing End timber plank.007
+Fra:1 Mem:50.57M (Peak 50.57M) | Time:00:00.05 | Syncing End timber plank.006
+Fra:1 Mem:50.58M (Peak 50.58M) | Time:00:00.05 | Syncing End timber plank.005
+Fra:1 Mem:50.59M (Peak 50.59M) | Time:00:00.05 | Syncing End timber plank.004
+Fra:1 Mem:50.60M (Peak 50.60M) | Time:00:00.05 | Syncing End timber plank.003
+Fra:1 Mem:50.61M (Peak 50.61M) | Time:00:00.05 | Syncing End timber plank.002
+Fra:1 Mem:50.62M (Peak 50.62M) | Time:00:00.05 | Syncing End timber plank.001
+Fra:1 Mem:50.63M (Peak 50.63M) | Time:00:00.05 | Syncing End timber plank
+Fra:1 Mem:50.64M (Peak 50.64M) | Time:00:00.05 | Syncing End lower red skirt.001
+Fra:1 Mem:50.65M (Peak 50.65M) | Time:00:00.05 | Syncing End lower red skirt
+Fra:1 Mem:50.66M (Peak 50.66M) | Time:00:00.05 | Syncing Cupboard handle.002
+Fra:1 Mem:50.67M (Peak 50.67M) | Time:00:00.05 | Syncing Cupboard handle.001
+Fra:1 Mem:50.68M (Peak 50.68M) | Time:00:00.05 | Syncing Cupboard handle
+Fra:1 Mem:50.68M (Peak 50.68M) | Time:00:00.05 | Syncing Coupling
+Fra:1 Mem:50.70M (Peak 50.70M) | Time:00:00.05 | Syncing Counter bracket.001
+Fra:1 Mem:50.71M (Peak 50.71M) | Time:00:00.05 | Syncing Counter bracket
+Fra:1 Mem:50.72M (Peak 50.72M) | Time:00:00.05 | Syncing Chassis
+Fra:1 Mem:50.73M (Peak 50.73M) | Time:00:00.05 | Syncing Back timber plank.006
+Fra:1 Mem:50.74M (Peak 50.74M) | Time:00:00.05 | Syncing Back timber plank.005
+Fra:1 Mem:50.75M (Peak 50.75M) | Time:00:00.05 | Syncing Back timber plank.004
+Fra:1 Mem:50.76M (Peak 50.76M) | Time:00:00.05 | Syncing Back timber plank.003
+Fra:1 Mem:50.77M (Peak 50.77M) | Time:00:00.05 | Syncing Back timber plank.002
+Fra:1 Mem:50.78M (Peak 50.78M) | Time:00:00.05 | Syncing Back timber plank.001
+Fra:1 Mem:50.79M (Peak 50.79M) | Time:00:00.05 | Syncing Back timber plank
+Fra:1 Mem:50.80M (Peak 50.80M) | Time:00:00.05 | Syncing Axle
+Fra:1 Mem:50.81M (Peak 50.81M) | Time:00:00.05 | Syncing A frame towbar.001
+Fra:1 Mem:50.82M (Peak 50.82M) | Time:00:00.05 | Syncing A frame towbar
+Fra:1 Mem:50.83M (Peak 50.83M) | Time:00:00.05 | Syncing 12 sided tyre.001
+Fra:1 Mem:50.84M (Peak 50.84M) | Time:00:00.05 | Syncing 12 sided tyre
+Fra:1 Mem:50.85M (Peak 50.85M) | Time:00:00.05 | Syncing REVIEW_Sun
+Fra:1 Mem:50.85M (Peak 50.85M) | Time:00:00.05 | Syncing REVIEW_Fill
+Fra:1 Mem:50.85M (Peak 50.85M) | Time:00:00.05 | Syncing REVIEW_Ground
+Fra:1 Mem:50.86M (Peak 50.86M) | Time:00:00.05 | Syncing REVIEW_Camera
+Fra:1 Mem:50.74M (Peak 50.86M) | Time:00:00.05 | Rendering 1 / 64 samples
+Fra:1 Mem:50.51M (Peak 50.86M) | Time:00:00.51 | Rendering 26 / 64 samples
+Fra:1 Mem:50.51M (Peak 50.86M) | Time:00:00.73 | Rendering 51 / 64 samples
+Fra:1 Mem:50.51M (Peak 50.86M) | Time:00:00.82 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\pizza-07-review-cutaway-not-exported.png'
+Time: 00:02.00 (Saving: 00:01.15)
+
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:1 Mem:58.06M (Peak 58.06M) | Time:00:00.03 | Syncing LWF_Attendee_Body
+Fra:1 Mem:58.24M (Peak 58.24M) | Time:00:00.03 | Syncing LWF_Attendee_Rig
+Fra:1 Mem:58.24M (Peak 58.24M) | Time:00:00.03 | Syncing LWF_RightHand_Cup
+Fra:1 Mem:58.24M (Peak 58.24M) | Time:00:00.03 | Syncing LWF_RightHand_Food
+Fra:1 Mem:58.25M (Peak 58.25M) | Time:00:00.03 | Syncing LWF_Server_Apron
+Fra:1 Mem:58.26M (Peak 58.26M) | Time:00:00.03 | Syncing LWF_Hair_DefaultUnderCap
+Fra:1 Mem:58.28M (Peak 58.28M) | Time:00:00.03 | Syncing LWF_Hat_Cap
+Fra:1 Mem:58.33M (Peak 58.33M) | Time:00:00.03 | Syncing Wheel hub.005
+Fra:1 Mem:58.36M (Peak 58.36M) | Time:00:00.03 | Syncing Wheel hub.004
+Fra:1 Mem:58.37M (Peak 58.37M) | Time:00:00.03 | Syncing Wheel hub.003
+Fra:1 Mem:58.38M (Peak 58.38M) | Time:00:00.03 | Syncing Wheel hub.002
+Fra:1 Mem:58.39M (Peak 58.39M) | Time:00:00.03 | Syncing Wheel hub.001
+Fra:1 Mem:58.41M (Peak 58.41M) | Time:00:00.03 | Syncing Wheel hub
+Fra:1 Mem:58.42M (Peak 58.42M) | Time:00:00.03 | Syncing Waist trim.001
+Fra:1 Mem:58.43M (Peak 58.43M) | Time:00:00.03 | Syncing Waist trim
+Fra:1 Mem:58.44M (Peak 58.44M) | Time:00:00.03 | Syncing Staff step
+Fra:1 Mem:58.45M (Peak 58.45M) | Time:00:00.03 | Syncing Staff door hinge.001
+Fra:1 Mem:58.46M (Peak 58.46M) | Time:00:00.03 | Syncing Staff door hinge
+Fra:1 Mem:58.47M (Peak 58.47M) | Time:00:00.03 | Syncing Staff door handle
+Fra:1 Mem:58.48M (Peak 58.48M) | Time:00:00.03 | Syncing Staff door frame
+Fra:1 Mem:58.49M (Peak 58.49M) | Time:00:00.03 | Syncing Staff door closed
+Fra:1 Mem:58.51M (Peak 58.51M) | Time:00:00.03 | Syncing Stabiliser leg.003
+Fra:1 Mem:58.52M (Peak 58.52M) | Time:00:00.03 | Syncing Stabiliser leg.002
+Fra:1 Mem:58.53M (Peak 58.53M) | Time:00:00.03 | Syncing Stabiliser leg.001
+Fra:1 Mem:58.54M (Peak 58.54M) | Time:00:00.03 | Syncing Stabiliser leg
+Fra:1 Mem:58.55M (Peak 58.55M) | Time:00:00.03 | Syncing Stabiliser foot.003
+Fra:1 Mem:58.56M (Peak 58.56M) | Time:00:00.03 | Syncing Stabiliser foot.002
+Fra:1 Mem:58.56M (Peak 58.56M) | Time:00:00.03 | Syncing Stabiliser foot.001
+Fra:1 Mem:58.57M (Peak 58.57M) | Time:00:00.03 | Syncing Stabiliser foot
+Fra:1 Mem:58.58M (Peak 58.58M) | Time:00:00.03 | Syncing Side reflector.001
+Fra:1 Mem:58.59M (Peak 58.59M) | Time:00:00.03 | Syncing Side reflector
+Fra:1 Mem:58.60M (Peak 58.60M) | Time:00:00.03 | Syncing Serving counter fixed top1.235
+Fra:1 Mem:58.62M (Peak 58.62M) | Time:00:00.03 | Syncing Rear red lamp.001
+Fra:1 Mem:58.63M (Peak 58.63M) | Time:00:00.03 | Syncing Rear red lamp
+Fra:1 Mem:58.64M (Peak 58.64M) | Time:00:00.03 | Syncing Rear lamp housing.001
+Fra:1 Mem:58.65M (Peak 58.65M) | Time:00:00.03 | Syncing Rear lamp housing
+Fra:1 Mem:58.66M (Peak 58.66M) | Time:00:00.03 | Syncing Rear kitchen top
+Fra:1 Mem:58.67M (Peak 58.67M) | Time:00:00.03 | Syncing Rear kitchen base
+Fra:1 Mem:58.68M (Peak 58.68M) | Time:00:00.03 | Syncing Rear amber lamp.001
+Fra:1 Mem:58.69M (Peak 58.69M) | Time:00:00.03 | Syncing Rear amber lamp
+Fra:1 Mem:58.70M (Peak 58.70M) | Time:00:00.03 | Syncing Public lower body
+Fra:1 Mem:58.71M (Peak 58.71M) | Time:00:00.03 | Syncing Pressed upper rib.021
+Fra:1 Mem:58.72M (Peak 58.72M) | Time:00:00.03 | Syncing Pressed upper rib.020
+Fra:1 Mem:58.72M (Peak 58.72M) | Time:00:00.03 | Syncing Pressed upper rib.019
+Fra:1 Mem:58.73M (Peak 58.73M) | Time:00:00.03 | Syncing Pressed upper rib.018
+Fra:1 Mem:58.74M (Peak 58.74M) | Time:00:00.03 | Syncing Pressed upper rib.017
+Fra:1 Mem:58.75M (Peak 58.75M) | Time:00:00.03 | Syncing Pressed upper rib.016
+Fra:1 Mem:58.76M (Peak 58.76M) | Time:00:00.03 | Syncing Pressed upper rib.015
+Fra:1 Mem:58.77M (Peak 58.77M) | Time:00:00.03 | Syncing Pressed upper rib.014
+Fra:1 Mem:58.78M (Peak 58.78M) | Time:00:00.03 | Syncing Pressed upper rib.013
+Fra:1 Mem:58.79M (Peak 58.79M) | Time:00:00.03 | Syncing Pressed upper rib.012
+Fra:1 Mem:58.80M (Peak 58.80M) | Time:00:00.03 | Syncing Pressed upper rib.011
+Fra:1 Mem:58.81M (Peak 58.81M) | Time:00:00.03 | Syncing Pressed upper rib.010
+Fra:1 Mem:58.82M (Peak 58.82M) | Time:00:00.03 | Syncing Pressed upper rib.009
+Fra:1 Mem:58.83M (Peak 58.83M) | Time:00:00.03 | Syncing Pressed upper rib.008
+Fra:1 Mem:58.84M (Peak 58.84M) | Time:00:00.03 | Syncing Pressed upper rib.007
+Fra:1 Mem:58.85M (Peak 58.85M) | Time:00:00.03 | Syncing Pressed upper rib.006
+Fra:1 Mem:58.86M (Peak 58.86M) | Time:00:00.03 | Syncing Pressed upper rib.005
+Fra:1 Mem:58.87M (Peak 58.87M) | Time:00:00.03 | Syncing Pressed upper rib.004
+Fra:1 Mem:58.88M (Peak 58.88M) | Time:00:00.03 | Syncing Pressed upper rib.003
+Fra:1 Mem:58.89M (Peak 58.89M) | Time:00:00.03 | Syncing Pressed upper rib.002
+Fra:1 Mem:58.90M (Peak 58.90M) | Time:00:00.03 | Syncing Pressed upper rib.001
+Fra:1 Mem:58.91M (Peak 58.91M) | Time:00:00.03 | Syncing Pressed upper rib
+Fra:1 Mem:58.92M (Peak 58.92M) | Time:00:00.03 | Syncing Pressed lower rib.057
+Fra:1 Mem:58.93M (Peak 58.93M) | Time:00:00.03 | Syncing Pressed lower rib.056
+Fra:1 Mem:58.94M (Peak 58.94M) | Time:00:00.03 | Syncing Pressed lower rib.055
+Fra:1 Mem:58.95M (Peak 58.95M) | Time:00:00.03 | Syncing Pressed lower rib.054
+Fra:1 Mem:58.96M (Peak 58.96M) | Time:00:00.03 | Syncing Pressed lower rib.053
+Fra:1 Mem:58.97M (Peak 58.97M) | Time:00:00.03 | Syncing Pressed lower rib.052
+Fra:1 Mem:58.98M (Peak 58.98M) | Time:00:00.03 | Syncing Pressed lower rib.051
+Fra:1 Mem:58.99M (Peak 58.99M) | Time:00:00.03 | Syncing Pressed lower rib.050
+Fra:1 Mem:59.00M (Peak 59.00M) | Time:00:00.03 | Syncing Pressed lower rib.049
+Fra:1 Mem:59.01M (Peak 59.01M) | Time:00:00.03 | Syncing Pressed lower rib.048
+Fra:1 Mem:59.02M (Peak 59.02M) | Time:00:00.03 | Syncing Pressed lower rib.047
+Fra:1 Mem:59.03M (Peak 59.03M) | Time:00:00.03 | Syncing Pressed lower rib.046
+Fra:1 Mem:59.04M (Peak 59.04M) | Time:00:00.03 | Syncing Pressed lower rib.045
+Fra:1 Mem:59.05M (Peak 59.05M) | Time:00:00.03 | Syncing Pressed lower rib.044
+Fra:1 Mem:59.06M (Peak 59.06M) | Time:00:00.03 | Syncing Pressed lower rib.043
+Fra:1 Mem:59.07M (Peak 59.07M) | Time:00:00.03 | Syncing Pressed lower rib.042
+Fra:1 Mem:59.08M (Peak 59.08M) | Time:00:00.04 | Syncing Pressed lower rib.041
+Fra:1 Mem:59.09M (Peak 59.09M) | Time:00:00.04 | Syncing Pressed lower rib.040
+Fra:1 Mem:59.10M (Peak 59.10M) | Time:00:00.04 | Syncing Pressed lower rib.039
+Fra:1 Mem:59.11M (Peak 59.11M) | Time:00:00.04 | Syncing Pressed lower rib.038
+Fra:1 Mem:59.12M (Peak 59.12M) | Time:00:00.04 | Syncing Pressed lower rib.037
+Fra:1 Mem:59.13M (Peak 59.13M) | Time:00:00.04 | Syncing Pressed lower rib.036
+Fra:1 Mem:59.13M (Peak 59.13M) | Time:00:00.04 | Syncing Pressed lower rib.035
+Fra:1 Mem:59.14M (Peak 59.14M) | Time:00:00.04 | Syncing Pressed lower rib.034
+Fra:1 Mem:59.15M (Peak 59.15M) | Time:00:00.04 | Syncing Pressed lower rib.033
+Fra:1 Mem:59.16M (Peak 59.16M) | Time:00:00.04 | Syncing Pressed lower rib.032
+Fra:1 Mem:59.17M (Peak 59.17M) | Time:00:00.04 | Syncing Pressed lower rib.031
+Fra:1 Mem:59.18M (Peak 59.18M) | Time:00:00.04 | Syncing Pressed lower rib.030
+Fra:1 Mem:59.19M (Peak 59.19M) | Time:00:00.04 | Syncing Pressed lower rib.029
+Fra:1 Mem:59.20M (Peak 59.20M) | Time:00:00.04 | Syncing Pressed lower rib.028
+Fra:1 Mem:59.21M (Peak 59.21M) | Time:00:00.04 | Syncing Pressed lower rib.027
+Fra:1 Mem:59.22M (Peak 59.22M) | Time:00:00.04 | Syncing Pressed lower rib.026
+Fra:1 Mem:59.23M (Peak 59.23M) | Time:00:00.04 | Syncing Pressed lower rib.025
+Fra:1 Mem:59.24M (Peak 59.24M) | Time:00:00.04 | Syncing Pressed lower rib.024
+Fra:1 Mem:59.25M (Peak 59.25M) | Time:00:00.04 | Syncing Pressed lower rib.023
+Fra:1 Mem:59.26M (Peak 59.26M) | Time:00:00.04 | Syncing Pressed lower rib.022
+Fra:1 Mem:59.27M (Peak 59.27M) | Time:00:00.04 | Syncing Pressed lower rib.021
+Fra:1 Mem:59.28M (Peak 59.28M) | Time:00:00.04 | Syncing Pressed lower rib.020
+Fra:1 Mem:59.29M (Peak 59.29M) | Time:00:00.04 | Syncing Pressed lower rib.019
+Fra:1 Mem:59.30M (Peak 59.30M) | Time:00:00.04 | Syncing Pressed lower rib.018
+Fra:1 Mem:59.31M (Peak 59.31M) | Time:00:00.04 | Syncing Pressed lower rib.017
+Fra:1 Mem:59.32M (Peak 59.32M) | Time:00:00.04 | Syncing Pressed lower rib.016
+Fra:1 Mem:59.33M (Peak 59.33M) | Time:00:00.04 | Syncing Pressed lower rib.015
+Fra:1 Mem:59.34M (Peak 59.34M) | Time:00:00.04 | Syncing Pressed lower rib.014
+Fra:1 Mem:59.35M (Peak 59.35M) | Time:00:00.04 | Syncing Pressed lower rib.013
+Fra:1 Mem:59.36M (Peak 59.36M) | Time:00:00.04 | Syncing Pressed lower rib.012
+Fra:1 Mem:59.37M (Peak 59.37M) | Time:00:00.04 | Syncing Pressed lower rib.011
+Fra:1 Mem:59.38M (Peak 59.38M) | Time:00:00.04 | Syncing Pressed lower rib.010
+Fra:1 Mem:59.39M (Peak 59.39M) | Time:00:00.04 | Syncing Pressed lower rib.009
+Fra:1 Mem:59.40M (Peak 59.40M) | Time:00:00.04 | Syncing Pressed lower rib.008
+Fra:1 Mem:59.41M (Peak 59.41M) | Time:00:00.04 | Syncing Pressed lower rib.007
+Fra:1 Mem:59.42M (Peak 59.42M) | Time:00:00.04 | Syncing Pressed lower rib.006
+Fra:1 Mem:59.43M (Peak 59.43M) | Time:00:00.04 | Syncing Pressed lower rib.005
+Fra:1 Mem:59.44M (Peak 59.44M) | Time:00:00.04 | Syncing Pressed lower rib.004
+Fra:1 Mem:59.45M (Peak 59.45M) | Time:00:00.04 | Syncing Pressed lower rib.003
+Fra:1 Mem:59.46M (Peak 59.46M) | Time:00:00.04 | Syncing Pressed lower rib.002
+Fra:1 Mem:59.47M (Peak 59.47M) | Time:00:00.04 | Syncing Pressed lower rib.001
+Fra:1 Mem:59.48M (Peak 59.48M) | Time:00:00.04 | Syncing Pressed lower rib
+Fra:1 Mem:59.49M (Peak 59.49M) | Time:00:00.04 | Syncing Pot lid.001
+Fra:1 Mem:59.50M (Peak 59.50M) | Time:00:00.04 | Syncing Pot lid knob.001
+Fra:1 Mem:59.51M (Peak 59.51M) | Time:00:00.04 | Syncing Pot lid knob
+Fra:1 Mem:59.52M (Peak 59.52M) | Time:00:00.04 | Syncing Pot lid
+Fra:1 Mem:59.53M (Peak 59.53M) | Time:00:00.04 | Syncing Paper tray stack.007
+Fra:1 Mem:59.54M (Peak 59.54M) | Time:00:00.04 | Syncing Paper tray stack.006
+Fra:1 Mem:59.55M (Peak 59.55M) | Time:00:00.04 | Syncing Paper tray stack.005
+Fra:1 Mem:59.56M (Peak 59.56M) | Time:00:00.04 | Syncing Paper tray stack.004
+Fra:1 Mem:59.57M (Peak 59.57M) | Time:00:00.04 | Syncing Paper tray stack.003
+Fra:1 Mem:59.58M (Peak 59.58M) | Time:00:00.04 | Syncing Paper tray stack.002
+Fra:1 Mem:59.59M (Peak 59.59M) | Time:00:00.04 | Syncing Paper tray stack.001
+Fra:1 Mem:59.61M (Peak 59.61M) | Time:00:00.04 | Syncing Paper tray stack
+Fra:1 Mem:59.62M (Peak 59.62M) | Time:00:00.04 | Syncing Mustard sliding hatch shutter.001
+Fra:1 Mem:59.63M (Peak 59.63M) | Time:00:00.04 | Syncing Mustard sliding hatch shutter
+Fra:1 Mem:59.64M (Peak 59.64M) | Time:00:00.04 | Syncing Mirror stalk.001
+Fra:1 Mem:59.64M (Peak 59.64M) | Time:00:00.04 | Syncing Mirror stalk
+Fra:1 Mem:59.65M (Peak 59.65M) | Time:00:00.04 | Syncing Interior floor
+Fra:1 Mem:59.66M (Peak 59.66M) | Time:00:00.04 | Syncing Hub cap.005
+Fra:1 Mem:59.68M (Peak 59.68M) | Time:00:00.04 | Syncing Hub cap.004
+Fra:1 Mem:59.69M (Peak 59.69M) | Time:00:00.04 | Syncing Hub cap.003
+Fra:1 Mem:59.70M (Peak 59.70M) | Time:00:00.04 | Syncing Hub cap.002
+Fra:1 Mem:59.71M (Peak 59.71M) | Time:00:00.04 | Syncing Hub cap.001
+Fra:1 Mem:59.72M (Peak 59.72M) | Time:00:00.04 | Syncing Hub cap
+Fra:1 Mem:59.73M (Peak 59.73M) | Time:00:00.04 | Syncing Headlamp.001
+Fra:1 Mem:59.74M (Peak 59.74M) | Time:00:00.04 | Syncing Headlamp
+Fra:1 Mem:59.75M (Peak 59.75M) | Time:00:00.04 | Syncing Hatch jamb.001
+Fra:1 Mem:59.76M (Peak 59.76M) | Time:00:00.04 | Syncing Hatch jamb
+Fra:1 Mem:59.77M (Peak 59.77M) | Time:00:00.04 | Syncing Hatch end panel.001
+Fra:1 Mem:59.78M (Peak 59.78M) | Time:00:00.04 | Syncing Hatch end panel
+Fra:1 Mem:59.79M (Peak 59.79M) | Time:00:00.04 | Syncing Grille bar.002
+Fra:1 Mem:59.80M (Peak 59.80M) | Time:00:00.04 | Syncing Grille bar.001
+Fra:1 Mem:59.81M (Peak 59.81M) | Time:00:00.04 | Syncing Grille bar
+Fra:1 Mem:59.82M (Peak 59.82M) | Time:00:00.04 | Syncing Front grille
+Fra:1 Mem:59.83M (Peak 59.83M) | Time:00:00.04 | Syncing End lower colour wrap.001
+Fra:1 Mem:59.84M (Peak 59.84M) | Time:00:00.04 | Syncing End lower colour wrap
+Fra:1 Mem:59.85M (Peak 59.85M) | Time:00:00.04 | Syncing Enclosed shaped end wall.001
+Fra:1 Mem:59.86M (Peak 59.86M) | Time:00:00.05 | Syncing Enclosed shaped end wall
+Fra:1 Mem:59.87M (Peak 59.87M) | Time:00:00.05 | Syncing Dark wheel guard.005
+Fra:1 Mem:59.89M (Peak 59.89M) | Time:00:00.05 | Syncing Dark wheel guard.004
+Fra:1 Mem:59.91M (Peak 59.91M) | Time:00:00.05 | Syncing Dark wheel guard.003
+Fra:1 Mem:59.92M (Peak 59.92M) | Time:00:00.05 | Syncing Dark wheel guard.002
+Fra:1 Mem:59.94M (Peak 59.94M) | Time:00:00.05 | Syncing Dark wheel guard.001
+Fra:1 Mem:59.96M (Peak 59.96M) | Time:00:00.05 | Syncing Dark wheel guard
+Fra:1 Mem:59.97M (Peak 59.97M) | Time:00:00.05 | Syncing Curved back upper wall
+Fra:1 Mem:59.99M (Peak 59.99M) | Time:00:00.05 | Syncing Curry pot.001
+Fra:1 Mem:60.00M (Peak 60.00M) | Time:00:00.05 | Syncing Curry pot
+Fra:1 Mem:60.01M (Peak 60.01M) | Time:00:00.05 | Syncing Cupboard handle.002
+Fra:1 Mem:60.02M (Peak 60.02M) | Time:00:00.05 | Syncing Cupboard handle.001
+Fra:1 Mem:60.03M (Peak 60.03M) | Time:00:00.05 | Syncing Cupboard handle
+Fra:1 Mem:60.04M (Peak 60.04M) | Time:00:00.05 | Syncing Counter bracket.001
+Fra:1 Mem:60.05M (Peak 60.05M) | Time:00:00.05 | Syncing Counter bracket
+Fra:1 Mem:60.06M (Peak 60.06M) | Time:00:00.05 | Syncing Cooker.001
+Fra:1 Mem:60.07M (Peak 60.07M) | Time:00:00.05 | Syncing Cooker
+Fra:1 Mem:60.08M (Peak 60.08M) | Time:00:00.05 | Syncing Cone.001
+Fra:1 Mem:60.09M (Peak 60.09M) | Time:00:00.05 | Syncing Cone
+Fra:1 Mem:60.10M (Peak 60.10M) | Time:00:00.05 | Syncing Chassis
+Fra:1 Mem:60.11M (Peak 60.11M) | Time:00:00.05 | Syncing Cab wing mirror.001
+Fra:1 Mem:60.12M (Peak 60.12M) | Time:00:00.05 | Syncing Cab wing mirror
+Fra:1 Mem:60.14M (Peak 60.14M) | Time:00:00.05 | Syncing Cab windscreen
+Fra:1 Mem:60.14M (Peak 60.14M) | Time:00:00.05 | Syncing Cab window dark gasket.001
+Fra:1 Mem:60.15M (Peak 60.15M) | Time:00:00.05 | Syncing Cab window dark gasket
+Fra:1 Mem:60.16M (Peak 60.16M) | Time:00:00.05 | Syncing Cab rear door seam.001
+Fra:1 Mem:60.17M (Peak 60.17M) | Time:00:00.05 | Syncing Cab rear door seam
+Fra:1 Mem:60.18M (Peak 60.18M) | Time:00:00.05 | Syncing Cab front bumper
+Fra:1 Mem:60.20M (Peak 60.20M) | Time:00:00.05 | Syncing Cab door handle.001
+Fra:1 Mem:60.21M (Peak 60.21M) | Time:00:00.05 | Syncing Cab door handle
+Fra:1 Mem:60.22M (Peak 60.22M) | Time:00:00.05 | Syncing Cab body
+Fra:1 Mem:60.23M (Peak 60.23M) | Time:00:00.05 | Syncing Blue cab side glass.001
+Fra:1 Mem:60.24M (Peak 60.24M) | Time:00:00.05 | Syncing Blue cab side glass
+Fra:1 Mem:60.25M (Peak 60.25M) | Time:00:00.05 | Syncing Back lower wall
+Fra:1 Mem:60.26M (Peak 60.26M) | Time:00:00.05 | Syncing Axle.002
+Fra:1 Mem:60.27M (Peak 60.27M) | Time:00:00.05 | Syncing Axle.001
+Fra:1 Mem:60.28M (Peak 60.28M) | Time:00:00.05 | Syncing Axle
+Fra:1 Mem:60.29M (Peak 60.29M) | Time:00:00.05 | Syncing 12 sided tyre.005
+Fra:1 Mem:60.30M (Peak 60.30M) | Time:00:00.05 | Syncing 12 sided tyre.004
+Fra:1 Mem:60.32M (Peak 60.32M) | Time:00:00.05 | Syncing 12 sided tyre.003
+Fra:1 Mem:60.33M (Peak 60.33M) | Time:00:00.05 | Syncing 12 sided tyre.002
+Fra:1 Mem:60.34M (Peak 60.34M) | Time:00:00.05 | Syncing 12 sided tyre.001
+Fra:1 Mem:60.35M (Peak 60.35M) | Time:00:00.05 | Syncing 12 sided tyre
+Fra:1 Mem:60.36M (Peak 60.36M) | Time:00:00.05 | Syncing REVIEW_Sun
+Fra:1 Mem:60.36M (Peak 60.36M) | Time:00:00.05 | Syncing REVIEW_Fill
+Fra:1 Mem:60.37M (Peak 60.37M) | Time:00:00.05 | Syncing REVIEW_Ground
+Fra:1 Mem:60.37M (Peak 60.37M) | Time:00:00.05 | Syncing REVIEW_Camera
+Fra:1 Mem:60.14M (Peak 60.37M) | Time:00:00.07 | Rendering 1 / 64 samples
+Fra:1 Mem:59.78M (Peak 60.37M) | Time:00:00.73 | Rendering 26 / 64 samples
+Fra:1 Mem:59.78M (Peak 60.37M) | Time:00:01.18 | Rendering 51 / 64 samples
+Fra:1 Mem:59.78M (Peak 60.37M) | Time:00:01.29 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\curry-07-review-cutaway-not-exported.png'
+Time: 00:02.37 (Saving: 00:01.04)
+
+
+Blender quit

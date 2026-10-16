@@ -1,0 +1,67 @@
+{
+  "runtime": "runtime/ft_food_curry_production_v1.glb",
+  "source": "source/ft_food_curry_production_v1.blend",
+  "triangles": 5244,
+  "materials": [
+    {
+      "name": "FT2026_ProductionPalette",
+      "triangles": 5214
+    },
+    {
+      "name": "LWF_FoodVan_NamePanel_Korma",
+      "triangles": 2
+    },
+    {
+      "name": "LWF_FoodVanSign_Curry",
+      "triangles": 4
+    },
+    {
+      "name": "LWF_FoodVanSign_Iron",
+      "triangles": 24
+    }
+  ],
+  "material_count": 4,
+  "bounds_blender": [
+    [
+      -1.47,
+      -1.5,
+      -0.0
+    ],
+    [
+      4.6,
+      1.314,
+      3.8415
+    ]
+  ],
+  "mesh_components_editable": 260,
+  "interior_working_volume_blender": {
+    "x": [
+      0.96,
+      3.34
+    ],
+    "y": [
+      -0.99,
+      0.35
+    ],
+    "floor_z": 0.47,
+    "roof_min_z": 2.44
+  },
+  "staff_door_clear_visual_dimensions": [
+    0.81,
+    1.67
+  ],
+  "old_physical_x_bounds": [
+    -1.26,
+    4.59
+  ],
+  "reserved_x_bounds": [
+    -1.6,
+    4.9
+  ],
+  "reserved_y_bounds": [
+    -1.75,
+    1.75
+  ],
+  "outside_old_physical_front_m": 0.21,
+  "outside_reserved_front_m": 0
+}

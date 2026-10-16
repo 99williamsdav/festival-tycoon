@@ -1,0 +1,226 @@
+{
+  "roundtrip": {
+    "chips": {
+      "triangles": 2370,
+      "bounds_blender": [
+        [
+          -1.255,
+          -1.5,
+          0.0
+        ],
+        [
+          4.6,
+          1.314,
+          3.9595
+        ]
+      ],
+      "meshes": 1,
+      "materials": 4,
+      "embedded_images": 3,
+      "file_bytes": 272372,
+      "no_armature": true,
+      "external_image_uris": false,
+      "steam_markers": []
+    },
+    "pizza": {
+      "triangles": 2066,
+      "bounds_blender": [
+        [
+          -1.255,
+          -1.5,
+          0.0
+        ],
+        [
+          4.6,
+          1.314,
+          3.9415
+        ]
+      ],
+      "meshes": 1,
+      "materials": 4,
+      "embedded_images": 3,
+      "file_bytes": 311364,
+      "no_armature": true,
+      "external_image_uris": false,
+      "steam_markers": []
+    },
+    "curry": {
+      "triangles": 5244,
+      "bounds_blender": [
+        [
+          -1.47,
+          -1.5,
+          0.0
+        ],
+        [
+          4.6,
+          1.314,
+          3.8415
+        ]
+      ],
+      "meshes": 1,
+      "materials": 4,
+      "embedded_images": 3,
+      "file_bytes": 488540,
+      "no_armature": true,
+      "external_image_uris": false,
+      "steam_markers": [
+        "LWF_FoodVan_SteamVent_R",
+        "LWF_FoodVan_SteamVent_L"
+      ]
+    }
+  },
+  "clearance": {
+    "chips_male": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.3099998378753661,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.3099998378753661
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8285624980926514,
+          -1.314771294593811,
+          0.47126147150993347
+        ],
+        [
+          2.4202444553375244,
+          -0.7132934927940369,
+          2.2119059562683105
+        ]
+      ]
+    },
+    "pizza_male": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.3099998378753661,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.3099998378753661
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8285624980926514,
+          -1.314771294593811,
+          0.47126147150993347
+        ],
+        [
+          2.4202444553375244,
+          -0.7132934927940369,
+          2.2119059562683105
+        ]
+      ]
+    },
+    "curry_male": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.3099998378753661,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.3099998378753661
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8285624980926514,
+          -1.314771294593811,
+          0.47126147150993347
+        ],
+        [
+          2.4202444553375244,
+          -0.7132934927940369,
+          2.2119059562683105
+        ]
+      ]
+    },
+    "chips_female": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.30999995708465566,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.30999995708465566
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8528000116348267,
+          -1.314310073852539,
+          0.4712522327899933
+        ],
+        [
+          2.3873772621154785,
+          -0.7012443542480469,
+          2.1418471336364746
+        ]
+      ]
+    },
+    "pizza_female": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.30999995708465566,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.30999995708465566
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8528000116348267,
+          -1.314310073852539,
+          0.4712522327899933
+        ],
+        [
+          2.3873772621154785,
+          -0.7012443542480469,
+          2.1418471336364746
+        ]
+      ]
+    },
+    "curry_female": {
+      "frames_checked": 170,
+      "collisions": [],
+      "max_foot_motion_m": 0,
+      "max_socket_tilt_degrees": 0,
+      "prop_min_counter_clearance_m": {
+        "lwf_chips_tray_v1": 0.30999995708465566,
+        "lwf_pizza_plate_v1": 0.2961999320983886,
+        "lwf_curry_tray_v1": 0.30999995708465566
+      },
+      "held_prop_geometry_collisions": [],
+      "held_prop_frames_checked": 14,
+      "body_sweep_bounds": [
+        [
+          1.8528000116348267,
+          -1.314310073852539,
+          0.4712522327899933
+        ],
+        [
+          2.3873772621154785,
+          -0.7012443542480469,
+          2.1418471336364746
+        ]
+      ]
+    }
+  },
+  "limitations": "All keyed integer frames of all actual source clips, static shell triangles; excludes runtime crossfades and terrain. Floor foot contact is expected. No altered staff placement or scale."
+}

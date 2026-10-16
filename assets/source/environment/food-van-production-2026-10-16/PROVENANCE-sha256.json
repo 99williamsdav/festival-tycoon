@@ -1,0 +1,341 @@
+{
+  "checkpoint": "Independently reviewed PASS; frozen production geometry 2026-10-16",
+  "generated_utc": "2026-10-16T20:29:24.5191148Z",
+  "files": [
+    {
+      "path": "ACTIVE-BRIEF.md",
+      "bytes": 1911,
+      "sha256": "ff5d2dcc6f73a8d7f5d31fec396613aae98792c2fcaf949fa15aeb71a2c33330"
+    },
+    {
+      "path": "build.py",
+      "bytes": 20690,
+      "sha256": "f4a1cda75d38fbf419cf06a7fb0860192d1cffa925390cf30c9652fcefa04b8a"
+    },
+    {
+      "path": "diagnose.py",
+      "bytes": 1278,
+      "sha256": "d0a61c60608b953e519906570c27f3e000e35806b7c7d805ede641c99f850845"
+    },
+    {
+      "path": "FINAL-CHECKPOINT.md",
+      "bytes": 1566,
+      "sha256": "66cff2a4a7b9676b16f40fc855f4b440dd0d09eb84408e971a93b851db242bf0"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 6865,
+      "sha256": "2e5190fa9a46a8cfe5d60939fed28c7338365befa0952bbb5c98b0e191c16ee2"
+    },
+    {
+      "path": "inspect_reference.py",
+      "bytes": 767,
+      "sha256": "fad42a87c50e0bba75e52616028d111bfae16c177392aa4d6ffbc14ecaf0f05f"
+    },
+    {
+      "path": "INTEGRATION-NOTES.md",
+      "bytes": 3604,
+      "sha256": "2560a2ca57c697bc444c50dad33e685d7b683707bc02c4557d2d713e7227820b"
+    },
+    {
+      "path": "manifest-chips.json",
+      "bytes": 1172,
+      "sha256": "4f8e867fbadd30a1e3f90a664fa12f30277d681bcb28b206f9383de79264080a"
+    },
+    {
+      "path": "manifest-curry.json",
+      "bytes": 1171,
+      "sha256": "9e9d100059dce30f72d9d44ae4b17613a94570fb7cf2612c40a033c84892a770"
+    },
+    {
+      "path": "manifest-pizza.json",
+      "bytes": 1169,
+      "sha256": "e541d8bb2f4d7472f128b89315d837a28bcf518f25fb85ee590930888b398027"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 4775,
+      "sha256": "6cb5812b952f3399e27b9e824999e4840fe3e4d410e92637cc3173f629780d33"
+    },
+    {
+      "path": "reference-inspection.json",
+      "bytes": 1528,
+      "sha256": "3b72bfb2807bf62b0278a3621c49a862c581621db79e5fafbd9eaa4b1790e949"
+    },
+    {
+      "path": "references/concepts/01-chips-rounded-trailer.png",
+      "bytes": 1531581,
+      "sha256": "6fe2ebb3499e50702dd2f1d7c581fad5957206c8f33bb7a7c49bf15ab879ecd1"
+    },
+    {
+      "path": "references/concepts/02-pizza-timber-wagon.png",
+      "bytes": 1691432,
+      "sha256": "532051fb5789b154864d129e5fc2e665ff438902c8b2ca5cf34d7375f76f3c2b"
+    },
+    {
+      "path": "references/concepts/03-curry-ribbed-van.png",
+      "bytes": 1598671,
+      "sha256": "90ac687c919e856bdfd1a5d2acabdf5435bd51f51459e7918bb16429e09c6ca5"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_chip_block_v1.glb",
+      "bytes": 18404,
+      "sha256": "a0c246986ab9d25a864634c5397fd9b0a5224a80e947e7907343fe02babae2d0"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_chip_block_v1.png",
+      "bytes": 16751,
+      "sha256": "bb94fd5b6edf0443295abdb4088e01ce8961dffac6d4b07c7881ff98584ce694"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_korma_v1.glb",
+      "bytes": 44732,
+      "sha256": "1cfe423dc19e81ddec5994f35d50420fa1bde841cfa6caa47e3494c0b03c63ab"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_korma_v1.png",
+      "bytes": 43108,
+      "sha256": "23fa484c4f61b2f29603a29158ce0ab24ca2dcd664910840480fbc311d437a4b"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_pizza_v1.glb",
+      "bytes": 18800,
+      "sha256": "2d16b3b65411bfba6f3e08310c295469be4587813c123f9f127787df450f9e17"
+    },
+    {
+      "path": "references/lwf_food_van_name_panel_pizza_v1.png",
+      "bytes": 17156,
+      "sha256": "ce500b4ee8ad4a56fa3cbdd9c5dbe885be562022bba0cbdd10ef976fe6f78e45"
+    },
+    {
+      "path": "references/lwf_food_van_sign_chips_v1.glb",
+      "bytes": 94496,
+      "sha256": "1a8eb8e07c87857f358eb4f6aac72d64657147ff2235d1e0b67ef537b1878676"
+    },
+    {
+      "path": "references/lwf_food_van_sign_chips_v1.png",
+      "bytes": 90062,
+      "sha256": "2c62e1e6b86ac34b53e1c586bf8332a984c7105c458c22ebb6f534f6e7d1d62a"
+    },
+    {
+      "path": "references/lwf_food_van_sign_curry_v1.glb",
+      "bytes": 92524,
+      "sha256": "46e5e38f1d84e859e8969c75cd28f4e7872dc3092bfaa68ff7c3b20b1e30bb70"
+    },
+    {
+      "path": "references/lwf_food_van_sign_curry_v1.png",
+      "bytes": 88091,
+      "sha256": "53bbc1d8b5206dd22cbd1cf8f33ff33024595402a14b9cb0d84c6eca506bac30"
+    },
+    {
+      "path": "references/lwf_food_van_sign_pizza_v1.glb",
+      "bytes": 152508,
+      "sha256": "df395552aa515b94d2a398f73addc6686371be95645dcc1e6436dc3f3dcd1e33"
+    },
+    {
+      "path": "references/lwf_food_van_sign_pizza_v1.png",
+      "bytes": 148067,
+      "sha256": "1c4b040470ab80283b95d064b9d7a5cc4d2635d85e44b1a0766bc8b18fad908e"
+    },
+    {
+      "path": "render_cutaway.py",
+      "bytes": 1236,
+      "sha256": "9300e45614b662b5e906df9aa1f440cef448217bfda6aca18a4f562822a74aed"
+    },
+    {
+      "path": "renders/chips-01-close.png",
+      "bytes": 1517255,
+      "sha256": "ade3ac51dfaa9502c3943755fc985eed5dad0a6fcb8148feb9ebcf595ec6d3ae"
+    },
+    {
+      "path": "renders/chips-02-rear.png",
+      "bytes": 1487012,
+      "sha256": "a1abf61abb9c042649442d11cd9b901644260236ff145d1d89b443e25ac12da0"
+    },
+    {
+      "path": "renders/chips-03-gameplay-min18.png",
+      "bytes": 1392234,
+      "sha256": "53b213e24287b1b13abff094f2d8f209c979013b4734750d8c24819ce99baeb2"
+    },
+    {
+      "path": "renders/chips-04-gameplay-default62.png",
+      "bytes": 1347041,
+      "sha256": "46d4755f668383322b97cb8b108ab9e1eb2269df8542daaf47978c997783a83b"
+    },
+    {
+      "path": "renders/chips-05-roundtrip.png",
+      "bytes": 1517343,
+      "sha256": "4454e4711b952d35fbfdf11825dab8e6bb75186df495d72538065ddf7302660d"
+    },
+    {
+      "path": "renders/chips-06-actual-server-clearance.png",
+      "bytes": 1525062,
+      "sha256": "f04ddc24b185b044c15910f0b57f54f98c9320f7f5910a47e2405aedb5337da9"
+    },
+    {
+      "path": "renders/chips-07-review-cutaway-not-exported.png",
+      "bytes": 1506075,
+      "sha256": "60848848ad79bdd025f11bf8cb99bad3bcbf59a9da44ea29e2683d0c645f8d60"
+    },
+    {
+      "path": "renders/chips-08-actual-server-gameplay-min18.png",
+      "bytes": 1393194,
+      "sha256": "3ffdbf164392abe345e1f00ffb37eb243a457483833b46ab0b2fb2e5294d875d"
+    },
+    {
+      "path": "renders/chips-09-actual-server-gameplay-default62.png",
+      "bytes": 1347405,
+      "sha256": "a016fdda2c66f2053677dbe6aecc0cbdd7648531cd06cc7e382b59b032b8d3c7"
+    },
+    {
+      "path": "renders/curry-01-close.png",
+      "bytes": 1580488,
+      "sha256": "ba03febd76322f868b07834fd2708a513367abb9562cb85e9a67920ac25f81f2"
+    },
+    {
+      "path": "renders/curry-02-rear.png",
+      "bytes": 1524503,
+      "sha256": "f2b26c07c3278273d08978ed63005acd33be32f9d6117a6a6070a016577378ae"
+    },
+    {
+      "path": "renders/curry-03-gameplay-min18.png",
+      "bytes": 1413276,
+      "sha256": "18854a22ec2dc040c581d7c0b866109b47d01a9b8b1bbb439cbae446e92895fa"
+    },
+    {
+      "path": "renders/curry-04-gameplay-default62.png",
+      "bytes": 1350616,
+      "sha256": "c2627c35d025201d7a0089893bae261a44a5bc62b8617d9183d4f1988d8929b5"
+    },
+    {
+      "path": "renders/curry-05-roundtrip.png",
+      "bytes": 1580280,
+      "sha256": "bb996cc795dde1ff9f2ba7cc63a396aeac602113d54765426d5b8dfaa6b99c7c"
+    },
+    {
+      "path": "renders/curry-06-actual-server-clearance.png",
+      "bytes": 1586324,
+      "sha256": "e0cfcb0b52f7cb879ae195d1d6b714b0f8c34982a215203f8c98aeebfa86ed09"
+    },
+    {
+      "path": "renders/curry-07-review-cutaway-not-exported.png",
+      "bytes": 1523085,
+      "sha256": "e80589edea507fb136d044f9003b215d436f4b5f63c0820c1b4506cae926a98f"
+    },
+    {
+      "path": "renders/curry-08-actual-server-gameplay-min18.png",
+      "bytes": 1414161,
+      "sha256": "c16674864cd7fe33802d42bc6514ea2703cd2625938936c068250d1a82eedcf3"
+    },
+    {
+      "path": "renders/curry-09-actual-server-gameplay-default62.png",
+      "bytes": 1350838,
+      "sha256": "01a5b7c9ec2026709b303f19866c1bd29f879119154d757df0a847cb98cab4f8"
+    },
+    {
+      "path": "renders/pizza-01-close.png",
+      "bytes": 1590848,
+      "sha256": "fb3f93a3f4c8ae0e1565eb1b312b54d3fc42324db51ca97100ff2ee1b30298ce"
+    },
+    {
+      "path": "renders/pizza-02-rear.png",
+      "bytes": 1567159,
+      "sha256": "e4e9b58fd5733b4068b45531c28fb7f9d2a12954c2b44f1f7663d1a22c0c401a"
+    },
+    {
+      "path": "renders/pizza-03-gameplay-min18.png",
+      "bytes": 1409216,
+      "sha256": "3251ffe7ef740ac5ad2525f725f36cb1861af8427b5b9d947ef4d6c82ea589ef"
+    },
+    {
+      "path": "renders/pizza-04-gameplay-default62.png",
+      "bytes": 1350753,
+      "sha256": "b07d1990f6a820d94231967c5caa9c5cd63088c527168c49f256c4dfa7d5d511"
+    },
+    {
+      "path": "renders/pizza-05-roundtrip.png",
+      "bytes": 1590998,
+      "sha256": "218faf48dfe40e840f1209c07cb3064c708271d918955fdd701cc23fa1768910"
+    },
+    {
+      "path": "renders/pizza-06-actual-server-clearance.png",
+      "bytes": 1599849,
+      "sha256": "afcd6bdc4cdaa38b5ba0c6d6c66694922a20a07e8ef0be40b3afc09f70bf9a98"
+    },
+    {
+      "path": "renders/pizza-07-review-cutaway-not-exported.png",
+      "bytes": 1546320,
+      "sha256": "313afcb34fdaaeab1ed60ae6093e4010b649c86fe2bd0e8d825bfe641b827a1b"
+    },
+    {
+      "path": "renders/pizza-08-actual-server-gameplay-min18.png",
+      "bytes": 1409891,
+      "sha256": "5877ebc7fbce1ed6c8b4e226a8d623245866bad9635d6aa5f4ad9768159fae94"
+    },
+    {
+      "path": "renders/pizza-09-actual-server-gameplay-default62.png",
+      "bytes": 1350813,
+      "sha256": "dea2e422030998f61e164704afc6e7ee27a3587119f3a9097b235a7562ef47f2"
+    },
+    {
+      "path": "review.html",
+      "bytes": 3423,
+      "sha256": "362b67754ca4656b3ee49a17d19f8de981d76ae970f86ac570da3cfc01baf23a"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 4982,
+      "sha256": "2655d25768ca9b24b803166907dc20194a65ee37b873a5c5725a04e4a7737641"
+    },
+    {
+      "path": "runtime/ft_food_chips_production_v1.glb",
+      "bytes": 272372,
+      "sha256": "e3bfe879f1422e825c10b46c509865c5c3613cdd34f66c7a0522fa3827202f98"
+    },
+    {
+      "path": "runtime/ft_food_curry_production_v1.glb",
+      "bytes": 488540,
+      "sha256": "63f9fd9489441a509dd726ac6e606a14f60f76a5560f92c54948160657f880cf"
+    },
+    {
+      "path": "runtime/ft_food_pizza_production_v1.glb",
+      "bytes": 311364,
+      "sha256": "540361a894e103d6c7c5cc878b9f47afa2502c17b4c7fac844bb9c674d0b762d"
+    },
+    {
+      "path": "source/ft_food_chips_production_v1.blend",
+      "bytes": 1197368,
+      "sha256": "e04de06ac35e2d35ff0bc36160d8e7931c79a1934daa6fd52f0cd8f9bc1564f9"
+    },
+    {
+      "path": "source/ft_food_curry_production_v1.blend",
+      "bytes": 2234248,
+      "sha256": "3c7437d302e15b0fe2eb8f1a6e38f4812afb2c71ede6a722e01f8043c90255c2"
+    },
+    {
+      "path": "source/ft_food_pizza_production_v1.blend",
+      "bytes": 1442076,
+      "sha256": "9a46b422422083f5ae8bcc3f92f67df79b78f98d1cea45760432fd3d9746a8fb"
+    },
+    {
+      "path": "source/production_palette.png",
+      "bytes": 205,
+      "sha256": "d0eece7f3cea7c685a1a817005a71ab656b8c63ab3f3aeab0a1d498cb28eed7c"
+    },
+    {
+      "path": "verification/checks.json",
+      "bytes": 5864,
+      "sha256": "a2471519374c5ee532174de50df88b58a114a957e709075ef53865b7466e4588"
+    },
+    {
+      "path": "verification/history/initial-wall-overlap-diagnostic.json",
+      "bytes": 14859,
+      "sha256": "332032edf3f519c7c6295fe6ecc2a4a6ff5d5c1d5d24c89268a213a3fd3413af"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 6055,
+      "sha256": "fa9656eb2eb54da9392a8e869c28667a197f9247977cbb490f1fdb22a2c9d46a"
+    }
+  ]
+}

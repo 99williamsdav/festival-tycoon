@@ -1,0 +1,280 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Fra:1 Mem:36.38M (Peak 37.44M) | Time:00:10.86 | Syncing ft_food_chips_production_v1
+Fra:1 Mem:36.83M (Peak 37.68M) | Time:00:19.80 | Syncing REVIEW_Sun
+Fra:1 Mem:36.83M (Peak 37.68M) | Time:00:19.80 | Syncing REVIEW_Fill
+Fra:1 Mem:36.83M (Peak 37.68M) | Time:00:19.80 | Syncing REVIEW_Ground
+Fra:1 Mem:36.88M (Peak 37.68M) | Time:00:19.85 | Syncing REVIEW_Camera
+Fra:1 Mem:36.88M (Peak 37.68M) | Time:00:19.87 | Rendering 1 / 64 samples
+Fra:1 Mem:36.67M (Peak 37.68M) | Time:00:23.42 | Rendering 26 / 64 samples
+Fra:1 Mem:36.67M (Peak 37.68M) | Time:00:23.58 | Rendering 51 / 64 samples
+Fra:1 Mem:36.67M (Peak 37.68M) | Time:00:23.67 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\chips-05-roundtrip.png'
+Time: 00:25.61 (Saving: 00:01.89)
+
+Fra:1 Mem:36.80M (Peak 36.80M) | Time:00:00.01 | Syncing ft_food_pizza_production_v1
+Fra:1 Mem:37.14M (Peak 38.37M) | Time:00:00.02 | Syncing REVIEW_Sun
+Fra:1 Mem:37.14M (Peak 38.37M) | Time:00:00.02 | Syncing REVIEW_Fill
+Fra:1 Mem:37.14M (Peak 38.37M) | Time:00:00.02 | Syncing REVIEW_Ground
+Fra:1 Mem:37.15M (Peak 38.37M) | Time:00:00.02 | Syncing REVIEW_Camera
+Fra:1 Mem:37.15M (Peak 38.37M) | Time:00:00.03 | Rendering 1 / 64 samples
+Fra:1 Mem:36.96M (Peak 38.37M) | Time:00:00.55 | Rendering 26 / 64 samples
+Fra:1 Mem:36.96M (Peak 38.37M) | Time:00:00.70 | Rendering 51 / 64 samples
+Fra:1 Mem:36.96M (Peak 38.37M) | Time:00:00.78 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\pizza-05-roundtrip.png'
+Time: 00:01.72 (Saving: 00:00.91)
+
+Fra:1 Mem:37.50M (Peak 37.50M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_L
+Fra:1 Mem:37.50M (Peak 37.50M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_R
+Fra:1 Mem:37.50M (Peak 37.50M) | Time:00:00.01 | Syncing ft_food_curry_production_v1
+Fra:1 Mem:38.34M (Peak 39.07M) | Time:00:00.02 | Syncing REVIEW_Sun
+Fra:1 Mem:38.34M (Peak 39.07M) | Time:00:00.02 | Syncing REVIEW_Fill
+Fra:1 Mem:38.34M (Peak 39.07M) | Time:00:00.02 | Syncing REVIEW_Ground
+Fra:1 Mem:38.35M (Peak 39.07M) | Time:00:00.02 | Syncing REVIEW_Camera
+Fra:1 Mem:38.35M (Peak 39.07M) | Time:00:00.02 | Rendering 1 / 64 samples
+Fra:1 Mem:37.87M (Peak 39.07M) | Time:00:00.56 | Rendering 26 / 64 samples
+Fra:1 Mem:37.87M (Peak 39.07M) | Time:00:00.72 | Rendering 51 / 64 samples
+Fra:1 Mem:37.87M (Peak 39.07M) | Time:00:00.84 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\curry-05-roundtrip.png'
+Time: 00:02.38 (Saving: 00:01.46)
+
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:13 Mem:43.43M (Peak 43.43M) | Time:00:00.04 | Syncing LWF_Attendee_Body
+Fra:13 Mem:43.61M (Peak 43.61M) | Time:00:02.35 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:43.61M (Peak 43.61M) | Time:00:02.35 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:43.61M (Peak 43.61M) | Time:00:02.35 | Syncing LWF_RightHand_Food
+Fra:13 Mem:43.62M (Peak 43.62M) | Time:00:02.35 | Syncing LWF_Server_Apron
+Fra:13 Mem:43.64M (Peak 43.64M) | Time:00:02.35 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:43.65M (Peak 43.65M) | Time:00:02.35 | Syncing LWF_Hat_Cap
+Fra:13 Mem:43.70M (Peak 43.70M) | Time:00:02.35 | Syncing ft_food_chips_production_v1
+Fra:13 Mem:45.87M (Peak 46.74M) | Time:00:02.38 | Syncing REVIEW_Sun
+Fra:13 Mem:45.87M (Peak 46.74M) | Time:00:02.38 | Syncing REVIEW_Fill
+Fra:13 Mem:45.88M (Peak 46.74M) | Time:00:02.38 | Syncing REVIEW_Ground
+Fra:13 Mem:45.88M (Peak 46.74M) | Time:00:02.38 | Syncing REVIEW_Camera
+Fra:13 Mem:45.88M (Peak 46.74M) | Time:00:02.43 | Rendering 1 / 64 samples
+Fra:13 Mem:45.53M (Peak 46.74M) | Time:00:02.86 | Rendering 26 / 64 samples
+Fra:13 Mem:45.53M (Peak 46.74M) | Time:00:03.02 | Rendering 51 / 64 samples
+Fra:13 Mem:45.53M (Peak 46.74M) | Time:00:03.14 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\chips-06-actual-server-clearance.png'
+Time: 00:04.17 (Saving: 00:01.00)
+
+Fra:13 Mem:45.41M (Peak 45.41M) | Time:00:00.03 | Syncing LWF_Attendee_Body
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.03 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.03 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.03 | Syncing LWF_RightHand_Food
+Fra:13 Mem:45.56M (Peak 45.56M) | Time:00:00.03 | Syncing LWF_Server_Apron
+Fra:13 Mem:45.57M (Peak 45.57M) | Time:00:00.03 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:45.59M (Peak 45.59M) | Time:00:00.03 | Syncing LWF_Hat_Cap
+Fra:13 Mem:45.63M (Peak 45.63M) | Time:00:00.03 | Syncing ft_food_chips_production_v1
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.03 | Syncing REVIEW_Sun
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.03 | Syncing REVIEW_Fill
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.03 | Syncing REVIEW_Ground
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.03 | Syncing REVIEW_Camera
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.03 | Rendering 1 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.31 | Rendering 26 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.48 | Rendering 51 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.57 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\chips-08-actual-server-gameplay-min18.png'
+Time: 00:01.85 (Saving: 00:01.26)
+
+Fra:13 Mem:45.41M (Peak 45.41M) | Time:00:00.00 | Syncing LWF_Attendee_Body
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.00 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:45.55M (Peak 45.55M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:13 Mem:45.56M (Peak 45.56M) | Time:00:00.00 | Syncing LWF_Server_Apron
+Fra:13 Mem:45.57M (Peak 45.57M) | Time:00:00.00 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:45.59M (Peak 45.59M) | Time:00:00.01 | Syncing LWF_Hat_Cap
+Fra:13 Mem:45.63M (Peak 45.63M) | Time:00:00.01 | Syncing ft_food_chips_production_v1
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.01 | Syncing REVIEW_Sun
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.01 | Syncing REVIEW_Fill
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.01 | Syncing REVIEW_Ground
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.01 | Syncing REVIEW_Camera
+Fra:13 Mem:45.88M (Peak 45.88M) | Time:00:00.01 | Rendering 1 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.25 | Rendering 26 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.44 | Rendering 51 / 64 samples
+Fra:13 Mem:45.53M (Peak 45.88M) | Time:00:00.51 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\chips-09-actual-server-gameplay-default62.png'
+Time: 00:01.74 (Saving: 00:01.18)
+
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:13 Mem:43.39M (Peak 43.39M) | Time:00:00.07 | Syncing LWF_Attendee_Body
+Fra:13 Mem:43.56M (Peak 43.56M) | Time:00:00.07 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:43.56M (Peak 43.56M) | Time:00:00.07 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:43.56M (Peak 43.56M) | Time:00:00.07 | Syncing LWF_RightHand_Food
+Fra:13 Mem:43.57M (Peak 43.57M) | Time:00:00.07 | Syncing LWF_Server_Apron
+Fra:13 Mem:43.58M (Peak 43.58M) | Time:00:00.07 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:43.60M (Peak 43.60M) | Time:00:00.07 | Syncing LWF_Hat_Cap
+Fra:13 Mem:43.65M (Peak 43.65M) | Time:00:00.07 | Syncing ft_food_pizza_production_v1
+Fra:13 Mem:46.08M (Peak 47.32M) | Time:00:00.09 | Syncing REVIEW_Sun
+Fra:13 Mem:46.08M (Peak 47.32M) | Time:00:00.09 | Syncing REVIEW_Fill
+Fra:13 Mem:46.09M (Peak 47.32M) | Time:00:00.09 | Syncing REVIEW_Ground
+Fra:13 Mem:46.09M (Peak 47.32M) | Time:00:00.09 | Syncing REVIEW_Camera
+Fra:13 Mem:46.09M (Peak 47.32M) | Time:00:00.11 | Rendering 1 / 64 samples
+Fra:13 Mem:45.77M (Peak 47.32M) | Time:00:00.52 | Rendering 26 / 64 samples
+Fra:13 Mem:45.77M (Peak 47.32M) | Time:00:00.74 | Rendering 51 / 64 samples
+Fra:13 Mem:45.77M (Peak 47.32M) | Time:00:00.84 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\pizza-06-actual-server-clearance.png'
+Time: 00:02.27 (Saving: 00:01.37)
+
+Fra:13 Mem:45.66M (Peak 45.66M) | Time:00:00.02 | Syncing LWF_Attendee_Body
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.02 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.02 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.02 | Syncing LWF_RightHand_Food
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.02 | Syncing LWF_Server_Apron
+Fra:13 Mem:45.82M (Peak 45.82M) | Time:00:00.02 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:45.83M (Peak 45.83M) | Time:00:00.02 | Syncing LWF_Hat_Cap
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.02 | Syncing ft_food_pizza_production_v1
+Fra:13 Mem:46.08M (Peak 46.08M) | Time:00:00.03 | Syncing REVIEW_Sun
+Fra:13 Mem:46.08M (Peak 46.08M) | Time:00:00.03 | Syncing REVIEW_Fill
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Syncing REVIEW_Ground
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Syncing REVIEW_Camera
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Rendering 1 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.45 | Rendering 26 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.78 | Rendering 51 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.94 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\pizza-08-actual-server-gameplay-min18.png'
+Time: 00:02.12 (Saving: 00:01.13)
+
+Fra:13 Mem:45.66M (Peak 45.66M) | Time:00:00.02 | Syncing LWF_Attendee_Body
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.03 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.03 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.03 | Syncing LWF_RightHand_Food
+Fra:13 Mem:45.80M (Peak 45.80M) | Time:00:00.03 | Syncing LWF_Server_Apron
+Fra:13 Mem:45.82M (Peak 45.82M) | Time:00:00.03 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:45.83M (Peak 45.83M) | Time:00:00.03 | Syncing LWF_Hat_Cap
+Fra:13 Mem:45.87M (Peak 45.87M) | Time:00:00.03 | Syncing ft_food_pizza_production_v1
+Fra:13 Mem:46.08M (Peak 46.08M) | Time:00:00.03 | Syncing REVIEW_Sun
+Fra:13 Mem:46.08M (Peak 46.08M) | Time:00:00.03 | Syncing REVIEW_Fill
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Syncing REVIEW_Ground
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Syncing REVIEW_Camera
+Fra:13 Mem:46.09M (Peak 46.09M) | Time:00:00.03 | Rendering 1 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.46 | Rendering 26 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.73 | Rendering 51 / 64 samples
+Fra:13 Mem:45.77M (Peak 46.09M) | Time:00:00.86 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\pizza-09-actual-server-gameplay-default62.png'
+Time: 00:01.92 (Saving: 00:01.02)
+
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:13 Mem:44.56M (Peak 44.56M) | Time:00:00.01 | Syncing LWF_Attendee_Body
+Fra:13 Mem:44.73M (Peak 44.73M) | Time:00:00.01 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:44.73M (Peak 44.73M) | Time:00:00.01 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:44.73M (Peak 44.73M) | Time:00:00.01 | Syncing LWF_RightHand_Food
+Fra:13 Mem:44.74M (Peak 44.74M) | Time:00:00.01 | Syncing LWF_Server_Apron
+Fra:13 Mem:44.75M (Peak 44.75M) | Time:00:00.01 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:44.77M (Peak 44.77M) | Time:00:00.01 | Syncing LWF_Hat_Cap
+Fra:13 Mem:44.81M (Peak 44.81M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_L
+Fra:13 Mem:44.81M (Peak 44.81M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_R
+Fra:13 Mem:44.82M (Peak 44.82M) | Time:00:00.01 | Syncing ft_food_curry_production_v1
+Fra:13 Mem:47.75M (Peak 48.48M) | Time:00:00.04 | Syncing REVIEW_Sun
+Fra:13 Mem:47.75M (Peak 48.48M) | Time:00:00.04 | Syncing REVIEW_Fill
+Fra:13 Mem:47.76M (Peak 48.48M) | Time:00:00.04 | Syncing REVIEW_Ground
+Fra:13 Mem:47.76M (Peak 48.48M) | Time:00:00.04 | Syncing REVIEW_Camera
+Fra:13 Mem:47.75M (Peak 48.48M) | Time:00:00.04 | Rendering 1 / 64 samples
+Fra:13 Mem:47.15M (Peak 48.48M) | Time:00:00.70 | Rendering 26 / 64 samples
+Fra:13 Mem:47.15M (Peak 48.48M) | Time:00:00.95 | Rendering 51 / 64 samples
+Fra:13 Mem:47.15M (Peak 48.48M) | Time:00:01.05 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\curry-06-actual-server-clearance.png'
+Time: 00:01.84 (Saving: 00:00.76)
+
+Fra:13 Mem:47.02M (Peak 47.02M) | Time:00:00.01 | Syncing LWF_Attendee_Body
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_RightHand_Food
+Fra:13 Mem:47.17M (Peak 47.17M) | Time:00:00.01 | Syncing LWF_Server_Apron
+Fra:13 Mem:47.18M (Peak 47.18M) | Time:00:00.01 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:47.20M (Peak 47.20M) | Time:00:00.01 | Syncing LWF_Hat_Cap
+Fra:13 Mem:47.23M (Peak 47.23M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_L
+Fra:13 Mem:47.23M (Peak 47.23M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_R
+Fra:13 Mem:47.24M (Peak 47.24M) | Time:00:00.01 | Syncing ft_food_curry_production_v1
+Fra:13 Mem:47.75M (Peak 47.75M) | Time:00:00.02 | Syncing REVIEW_Sun
+Fra:13 Mem:47.75M (Peak 47.75M) | Time:00:00.02 | Syncing REVIEW_Fill
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.02 | Syncing REVIEW_Ground
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.02 | Syncing REVIEW_Camera
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.02 | Rendering 1 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.24 | Rendering 26 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.39 | Rendering 51 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.45 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\curry-08-actual-server-gameplay-min18.png'
+Time: 00:01.27 (Saving: 00:00.79)
+
+Fra:13 Mem:47.02M (Peak 47.02M) | Time:00:00.01 | Syncing LWF_Attendee_Body
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_Attendee_Rig
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_RightHand_Cup
+Fra:13 Mem:47.16M (Peak 47.16M) | Time:00:00.01 | Syncing LWF_RightHand_Food
+Fra:13 Mem:47.17M (Peak 47.17M) | Time:00:00.01 | Syncing LWF_Server_Apron
+Fra:13 Mem:47.18M (Peak 47.18M) | Time:00:00.01 | Syncing LWF_Hair_DefaultUnderCap
+Fra:13 Mem:47.20M (Peak 47.20M) | Time:00:00.01 | Syncing LWF_Hat_Cap
+Fra:13 Mem:47.23M (Peak 47.23M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_L
+Fra:13 Mem:47.23M (Peak 47.23M) | Time:00:00.01 | Syncing LWF_FoodVan_SteamVent_R
+Fra:13 Mem:47.24M (Peak 47.24M) | Time:00:00.01 | Syncing ft_food_curry_production_v1
+Fra:13 Mem:47.75M (Peak 47.75M) | Time:00:00.01 | Syncing REVIEW_Sun
+Fra:13 Mem:47.75M (Peak 47.75M) | Time:00:00.01 | Syncing REVIEW_Fill
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.01 | Syncing REVIEW_Ground
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.01 | Syncing REVIEW_Camera
+Fra:13 Mem:47.76M (Peak 47.76M) | Time:00:00.04 | Rendering 1 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.30 | Rendering 26 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.47 | Rendering 51 / 64 samples
+Fra:13 Mem:47.15M (Peak 47.76M) | Time:00:00.53 | Rendering 64 / 64 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\food-van-production-2026-10-16\renders\curry-09-actual-server-gameplay-default62.png'
+Time: 00:01.43 (Saving: 00:00.86)
+
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.04s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.04s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.04s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.03s
+VERIFICATION_DONE {"chips_male": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.3099998378753661, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.3099998378753661}}, "pizza_male": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.3099998378753661, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.3099998378753661}}, "curry_male": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.3099998378753661, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.3099998378753661}}, "chips_female": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.30999995708465566, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.30999995708465566}}, "pizza_female": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.30999995708465566, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.30999995708465566}}, "curry_female": {"frames": 170, "collisions": 0, "clearance": {"lwf_chips_tray_v1": 0.30999995708465566, "lwf_pizza_plate_v1": 0.2961999320983886, "lwf_curry_tray_v1": 0.30999995708465566}}}
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_female_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_female_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\service-server-assets-v1\source\lwf_server_food_female_v1.blend"
+
+Blender quit
