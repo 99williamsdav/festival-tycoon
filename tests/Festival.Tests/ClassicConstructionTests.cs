@@ -30,7 +30,6 @@ public sealed class ClassicConstructionTests
     [DataRow(BuildServiceKind.Bar,3)]
     [DataRow(BuildServiceKind.FoodVan,3)]
     [DataRow(BuildServiceKind.FirstAid,2)]
-    [DataRow(BuildServiceKind.StewardPost,2)]
     [DataRow(BuildServiceKind.Marquee,3)]
     public void ClassicCanBuildBeyondEverySurvivalQuantityAndRestore(BuildServiceKind kind,int target)
     {
@@ -40,6 +39,20 @@ public sealed class ClassicConstructionTests
         CollectionAssert.AreEqual(s.CaptureBuildPlacements().ToArray(),copy.CaptureBuildPlacements().ToArray());
         Assert.IsTrue(s.ServiceLimit(kind)>target);
         Assert.IsTrue(s.PreparationPlanCost>=s.BuildDraftCost,"Costs remain in the unpaid plan.");
+    }
+    [TestMethod]
+    public void ClassicStewardPostsStopAtTheStewardsItCanHire()
+    {
+        // The steward and one extra hire: a third post could never be staffed.
+        var s=Ready();
+        Assert.AreEqual(GameSession.ClassicStewardPostLimit,s.ServiceLimit(BuildServiceKind.StewardPost));
+        while(s.CaptureBuildPlacements().Count(p=>p.Kind==BuildServiceKind.StewardPost)<GameSession.ClassicStewardPostLimit)Place(s,BuildServiceKind.StewardPost);
+        Assert.IsFalse(BuildSession.Send(s,new PlaceBuildServiceCommand(BuildServiceKind.StewardPost,new(176,116),0)).IsAccepted);
+        // A save carrying a third is refused.
+        var saved=s.CapturePersistenceSnapshot();var p=saved.Preparation!;
+        var third=p.BuildPlacements.First(b=>b.Kind==BuildServiceKind.StewardPost) with {Id="steward-post.extra-2",Cell=new(176,116)};
+        Assert.IsFalse(GameSession.Restore(saved with {Preparation=p with {BuildPlacements=p.BuildPlacements.Append(third).OrderBy(b=>b.Id,StringComparer.Ordinal).ToArray()}}).IsSuccess);
+        Assert.IsTrue(BuildSession.Restored(s).CaptureBuildPlacements().Count(b=>b.Kind==BuildServiceKind.StewardPost)==GameSession.ClassicStewardPostLimit);
     }
     [TestMethod]
     public void CatalogueHasOnlyPlacedVansAndOneNextCandidateAndDuplicateCuisineIsValidInClassic()

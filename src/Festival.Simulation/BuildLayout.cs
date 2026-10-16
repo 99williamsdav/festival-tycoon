@@ -22,7 +22,7 @@ public sealed partial class GameSession
         CampaignRulesProfile.For(CampaignRuleset.Survival).BuildFee(kind);
     /// <summary>How many of a service this festival may place: the tier's limit, and one more tap with the Another Round perk.</summary>
     public int ServiceLimit(BuildServiceKind kind) =>
-        IsClassicCampaign ? ClassicConstructionSafetyBound :
+        IsClassicCampaign ? ConstructionLimit(kind, _preparation?.Tier ?? 1, classic: true) :
         BuildServiceLimit(kind, _preparation?.Tier ?? 1) - (kind == BuildServiceKind.WaterTap && !HasPerk("another-round") ? 1 : 0);
 
     /// <summary>The most of a service any festival at this tier may place (the tap's assumes the perk).</summary>

@@ -5,12 +5,15 @@ public sealed partial class GameSession
     // Defensive save/input bound, not a building allowance. Even the smallest reserved footprints
     // cannot fit this many on the existing field. Never enumerate this value to create catalogue rows.
     public const int ClassicConstructionSafetyBound = 4_096;
+    // A festival has its steward and at most one extra (StaffHiring), and a post no one can staff is money for nothing.
+    // First aid stays open-ended: an unstaffed tent still gives guests somewhere to rest.
+    public const int ClassicStewardPostLimit = 2;
     public bool ConstructionQuantitiesUnrestricted => IsClassicCampaign;
     private static long ClassicClosingCashBound(long opening,IReadOnlyList<BuildPlacement> layout,int capacity,int peopleBound=MaxActivePeople) => checked(opening+
         layout.Count(p=>p.Kind==BuildServiceKind.FoodVan)*(long)FoodTraders.All.Max(t=>t.PitchFeePennies)+
         (long)capacity*MostGuestBudgetPennies+(long)(peopleBound-capacity)*CrewBudgetPennies);
     private static int ConstructionLimit(BuildServiceKind kind, int tier, bool classic) =>
-        classic ? ClassicConstructionSafetyBound : BuildServiceLimit(kind, tier);
+        classic ? kind == BuildServiceKind.StewardPost ? ClassicStewardPostLimit : ClassicConstructionSafetyBound : BuildServiceLimit(kind, tier);
 
     /// <summary>Existing vans and one next candidate. The catalogue grows only when the player places a van.</summary>
     public IReadOnlyList<string> FoodVanCatalogueIds => IsClassicCampaign

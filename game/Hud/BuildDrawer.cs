@@ -406,8 +406,10 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 ? Stalls.Next(BuildServiceKind.FoodVan, placements.Select(item => item.Id)) : _hud.Session.PlacedVans[^1]);
             row.Price.Text = kind == BuildServiceKind.FoodVan ? $"+{FestivalCurrency.Format(nextVan.PitchFeePennies)}"
                 : FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
-            row.Count.Text = _hud.Session.ConstructionQuantitiesUnrestricted ? $"{count} placed" : kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
-            var dotCount = kind == BuildServiceKind.Bin || _hud.Session.ConstructionQuantitiesUnrestricted ? 0 : limit;
+            // Classic leaves most quantities open, but a capped service (steward posts) still shows its count of the cap.
+            var unrestricted = _hud.Session.ConstructionQuantitiesUnrestricted && limit >= GameSession.ClassicConstructionSafetyBound;
+            row.Count.Text = unrestricted ? $"{count} placed" : kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
+            var dotCount = kind == BuildServiceKind.Bin || unrestricted ? 0 : limit;
             if (row.Dots.GetChildCount() != dotCount)
             {
                 foreach (var child in row.Dots.GetChildren()) { row.Dots.RemoveChild(child); child.QueueFree(); }
