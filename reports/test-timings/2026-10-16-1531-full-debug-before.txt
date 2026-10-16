@@ -1,0 +1,1021 @@
+Test Parallelization enabled for C:\Projects\festival-tycoon\.claude\worktrees\agent-a7427eb65d3955a08\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (Workers: 20, Scope: MethodLevel)
+failed PerpendicularAndDiagonalCrossingsDischarge (True) (116ms)
+  Assertion failed. Expected values to be equal.
+  {"SchemaVersion":1,"Tick":80,"NextTicket":3,"People":[{"Id":1,"IntentGeneration":0,"Position":{"XMillimetres":-180,"ZMillimetres":-180},"SpeedMillimetresPerTick":100,"Route":[{"XMillimetres":600,"ZMillimetres":600}],"RouteIndex":0,"WaitTicks":74,"LocalTicket":1,"RegionId":null,"RegionDirection":null,"RegionPhase":0,"RegionTicket":null,"ServiceId":null,"UsefulProgressTicks":6,"IsInService":false,"ServiceCompleted":false},{"Id":2,"IntentGeneration":0,"Position":{"XMillimetres":180,"ZMillimetres":-180},"SpeedMillimetresPerTick":100,"Route":[{"XMillimetres":-600,"ZMillimetres":600}],"RouteIndex":0,"WaitTicks":74,"LocalTicket":2,"RegionId":null,"RegionDirection":null,"RegionPhase":0,"RegionTicket":null,"ServiceId":null,"UsefulProgressTicks":6,"IsInService":false,"ServiceCompleted":false}],"Regions":[],"Services":[],"Obstacles":[],"RegionDischarges":0,"ServiceCompletions":0,"UnsupportedLayout":false}
+  
+  expected: Completed
+  actual:   PendingWithinBound
+  
+  Assert.AreEqual(TrafficRunOutcome.Completed, AdvanceChecked(kernel, 80))
+  Expected
+    Completed
+  Actual
+    PendingWithinBound
+    at Festival.Tests.TrafficKernelProofTests.PerpendicularAndDiagonalCrossingsDischarge(Boolean diagonal) in /_/tests/Festival.Tests/TrafficKernelProofTests.cs:35
+    at InvokeStub_TrafficKernelProofTests.PerpendicularAndDiagonalCrossingsDischarge(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic (23m 13s 245ms)
+  Assertion failed. Expected strings to be equal.
+  Strings have same length (7032) and differ at 1 location(s). First difference at index 57.
+  Behavior/RNG/event parity mismatch at hands-on-closed. Baseline must not be changed.
+  
+  expected near: "...-on-closed\",\"tick\":41440,\"behaviorDigest\":\"37DB8BA2F16CA5E0F9D7BA3DA01666AC8AE0D316E1FD..."
+  actual near:   "...-on-closed\",\"tick\":41440,\"behaviorDigest\":\"8072C52A4564E01BE7BB799A42D680FEE6BBCD54D90D..."
+  difference:    -----------------------------------------------------^
+  
+  expected: "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"37DB8BA2F16CA5E0F9D7BA3DA01666AC8AE0D316E1FD71C0E910619447535B24\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AuthoritativeHash\":\"E8571B35B0F1C4A9F9AA2B736CA2589192D79B21D9F336EEB30C986D44A84D9E\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"25EDE644914FCF1ED2886AE58E0409677A87477108B3A585EF96D5A2CEAE22C2\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Identity\":\"1C3DE1BD9FD0A7FD766EA3301A644F46ECBF615F5F24604CF9F7D5F4E2C336CA\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  actual:   "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"8072C52A4564E01BE7BB799A42D680FEE6BBCD54D90DB4F58C0F06A6AFEEDD42\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AuthoritativeHash\":\"2CD971E5120C53614C83A870D9E1AAB703E5F9F6EEA888FFBD58C589018B9218\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"D9691078B388EC05958BCEF374CF44F8457994FDBE1524F3D2CBBB840C3A4AA3\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Identity\":\"1C3DE1BD9FD0A7FD766EA3301A644F46ECBF615F5F24604CF9F7D5F4E2C336CA\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  
+  Assert.AreEqual(expected[i]!.ToJsonString(), actual[i]!.ToJsonString())
+  Expected
+    "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"37DB8BA2F16CA5E0F9D7BA3DA01666AC8AE0D316E1FD71C0E910619447535B24\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AuthoritativeHash\":\"E8571B35B0F1C4A9F9AA2B736CA2589192D79B21D9F336EEB30C986D44A84D9E\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"25EDE644914FCF1ED2886AE58E0409677A87477108B3A585EF96D5A2CEAE22C2\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Identity\":\"1C3DE1BD9FD0A7FD766EA3301A644F46ECBF615F5F24604CF9F7D5F4E2C336CA\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  Actual
+    "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"8072C52A4564E01BE7BB799A42D680FEE6BBCD54D90DB4F58C0F06A6AFEEDD42\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AuthoritativeHash\":\"2CD971E5120C53614C83A870D9E1AAB703E5F9F6EEA888FFBD58C589018B9218\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"D9691078B388EC05958BCEF374CF44F8457994FDBE1524F3D2CBBB840C3A4AA3\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Identity\":\"1C3DE1BD9FD0A7FD766EA3301A644F46ECBF615F5F24604CF9F7D5F4E2C336CA\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+    at Festival.Tests.ClassicSurvivalParityTests.SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic() in /_/tests/Festival.Tests/ClassicSurvivalParityTests.cs:121
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+failed ExistingSurvivalBehaviorMatchesThePreRefactorReference (6m 55s 819ms)
+  Assertion failed. Expected strings to be equal.
+  Strings have same length (6867) and differ at 1 location(s). First difference at index 57.
+  Behavior/RNG/event parity mismatch at hands-on-closed. Baseline must not be changed.
+  
+  expected near: "...-on-closed\",\"tick\":41440,\"behaviorDigest\":\"D9D4BF6405EDFE09EFBC5C13D9146968D3E9D8B0BC00..."
+  actual near:   "...-on-closed\",\"tick\":41440,\"behaviorDigest\":\"AC490A41C7F5322B3054915B1638EC2353ED9606F89B..."
+  difference:    -----------------------------------------------------^
+  
+  expected: "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"D9D4BF6405EDFE09EFBC5C13D9146968D3E9D8B0BC000786A0AF8CD25F3C8834\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"25EDE644914FCF1ED2886AE58E0409677A87477108B3A585EF96D5A2CEAE22C2\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  actual:   "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"AC490A41C7F5322B3054915B1638EC2353ED9606F89B5BF2D4F7D13EBDB5577A\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"D9691078B388EC05958BCEF374CF44F8457994FDBE1524F3D2CBBB840C3A4AA3\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  
+  Assert.AreEqual(expected[i]!.ToJsonString(), actual[i]!.ToJsonString())
+  Expected
+    "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"D9D4BF6405EDFE09EFBC5C13D9146968D3E9D8B0BC000786A0AF8CD25F3C8834\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"25EDE644914FCF1ED2886AE58E0409677A87477108B3A585EF96D5A2CEAE22C2\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+  Actual
+    "{\"name\":\"hands-on-closed\",\"tick\":41440,\"behaviorDigest\":\"AC490A41C7F5322B3054915B1638EC2353ED9606F89B5BF2D4F7D13EBDB5577A\",\"fields\":{\"CampaignId\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"CampaignSeed\":\"0E90D15F935E746A58F45F7C434D492048C25E6F0FACA7D074FFF5C705945A19\",\"RandomAlgorithmVersion\":\"CD2ACE474BC2F0EB1E23832ABC7A963B1827128033C8636962CD1D61F25025C0\",\"Phase\":\"D4735E3A265E16EEE03F59718B9B5D03019C07D8B6C51F90DA3A666EEC13AB35\",\"CurrentTick\":\"7FBE9DA3F554D892D8D487D0C0B0E38362BDF9D8B2A4A6619C0BE8B2540CF776\",\"IsPaused\":\"FCBCF165908DD18A9E49F7FF27810176DB8E9F63B4352213741664245224F8AA\",\"NextEntityId\":\"3D914F9348C9CC0FF8A79716700B9FCD4D2F3E711608004EB8F138BCBA7F14D9\",\"NextSubmissionSequence\":\"8527A891E224136950FF32CA212B45BC93F69FBB801C3B1EBEDAC52775F99E61\",\"FixtureRecords\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"AcceptedCommandIds\":\"397DB166B17B198DE79DB0E6B31CF193AA4E77F9B695385B7F70E94455F8D01C\",\"AppliedCommands\":\"EFE7458FE12A1938D6A12674D782886688DC1F8330E631111E9D123F224B9AB1\",\"RandomStreams\":\"8DFDD58F302F293D8CC58A000DFFA0D97C50A638F0048261D1DDE2D7B59D34F6\",\"Wallets\":\"A1C9B67E42EC7978FF219D05E0ECE54CF8E858905F6A43888EF265AEBA1A4717\",\"FestivalFinances\":\"F7FEB0395E5A0B42D66E13B542BC114B92221AAF323985FD5F664AC8AD9A8F47\",\"OwnedStocks\":\"B68F3690379C2F50AA94BEF486C950E7ADA977A73F5BBB0F5BF1110FF7FBAA1E\",\"CompletedTransactionIds\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Transactions\":\"4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945\",\"Litter\":\"37DD3B5EC9DC8463D4543DF4236968A3D7D046EE440DE0255D7CDFCE64A064BE\",\"Ground\":\"43EC4B888ADD4DB41568829FFF957CC293666291CDCF78B4E04CFFE88A7AE412\",\"Faults\":\"6263F2255D05D2208BEB84E94BDF348D90077D6E567478D8A98CFE91B2B2A201\",\"Cows\":\"F2123B57F4D25ED3C19E00EB5ED195045641862FA9C6A65E0C5FF99234F35399\",\"LavSucker\":\"51D30A441C2B9E2CBC463AFDCF6502403B90E935D033E1F5B6BD9E18DA99780D\",\"StewardShift\":\"D9691078B388EC05958BCEF374CF44F8457994FDBE1524F3D2CBBB840C3A4AA3\",\"Perks\":\"977A0C2FDAFE62F8064EEBB60276EA45178C2F37ABAFABECBBF80BCACF95F267\",\"Programme\":\"0674F365C5602B91CFA2EC8C63D88EBDC7FB80D758A8CF295AC1E0913C9E7768\",\"Immersion\":\"0B40EEE4B8529216D08325FE02901E833EFA52DAF6EF783EFDABFEC861980DA9\",\"Facilities\":\"9A13ACDB5E5FA08A0C777B88C0566A20A60F94716DB7D8BE1F6528B208A0BF9F\",\"TraversalGrid\":\"BB4B5A0DBB37EE71D22D1E187B6BC6115D336154C3FAB7607C4B1F4B804F270E\",\"NavigationAgents\":\"A8EC238A6B9A54221031551CFF5E35F83BA579686D81513E849E5EF160592F40\",\"CampaignPlanning\":\"F913421DD0A6E56C8D018B142A3E210F7314DA83EA079C28AC68F7B66BF08353\",\"Lifecycle\":\"17ECDD5954FC392B9330973B6A7627ED3D18A926D8196D66507B60D044635FD5\",\"Preparation\":\"928B7B122EEB85DAB99EDD2D0603099C80907202A51F17A6F14263F567F2A33A\",\"Equipment\":\"B55AD4323F6A0940F57FADA5AB899740887AD35E522206B902D2C0DACBAE19BE\",\"LivePerformances\":\"AF559010C470EBD88600E5B0A225075411FE6D55744C7AE8C3D6589D69E217AF\",\"PerformanceRecords\":\"63DC197D5A359478C846CAE185AC0A33A8AFAB713E11CD0E72F770FA81F32187\",\"Medical\":\"BD2C99B6F50B6F592B5850D67E8C612D8CDDAA2CE4D972C01F9BEE5E5ACB8A1D\",\"Disorder\":\"EECBCBDCAA6BA964751306B0934D9A18C20BE114C9CF19173E18AE506D7ADAF0\"},\"randomStreams\":[{\"StreamId\":1,\"State\":7890051236260513178,\"Increment\":6988466564452447745},{\"StreamId\":2,\"State\":13491433153862563713,\"Increment\":8450967672317292613},{\"StreamId\":3,\"State\":18241788630273033387,\"Increment\":10940827222782516645},{\"StreamId\":4,\"State\":3352244256717234145,\"Increment\":3736987103744776947},{\"StreamId\":5,\"State\":9677292244492057339,\"Increment\":6874647827496645425},{\"StreamId\":6,\"State\":10310699711693126796,\"Increment\":4735661727410631403},{\"StreamId\":100,\"State\":13858177782029100901,\"Increment\":10565350719695743587}],\"status\":\"Finished\",\"cash\":37060,\"canProgress\":true,\"result\":{\"Attempt\":1,\"Tick\":41440,\"GuestCount\":25,\"SatisfactionTotal\":77634,\"RevenuePennies\":49500,\"ContractCostsPennies\":26200,\"ConsumedStockCostsPennies\":6240,\"CapitalPurchasesPennies\":0,\"NetCashChangePennies\":17060,\"BeersFinished\":28,\"Fights\":6,\"MedicalCollapses\":0,\"ProfitPennies\":17060,\"Stars\":2,\"SatisfactionPercent\":31.0536},\"accounts\":{\"Sales\":[{\"Product\":1,\"UnitPricePennies\":250,\"Quantity\":28,\"AmountPennies\":7000,\"Stall\":\"drinks\"},{\"Product\":1,\"UnitPricePennies\":125,\"Quantity\":12,\"AmountPennies\":1500,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":400,\"Quantity\":28,\"AmountPennies\":11200,\"Stall\":\"drinks\"},{\"Product\":2,\"UnitPricePennies\":200,\"Quantity\":4,\"AmountPennies\":800,\"Stall\":\"drinks\"}],\"SoldItemCosts\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"OperatingExpenses\":[{\"Category\":\"Staff and rental\",\"Label\":\"Lorraine Tuffin \\u00B7 medic\",\"AmountPennies\":1500},{\"Category\":\"Staff and rental\",\"Label\":\"Terry Bunce \\u00B7 sound engineer\",\"AmountPennies\":2000},{\"Category\":\"Staff and rental\",\"Label\":\"Kev Kettle \\u00B7 steward\",\"AmountPennies\":800},{\"Category\":\"Act bookings\",\"Label\":\"DJ Spreadsheet\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Two Men and a Harmonium\",\"AmountPennies\":500},{\"Category\":\"Act bookings\",\"Label\":\"Daisy \\u0026 the Diaries\",\"AmountPennies\":1400},{\"Category\":\"Facilities\",\"Label\":\"Water tap \\u00D7 1\",\"AmountPennies\":1500},{\"Category\":\"Facilities\",\"Label\":\"Toilet \\u00D7 2\",\"AmountPennies\":6000},{\"Category\":\"Facilities\",\"Label\":\"Bar \\u00D7 1\",\"AmountPennies\":5000},{\"Category\":\"Facilities\",\"Label\":\"First aid \\u00D7 1\",\"AmountPennies\":3500},{\"Category\":\"Facilities\",\"Label\":\"Steward post \\u00D7 1\",\"AmountPennies\":2500},{\"Category\":\"Facilities\",\"Label\":\"Litter bin \\u00D7 1\",\"AmountPennies\":1000}],\"PurchasedStock\":[{\"Label\":\"Soft drink\",\"Quantity\":40,\"UnitCostPennies\":60,\"AmountPennies\":2400},{\"Label\":\"Beer\",\"Quantity\":32,\"UnitCostPennies\":120,\"AmountPennies\":3840}],\"TicketsSold\":25,\"TicketPricePennies\":1000,\"OpeningCashPennies\":20000,\"ClosingCashPennies\":37060,\"StockPurchasesPennies\":6240,\"CapitalPurchasesPennies\":0,\"StockPurchaseRecorded\":true,\"StockDetailRecorded\":true,\"FacilityDetailRecorded\":true,\"Reconciles\":true,\"TicketSalesPennies\":25000,\"PitchFeePennies\":4000,\"PitchFeeTrader\":\"Chip Off The Old Block\",\"PitchFees\":[{\"Trader\":\"Chip Off The Old Block\",\"FeePennies\":4000}],\"CarriedInPennies\":null,\"DebtOwedPennies\":20000,\"StockLines\":[{\"Label\":\"Soft drink\",\"Bought\":40,\"PaidPennies\":2400,\"Sold\":40,\"TakenPennies\":8500,\"SoldCostPennies\":2400,\"UnitCostPennies\":60,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":6100},{\"Label\":\"Beer\",\"Bought\":32,\"PaidPennies\":3840,\"Sold\":32,\"TakenPennies\":12000,\"SoldCostPennies\":3840,\"UnitCostPennies\":120,\"ForSale\":true,\"LeftOver\":0,\"LeftOverCostPennies\":0,\"MarginPennies\":8160}],\"WaterGivenAway\":0,\"IncomePennies\":49500,\"SoldItemCostPennies\":6240,\"OperatingExpensesPennies\":26200,\"StockWrittenOffPennies\":0,\"OperatingResultPennies\":17060,\"NetCashChangePennies\":17060}}"
+    at Festival.Tests.SurvivalArchitectureParityTests.ExistingSurvivalBehaviorMatchesThePreRefactorReference() in /_/tests/Festival.Tests/SurvivalArchitectureParityTests.cs:123
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\.claude\worktrees\agent-a7427eb65d3955a08\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 956
+  failed: 3
+  succeeded: 953
+  skipped: 0
+  duration: 33m 28s 149ms
+
+Slowest tests:
+  23m 13s 245ms SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic
+  16m 38s 718ms HundredAttendeesAndThreeStagesCompleteAndCarryThroughASecondPaidFestival
+  16m 03s 011ms ProbeRainyTierTwoDays
+  12m 39s 133ms ProbeTierOneWithAndWithoutAMarquee
+  11m 39s 153ms APondStageTrialTransitionsToBarnAtTierTwo
+  11m 19s 971ms ProbeThreeTrialDays
+  9m 52s 518ms TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt
+  8m 49s 779ms ProbeWholeDays
+  8m 42s 587ms SurvivalFatalConsequencesAndHashesRemainExactlyAsBeforeClassic
+  8m 14s 702ms ProbeTierTwoWithOneAndTwoOfEachStall
+  7m 51s 008ms ADayWithTwoVansAndTwoBarsRestoresMidDayAndPlaysOnTheSame
+  7m 20s 836ms ProbeDrinkCollapsesAtTierOneAndTwo
+  7m 07s 071ms FourPlayedFestivalsReconcileActualTicketsBandFeesAndCashCarry (20260922)
+  6m 56s 892ms FatalEquipmentAndDisorderConsequencesKeepTheirPreExtractionStateAndOrder
+  6m 55s 819ms ExistingSurvivalBehaviorMatchesThePreRefactorReference
+  6m 54s 709ms FourPaidFestivalsCarryActualHoldingsRelationshipsAndResetOnlyTheDay
+  6m 52s 322ms EachVanKeepsItsOwnAccountAndTheBarsReconcile
+  6m 51s 685ms AGuestWeighsBothVansAndBothBarsByWalkQueueAndValue
+  6m 51s 428ms TheCrowdSplitsBetweenTheVansAndBothBarsSell
+  6m 17s 536ms FourPlayedFestivalsReconcileActualTicketsBandFeesAndCashCarry (14)
+  5m 51s 011ms MoreBeerIsSoldForMoreAndTheDayStillRestores
+  5m 49s 543ms FriendlyQueuesCheerUpTheWaitingAndKeepTheirPatience
+  5m 15s 957ms SharedWorldCompletesWithSafeSweepsAndReconciledOwnership
+  4m 12s 462ms FourStallsOnTheBasicPaNeverStrainThePoolOnATierTwoDay
+  4m 05s 265ms ColaFiendsBuySoftDrinksInsteadOfQueuingForTheTap
+  4m 03s 198ms OwnBottlesMeanFewerTripsToTheTapButSlowerFills
+  4m 00s 295ms AlcoholicsBuyMoreBeerAndGetDrunker
+  3m 54s 088ms ThePlayerClimbsEachStagesStepsButNotItsEdgeAndNoGuestEverGetsUp
+  3m 53s 507ms RobotWorkersNeverStopForThemselves
+  3m 41s 962ms APondDayPlaysItsFullLastSetAfterTheTrailerHasFinishedThenCloses
+  3m 41s 779ms APonchoBuyerStaysDryAndPonchosAreInTheAccounts
+  3m 34s 582ms AStrawJobEndsAsTheCrowdGoesHome
+  3m 23s 673ms WithoutMaintenanceAStewardBodgesABrokenTapToHalfFlow
+  3m 23s 666ms CounteredMusicAndWaterAcrossSeedsHaveNoForcedDisorder
+  3m 21s 422ms CompletingTierOneOpensTierTwoWithItsCashDebtAndStanding
+  3m 20s 138ms MapTheGroundAtClosing
+  3m 16s 238ms ASlackerVisitsTheVansMoreThanTheStandardCandidate
+  3m 05s 602ms FinalSettlementSaveFailureDoesNotPublishAndOrdinaryDepartureDoesNotAutosave
+  3m 03s 274ms ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True)
+  2m 40s 142ms ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False)
+  2m 38s 199ms PondBandsComeInByTheGardenGateClimbTheStairPlayOnTimeAndClearOff
+  2m 32s 627ms NaturalDepartureFrozenReportAndActualFileReload
+  2m 31s 729ms StrawAndMattingResistChurning
+  2m 28s 762ms TheModeCarriesThroughNextFestivalAndCallsMountUpUnanswered
+  2m 27s 744ms EarlyUnhappyGuestRetainedInFinalMeanAndHistory
+  2m 27s 102ms LedgerOperatingProfitExcludesOpeningFundsAndCapital
+  2m 24s 973ms NaturalBuildCompletionAndSavedTerminalAccountsReconcile
+  2m 21s 634ms AGoodyTwoShoesNeverPicksUpTheSamePieceTwiceOverADay
+  2m 20s 373ms MissedUnplayedSlotHasNoApplauseAndCannotCountOwnedMedicalListeners
+  2m 19s 770ms RainWetsTheGroundAndBusyGroundChurnsToMud
+  2m 19s 013ms ActualMedicalCollapseCountsOnceAndFightKnockoutDoesNotCount
+  2m 15s 887ms LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls
+  2m 13s 976ms AsynchronousBoundaryClockMatchesSynchronousTicksThroughWaitPauseAndSpeedChange
+  2m 12s 196ms ActualPowerCutAtDeadlineCannotBecomeSetEndApplause
+  2m 10s 895ms NoJobNeedOrBreakEverReachesThePlayerAllDayAndTheCrewStillWorks
+  2m 10s 066ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("steward-only")
+  2m 08s 697ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("all-rounder")
+  2m 07s 042ms TheLukewarmShelterWhileFansAndPonchoWearersStay
+  2m 04s 229ms GuestsWalkOverForTheActTheyWantToSeeMore
+  2m 02s 611ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("management-only")
+  2m 02s 499ms ProbeToiletQueueBalanceAtTierOne
+  2m 01s 407ms AGuestNeedsAClearReasonToChangeStage
+  2m 00s 450ms WideControlledPassageCompletesSameDemandSoonerWithoutFailuresOrRecovery
+  1m 59s 232ms AStewardDownAtTheFinishHoldsTheDayOpenUntilTreatedOrDead (False)
+  1m 56s 761ms WalkOutFinishesWhenTheLastGuestIsOffSite (99)
+  1m 56s 523ms ShelterIsFilledNoFurtherThanItHoldsRoomFor
+  1m 55s 465ms AHandsOnInvasionCarriesIntoTheNextFestival
+  1m 55s 021ms RecordsAndQuotesAreTheSameEveryRunAndRestoreAfterASave
+  1m 53s 582ms AHiredGeneratorCarriesAProRigAllDay
+  1m 53s 282ms AStewardDownAtTheFinishHoldsTheDayOpenUntilTreatedOrDead (True)
+  1m 52s 124ms WalkOutFinishesWhenTheLastGuestIsOffSite (20260922)
+  1m 51s 994ms NobodyWaitingOutsideOrGoneHomeWearsTheGateway
+  1m 51s 350ms WalkOutFinishesWhenTheLastGuestIsOffSite (51)
+  1m 51s 254ms AHandsOnDayLogsEveryCallOfTheNightWithWhoWent
+  1m 47s 857ms SomeoneWhoCollapsesWhileStuckStaysInsideUntilTheDoorOpensThenLiesOutside
+  1m 46s 118ms OnePersonCarriesEveryPerSystemRecordThroughAFestivalAndRestore
+  1m 45s 818ms EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (True)
+  1m 45s 258ms StandingStillInFirstPersonWithAFullCrewEarnsNothing
+  1m 44s 330ms GuestsDriftOutSomeByWayOfALooOrATapAndTheDayFinishesInBound
+  1m 44s 273ms AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame
+  1m 43s 274ms AGeneratorThatKeepsTippingOverStillSaves
+  1m 43s 003ms TheIncludedSetupNeverStrainsTheGenerator
+  1m 42s 796ms CrowdedSiteDisorderEscalatesAndStewardsResolveIt
+  1m 42s 552ms TheChargeShowsInTheAccountsAndTheyStillReconcile
+  1m 41s 858ms WalkOutFinishesWhenTheLastGuestIsOffSite (2)
+  1m 41s 056ms ClaimsDescribeWhatEachPersonIsDoing
+  1m 40s 899ms StaffInALooAtTheFinishGiveItUp
+  1m 38s 745ms TheNextTickPredictorCountsTheLightsComingOn
+  1m 38s 591ms EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (False)
+  1m 37s 069ms AStewardFreesSomeoneStuckAndTheyPanicUntilThen
+  1m 35s 896ms AQuickRepairLeavesWetGrassThatDriesWhileATapLeftAllDayMakesASwamp
+  1m 32s 171ms ActualGuestFreeWaterTicksImproveSatisfactionAndResumeExactlyWhileStaffDoNotGain
+  1m 30s 451ms ADeathBehindTheLockedDoorFreezesTheSceneAsFound
+  1m 28s 923ms AGuestLeftWithNoRouteTriesAgainAndAStuckOneIsSentHomeAtTheLimit
+  1m 26s 535ms ReferenceCanBeReproducedByOrdinaryPlayerCommandsWithoutGrantsOrPrivateMutations
+  1m 23s 953ms GuidanceOrderedBeforeTheJamStandsDownOnceTheyAreStuck
+  1m 21s 748ms CapturedBoundarySaveAllowsLiveTicksAndFailureRestoresRetryPoint
+  1m 21s 176ms EarnedReputationFallsOnceToZeroAndAnAllDeceasedCrowdStillCloses
+  1m 17s 882ms RealTierTwoBandAudienceAndPaidEngineerReachBarnInRainAndSecondActChangesOver
+  1m 17s 799ms OneStageDayPlaysAsPinned
+  1m 16s 740ms AGuestWhoCantReachTheirLooOrTapOnTheWayOutGoesHomeInstead
+  1m 15s 726ms StuckInANearlyFullLooTheFumesOvercomeThem
+  1m 15s 322ms AGuestCollapsingOnTheWayOutHoldsTheDayOpenUntilTheyAreSeenTo
+  1m 13s 825ms NobodyCanGuideAStuckGuestOutAroundTheRescue
+  1m 13s 819ms SwitchingBetweenManualAndAutoIsSavedAndReplaysIdentically
+  1m 13s 420ms ZeroSalesCanFinishAndActualShortfallCanBeCancelledWithoutCampaignEnding
+  1m 10s 662ms AQuickDrinkOnTheWayOutIsABoundaryOnTheTickItEnds
+  1m 10s 391ms CuttingOneStagesGeneratorSilencesOnlyThatStage
+  1m 08s 347ms TheRelationshipHitCannotBeEditedOutOrForgedIn
+  1m 07s 648ms AFaultFreeFixtureStaysFaultFreeAcrossReload
+  1m 06s 105ms MidEditionSaveContinuesIdentically
+  1m 05s 930ms TheCrowdAndBandShoutDuringASetAndMorePolitelyBetweenSets
+  1m 05s 507ms LeftUpOnAStageTheStewardComesDownAndNeverGoesBackUp
+  1m 05s 073ms CallsTheCrewCoversDontCountAgainstThePlayer
+  1m 04s 792ms ToiletsCanStandSideBySideAndBothServeTheDay
+  1m 04s 060ms FiftyAutonomousAttendees_AllPurchaseAndDepartWithoutReservations
+  1m 03s 957ms AMidShowerSaveRoundTrips
+  1m 03s 505ms CurrentRevisionSurvivesRealRetryAndCanonicalNextFestival
+  1m 01s 295ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (7)
+  1m 01s 127ms PerformedPoweredSetEndsOnceWithFrozenActualAudienceAndEnjoymentAndExactReload
+  1m 00s 855ms TheRelationshipCarriesToTierTwoAndItsFeeThere
+  1m 00s 642ms StandingCrowdsWearDeeperThanPassingFeet
+  59s 597ms DefaultPlanEditionFinishesWithEveryoneSafelyGone
+  58s 863ms EveryBookedSetGoesLiveAndListenersAccrueTime
+  58s 858ms GuestsUseToiletsAndBuyFoodDrinkAndBeer
+  58s 774ms OpenFreeWaterKeepsDefaultGuestsOutOfHeatDistress
+  57s 270ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("sound")
+  56s 632ms ThirstAndHeatBuildAndADrinkOrShadeRelievesThem
+  56s 536ms NobodyHeatsUpAndThirstComesSlowerInTheRain
+  55s 937ms FiftyAgentFixture_IsOneXFourXAndSaveResumeEquivalent
+  55s 816ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("maintenance")
+  55s 350ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("steward")
+  54s 950ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("medic")
+  54s 706ms EachFatalCauseRecordsItsActualEvidenceAndContinues ("disorder")
+  52s 478ms AWorkerOnTheWayHeadsBackIfTheJamEndsAnotherWay
+  52s 066ms EachFatalCauseRecordsItsActualEvidenceAndContinues ("equipment")
+  51s 772ms RepeatedGuestAndStaffDeathsContinueOnceCleanlyThroughResultsAndCarry
+  50s 939ms TheProRigOnBothStagesStrainsThePooledSupplyAndBothGeneratorsShowIt
+  50s 869ms LooseCowsKeepABodysWidthApartGrazingAmblingAndDriven
+  50s 855ms TheVanKeepsItsOwnAccountOfSalesIngredientsAndPitchFeeAndItSurvivesASave
+  48s 763ms RestoreRefusesAPlayerStewardHoldingAnyOtherWork
+  48s 299ms FailedAndAbandonedCustomersClearCounterAndFinishAtDistinctExits
+  47s 436ms APortalooIsAHotBoxInHotWeather
+  46s 174ms TheAutopilotCalmsWithALowerSkillThanThePlayers
+  46s 169ms TheSameInputsGiveTheSameShift
+  45s 392ms TheStandaloneShiftAndClassicCampaignsKeepNoLog
+  43s 328ms ARepairSettlesEveryGeneratorInThePoolSoTheyGoOnWarningTogether
+  43s 048ms CompletedStretchContractKeepsOpeningFeeWhenEarnedSceneStandingImproves
+  42s 811ms WetGuestsLoseMoodAndShelterDriesThem
+  42s 414ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Marquee,3)
+  42s 401ms BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished
+  41s 340ms InsufficientCashAndStockoutReleaseOwnersWithoutDoubleCharging
+  40s 649ms FrozenRainShelterRestoresWithoutChangingRoutesAndResolvedHearingsAlsoRestore
+  40s 177ms NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly
+  40s 009ms APooledSaveRefusesAnIsolatedFarmGeneratorAndAStrainThatHasDriftedApart
+  38s 744ms PhysicalArrivalSequenceRejectsDuplicateAndStalePersistenceAndFailsClosedAtExhaustion
+  38s 627ms TheStandaloneShiftHasNoAutopilot
+  38s 569ms ABrokenTapsPuddleStartsSmallAtTheTapAndGrowsOutwards
+  38s 154ms WaspsKeepTheirHeadsDownInTheRain
+  37s 864ms ActualRebookingPersistsRefundsAndFansWithoutExtraSalesOrRepeatedCredits
+  37s 820ms FirstBarnActComesDownTheStairsAndClearsBeforeTheSecondActPlays
+  37s 773ms LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover
+  37s 330ms MaintenanceMendsABrokenTapProperly
+  36s 368ms SavesRestoreMidDayWithBothStagesPlaying
+  35s 620ms AfterTheirSetTheBandWalkOffDownTheStairsBeforeDoingAnythingElse
+  35s 452ms OnlyTheActOnYourOwnStageKeepsYouOutInTheRain
+  35s 288ms AFailedTierTwoRetriesFromTierTwosOpeningState
+  34s 182ms StandingOnABandMarkCanNeitherStopNorHoldUpTheSet
+  32s 778ms BaselineCutoffNeedsNoWorkerOrCashAndRemainsSafeAtLastResponseTick
+  32s 386ms ReleasedHeadlinePersistsBlocksOpeningAndCanBeRefilledWithoutReselling
+  32s 344ms NeverWalksThroughBuildingsHedgesOrTheStage
+  32s 040ms BarnCutoffInterruptsOnlyBarnAndRestoresWithItsOwnGeneratorIdentity
+  31s 881ms ABiggerRigSoundsBetterAndAnActIsKnownOnceItHasPlayed
+  31s 174ms AWaitingOrderIsServedTheSameWayOnReplay
+  30s 870ms AOneVanOneBarSaveWritesNoStallOrVanTraderFields
+  30s 776ms NoCowIsHerdedUnlessThePlayerAsks
+  29s 889ms FiveAutonomousGuestsPhysicallyQueueAndPayExactlyOnceInOrder
+  29s 816ms WadingThroughASwampUpsetsAGuestAndMudsTheirBoots
+  29s 166ms MalformedQueueCrossFieldsAreRejectedBeforeHashReconstruction
+  28s 939ms PhysicalDayPresentationAndReloadDoNotChangeAuthoritativeEconomyOrQueues
+  28s 442ms WithTheTapsShutAThirstyGuestGetsAFreeCupFromTheBar
+  27s 533ms PizzaPaysMoreToPitchButServesSlowlyAndLongQueuesWearOnPeople
+  27s 523ms ATierTwoHandsOnDayRestoresMidDayWithThePlayerStewardBesideTheExtraSteward
+  27s 288ms TheAverageCrowdIsListenersAtTheirPlacesOverEveryTickTheSetWasOn
+  27s 255ms ForgedAveragesAreRefusedOnRestore
+  27s 184ms ForgedNewcomersOnAnEarlierSetAreRefusedOnRestore
+  27s 057ms PhysicalDayCreatesSalesAndSaveReplayWithoutFreeAdmissionStock
+  26s 794ms ThePeakCrowdIsTheMostListenersAtTheirPlacesWhileTheSetPlayed
+  26s 571ms TheAutopilotAnswersACallAndActsButLaterAndSlowerThanAPlayer
+  26s 135ms ACutShortSetCannotBeRelabelledEnthusiastic
+  25s 777ms ThreeDistinctWeightedChoicesUseSeparateSavedEntropyAndOneReroll
+  25s 509ms TheRestAreaFollowsFirstAidWhereverItIsPlaced
+  25s 320ms AnOverheatedGuestNearTheMarqueeRestsInItsShadeAndOneNearFirstAidRestsThere
+  24s 863ms ForgedShiftWorkIsRefused
+  24s 545ms AProRigOverloadsUntilTheBarIsSwitchedOff
+  24s 530ms DeathFreezesTheEditionAndOpensOneHearing
+  23s 997ms InAHandsOnCampaignTheCrowdSoursAndTheBandHoldsItAgainstYou
+  23s 933ms DiagnosticsCountPhysicalActionsAndInterpolationIsCosmeticAndResettable
+  23s 665ms ThePlanUpSlowsTheWalkStopsTheHandsAndIsSavedAndReplayed
+  23s 370ms SharedAuthoritativeGridReroutesGuestStaffAndPerformerAndRestoresExactly
+  22s 926ms ARushSharesBothLoosEvenly
+  22s 891ms ATamperedRecordIsRefusedOnRestore
+  22s 843ms CuttingAStageTakesOffOnlyItsRigSoItLightensTheOverload
+  22s 301ms SaveResumeMidServiceAndCompletionBoundaryMatchUninterrupted
+  22s 261ms ASaveMidShiftRestoresAndReplaysIdentically
+  22s 103ms TheCrowdMoodBreakdownNamesTheMusicWhileABandPlaysAndAddsUpToWhatGuestsFelt
+  21s 992ms ForgedNewcomersAreRefusedOnRestore
+  21s 831ms ARecordFollowsFromItsSetAndQuotesOnlyItsOwnCrowd
+  21s 762ms ACutTrailerStageOnAPooledSupplyCanBeRestoredAndTheMusicComesBack
+  21s 575ms ARecordsNewcomersAreItsCrowdsNonFansWhoClappedItOutHavingEnjoyedIt
+  21s 455ms SpendingFavourRetriesTheSameTierWithAFreshDraft
+  21s 225ms FavourRetryKeepsTheHiredRigInThePlanButNotTheRental
+  21s 068ms WrongFrontIntentBeforeServiceAbandonsAndRemainingQueueCompletes
+  20s 972ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (Showery)
+  20s 813ms ARetryForgetsTheFailedFestivalsSets
+  20s 719ms APowerCutMidSetIsAHiccupThatCostsTheAct
+  20s 254ms ARadioedFightIsThePlayersCallAtHalfCreditAndDealtWithButNotPrevented
+  20s 082ms RetryPreservesCarryAndLearnedStateAndFreshRestartDoesNotRetainEdits
+  19s 977ms ABarSwitchedOffSellsNothingButFreeWater
+  19s 882ms HandingOverEndsAWalkOutAndNeverLetsTheStewardOntoAStage
+  19s 578ms AMidActionSaveRestoresAndReplaysIdentically
+  19s 550ms FrozenShelterExceptionRequiresTheActualFatalAttemptAndValidUniqueShelterPlaces
+  19s 529ms ControlSendsAHiredStewardBeforeThePlayersOwn
+  19s 203ms ASaveMadeOnStageRestoresAndReplaysIdentically
+  18s 992ms CloseReopenRejoinUsesPhysicalArrivalCounterAndRestores
+  18s 813ms ConcedingEndsTheCampaignWithoutSpendingFavour
+  18s 634ms AGivenUpCallIsLeftAloneForAWhileAndTheGiveUpIsSaved
+  18s 614ms PostSaleReleaseRefillCancellationAndZeroSalesSettlementCanSave
+  18s 581ms ASaveWithImpossibleWaterOrMudIsRejected
+  18s 567ms GuidingAFreeCupQueuerToATapGivesUpTheirBarPlace
+  18s 529ms RestoreRefusesForgedStagePositionsAndRecords
+  18s 485ms InServiceDestinationIsProtectedAndCompletionRechecksPresence
+  18s 453ms AFightIsBrokenUpAndTheInstigatorWalkedToTheGate
+  18s 205ms ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut
+  18s 094ms FavourRetryRebuildsEveryPlacedToiletFresh
+  18s 051ms RealLiveActsAreIndependentExactAndRemainIdentifiedOnPause
+  17s 701ms CallsOpenCloseAndTimeTheResponse
+  17s 266ms PendingGuestStaysOffsiteThenWalksFromGateAndCountsOnlyAfterAdmissionAcrossRestore
+  17s 252ms SavingMidQueueReplaysIdentically
+  17s 037ms StandingByAfterTheMedicArrivesLeavesTheCallUnanswered
+  17s 035ms ADeathFailsTheFestivalThroughTheHearingAndTheRetryIsStillHandsOn
+  16s 536ms CuttingBarnPowerInterruptsOnlyItsOwnSet
+  16s 200ms ReleasedStewardRetryRestoresAndReopensWithTheSameBehavior (2)
+  16s 105ms TheRadioIsTheFirstPersonPlayersOnly
+  16s 023ms SwitchingOffStillServesThoseAlreadyQueuing
+  15s 894ms WalkingAwayOrLettingGoCancelsTheHold
+  15s 873ms ThePlayersActionsAddMoodToTheScore
+  15s 613ms AStewardSpreadsABaleOnTheMud
+  15s 521ms BarnBandActuallyArrivesClimbsAndPlaysThroughProductionLifecycle
+  15s 476ms AnUrgentCallTheCrewHandledIsUnansweredButDoesNotCapTheGrade
+  15s 473ms RadioingTheMedicSendsThemBeforeControlWouldAndStandingByCounts
+  15s 355ms BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut
+  15s 326ms StewardOnlyRadiosTheMedicAndHenryButNotTheCrew
+  15s 295ms AGuestWhoCollapsesMidEscortIsLetGo
+  15s 264ms ACalmSucceedsWhenHeldAndOffersTheWalkOut
+  15s 206ms TheGateGivesWayAndAFewCowsAmbleAboutTheSiteAndSurviveASave
+  15s 187ms TheCrewAreSentByNameThroughTheManagersPathsAndRefusedWhenBusyOrWrong
+  15s 122ms AFailedCalmCanTipAnArgumentIntoAFight
+  15s 081ms ActualStartCoordinatorIsFailureSafeAndExactlyOnceAcrossLoad
+  14s 806ms AnUrgentCallNobodyDealtWithCapsTheGradeAtBSide
+  14s 788ms TheMedicGoesThroughTheManagersDispatchAndIsRefusedWhenThereIsNobodyToSend
+  14s 704ms GuestPhysicallyReachesAdditionalFirstAidAndCoolsThere
+  14s 480ms StandingByBeforeTheMedicAnswersTheCall
+  14s 266ms QueuesBalanceOnAlmostEveryDay
+  14s 257ms StaleEventsDoNotFireAfterFastForward
+  14s 050ms PauseFreezesCompletionBoundaryAndClockReportsOverloadWithoutSkippingDebt
+  13s 978ms DavComesForTwentyFivePoundsEmptiesAFullLooAndDrivesOffAgainAcrossASave
+  13s 672ms PhysicalRejoinApproachesRemotelyThenAllocatesFreshUniqueSequenceOnArrival
+  13s 609ms IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement
+  13s 593ms HotGuestsHeadingForRestEachGetASpotAndRestPromptly
+  13s 546ms ACallControlHasntPutOutAndOutOfSightIsRefused
+  13s 307ms PhysicalWaterTripCanDelayPerformerAndOnlyNormalDrinkingReleasesEntry
+  13s 297ms MixedTravelAndQueueSaveContinuesExactly
+  13s 207ms PhysicalArrivalDeterminesQueueOrderAndTieBreakIsStable
+  12s 931ms DavParksOnTheNearSideOfEachLooWithHisHoseOnIt (False)
+  12s 828ms EmptyNowSendsAStewardToEmptyABinWhateverItsLevel
+  12s 815ms ActualMedicalDelayWarnsGraduallyThenRelievesWhenMusicReallyBeginsAndRestoresExactly
+  12s 559ms SameSeedAndPlanReplayToTheSameState
+  12s 528ms WithoutAMaintenanceWorkerAChewedCableStaysCut
+  12s 480ms AdvanceRunsTheOwedTicksAndSavesAFailureAtOnce
+  12s 435ms ASaveCantClaimMoreHungerSatedThanTheFoodEatenSoFarCouldSate
+  12s 411ms ASaveRestoresWithAMarqueeAndGuestsShelteringUnderIt
+  12s 408ms AMidDaySaveRestoresWithThePlayerStewardAndReplaysTheSame
+  12s 082ms PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes
+  12s 045ms ASaveWithImpossibleWearIsRejected
+  12s 039ms CloseExistingPairIsNotPushedAndServiceQueueIsNotClaimedForCloserPoses
+  12s 006ms ADeathEndsTheShiftAndItsSaveStillLoads
+  11s 959ms SecurityDispatchTravelsAndEitherCalmsOrHonestlyEscalates
+  11s 787ms EveryoneComesInThroughTheGateNotTheHedge
+  11s 776ms EmptyNowWaitsForTheFirstStewardToComeFreeAndSurvivesASave
+  11s 731ms TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity
+  11s 730ms DistressedPerformerCanReceivePhysicalMedicTreatment
+  11s 561ms ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness
+  11s 384ms ACupCoolsOnlyInProportionToTheThirstItRelieves
+  11s 203ms FileSaveRoundTripPreservesMidServiceQueueAndExactContinuation
+  11s 047ms ActualReciprocalFightReadIsReadonlyAndHandlingRequiresPhysicalAttempt
+  10s 852ms EachTraderSellsTheirOwnFoodAndItIsThatFoodPeopleHoldAndDrop
+  10s 789ms EmptyNowOnAWaitingBinBetweenLitterSecondsServesTheOrderAndStillSaves
+  10s 745ms UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically
+  10s 730ms PeopleWalkRoundACowRatherThanThroughIt
+  10s 669ms ATardyStewardSetsOffOnlyAfterTheirDelay
+  10s 593ms ArgumentsHistoryUnavailableAndBrokenPairsNeverBecomeFightPresentation
+  10s 502ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (FoodVan,3)
+  10s 450ms AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload
+  10s 420ms GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False)
+  10s 323ms TheCopyTriesMainsBeforeExtrasAndMatchesPlacingOneAtATime
+  10s 284ms DavParksOnTheNearSideOfEachLooWithHisHoseOnIt (True)
+  10s 237ms AFullMarqueeSendsTheNextHotGuestToFirstAid (True)
+  10s 212ms AFullMarqueeSendsTheNextHotGuestToFirstAid (False)
+  10s 205ms EscortWalksBothPeopleToGateBeforeOnlyAffectedPersonDepartsAndReloadMatches
+  10s 049ms StewardOpponentIsNotMistakenForThirdPartyHandling
+  9s 895ms CatalogueHasOnlyPlacedVansAndOneNextCandidateAndDuplicateCuisineIsValidInClassic
+  9s 868ms DavKeepsToTheFarmTrackUntilHeHasToTurnOffForTheLoo
+  9s 811ms AStrawJobEndsWhenADeathFreezesTheDay
+  9s 657ms ABinIsEmptiedAndLitterPickedUp
+  9s 552ms OnlyFrontOwnsServiceAndRepeatedTicksCannotRepeatCompletion
+  9s 440ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (HeavyRain)
+  9s 432ms BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper
+  9s 419ms ActualMovingStageApproachSuppressesRemarksAfterGraceButSavedStallDoesNot
+  9s 361ms WhoeverIsNearestTheEndOfTheLineTakesTheNextPlace
+  9s 296ms CharismaLiftsNearbyGuestsAndAbrasionWearsThemDown
+  9s 171ms NinePerformerMedicalProfilesRemainProtectedAndSaved
+  9s 164ms ALightweightGetsDrunkTwiceAsFastOnTheSameBeer
+  9s 162ms GraceUsesSimulationTicksAndPauseCannotConsumeIt
+  9s 140ms WrongServiceIntentAtCompletionCancelsWithoutPaymentAndProgresses
+  9s 138ms MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel
+  9s 096ms ADeathFailsTheShiftWithAReportAndTheSaveLoads
+  9s 011ms AGoodyTwoShoesOnlyFetchesWhatTheyWillBinEvenWithAFarBin
+  8s 992ms RestoreRejectsAShiftThatCouldNotHappen
+  8s 983ms CollapsedBodiesDoNotBlockExactMovementButMedicalStateAndDeadlineRemain
+  8s 879ms GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True)
+  8s 761ms ClosingWaterBeforePhysicalArrivalDoesNotGiveStewardRemoteRestOrQueueEffect
+  8s 733ms PeopleQueuingMoveToALooThatFreesUpAndTheQueuesBalance
+  8s 712ms FeetWearTheFieldOnlyOnceTheFestivalIsOn
+  8s 681ms ReleasedStewardRetryRestoresAndReopensWithTheSameBehavior (1)
+  8s 476ms RoleDispatchAutosaveFailurePreservesSourceSessionAtomically
+  8s 454ms ReleasedRetryValidationStillRejectsActiveOrMalformedShiftState
+  8s 452ms ASneakyAlcoholicGetsServedAndDrinkDullsTheirWork
+  8s 364ms ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable
+  8s 303ms AStrandedResterDoesNotCountAgainstAFullMarqueeOnRestore
+  8s 270ms StaleRejoinCannotDisplaceActiveOwnerAndValidLateAdmissionAppends
+  8s 268ms HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering
+  8s 243ms CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt
+  8s 095ms BlockedApproachFallsBackWithoutHoldingTheFightClock
+  8s 072ms MedicalCollapseDuringFightHandlingInterruptsWithoutSkillRollOrFreshAttempt
+  8s 037ms ARetriedWeekendStartsOnFreshGrass
+  8s 024ms SaveRejectsMissingConsequencesInventedReputationAndDeadNavigation
+  7s 983ms NoWarningClosureWrongRoleAndCollapsedGuidanceAreRejectedWithoutMutation
+  7s 975ms ASaleAtTheFirstBarIsRefusedOnRestoreWhenOnlyTheSecondBarStands
+  7s 954ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (4,0)
+  7s 954ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (3,0)
+  7s 921ms NobodyHeatsUpInTheShade
+  7s 732ms SafeMusicResetRemovesCutoffGrievanceWithoutRestartingOverload
+  7s 665ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (Heatwave)
+  7s 623ms NewCriticalPatientDoesNotPreemptPhysicallyActiveMedicTreatment
+  7s 540ms AFreshPuddleSlowsWalkersBeforeAnyMudFormsAnywhere
+  7s 527ms ExtremeSightlinePrefersCentralBehindFrontPeopleButCrowdedCenterStillLoses
+  7s 447ms DirectOrderPullsAWorkerOffTheirWayToTheToilet
+  7s 392ms SnapshotFreeAndLegacyPublicationSchedulesRemainAuthoritativelyEquivalent
+  7s 366ms SameTickOneXFourXAndRepeatAreAuthoritativelyEquivalent
+  7s 363ms MusicAheadFollowsTheTimetableAndSurvivesRestore
+  7s 359ms RoleSelectionSkipsNearestUnreachableMedicForLegalFartherRoute
+  7s 350ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (3,2)
+  7s 293ms AutosaveRotatesThreeSlotsAndRecoversNewestValid
+  7s 267ms RoleSelectionSkipsNearestBusyMedicForAvailableFartherWorker
+  7s 205ms IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse
+  7s 111ms PerformerNeedsDoNotPreventInitialSetFromStarting
+  7s 104ms RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak
+  6s 934ms AllUnavailableMedicsExplainEachWorkerWithoutCreatingClaims
+  6s 887ms CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment
+  6s 840ms RapidAlternatingHiresPublishInOrderWithoutPaymentOrLostEdit
+  6s 837ms AnAllergicGuestStungByAWaspCollapsesAndNeedsTheMedic
+  6s 823ms AStewardInHeatDistressLeavesANearFightToAnotherWorker
+  6s 803ms CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock
+  6s 657ms DavStopsForSomeoneInFrontOfTheCabAndEdgesOnIfTheyWontMove
+  6s 646ms ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical
+  6s 643ms AToiletQueueGrowsFromItsDoorstepAsPeopleArriveAndSurvivesASave
+  6s 522ms OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted
+  6s 445ms FailureRetryKeepsEditableLayoutAndOtherPlanChoicesWithoutDoubleCharging
+  6s 348ms ADrunkBandMemberDragsTheBandDown
+  6s 282ms AdditionalPostsHaveSolidFootprintsAndUsableRestGroundWithoutCreatingStaff
+  6s 282ms ADistressedGuestCanStillGetAFreeCup
+  6s 251ms GuestApproachesFixedStewardOnShortLegalDiagonalWithoutTakingItsNavigation
+  6s 106ms EatingPleasesByTheHungerItSatesAndNotAtAllWhenFull
+  5s 925ms FailedReplacementPreservesEarlierSaveAndDismissalUntilRecovery
+  5s 664ms SomeoneStuckInALooIsFreed
+  5s 318ms InvalidEquipmentOwnershipAndCausalStagesAreRejected
+  5s 256ms SameBenchmarkConfigurationIsAuthoritativelyRepeatable
+  5s 249ms AJammedLooGoesToTheNamedStewardAsTheFaultRuleWouldSend
+  5s 218ms StaffPurchasesReturnToMovedAssignedPostsAndConsumeOnlyOnArrivalAcrossRestore
+  5s 093ms PerformanceObservationsDoNotChangeGameplayOrSavedHashes
+  4s 931ms ExistingExtraMedicContractUsesTheSecondPostWithoutExtraFreeWorkers
+  4s 886ms ADrunkStewardWhoCollapsesDropsTheirJobAndStillSaves
+  4s 833ms AStewardSentByThePlayerDrivesACowBackThroughTheGate
+  4s 805ms OccupiedListeningPlacesLeaveBothDoorsUsableForOpposingRealWalkers
+  4s 781ms BeerPartialGuestCompletionAndPerformerExclusionAreExact
+  4s 762ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (FirstAid,2)
+  4s 731ms OpenLeafAndSeparatePostsBlockWalkingButLeaveEntranceAndEndpointsConnected
+  4s 719ms EachCardHasItsOwnWeightAndTheDraftComesOutNearSixtyThirtyTen
+  4s 691ms StrawIsSpreadOnTheMudFromTheStore
+  4s 549ms ASaveWithTamperedShowersIsRefused
+  4s 427ms MalformedVersionHandCapacityRngAndEffectsAreRejected
+  4s 415ms EachCustomServiceMoveRestoresWithItsPhysicalMirror
+  4s 398ms RepresentativeWindowBeginsOnlyAfterEveryWaveAndAgentIsActive
+  4s 357ms SeparateRoleTrainingDerivesActualAbilitiesAndSavedWalkingSpeeds
+  4s 250ms GuestWaterReliefDoesNotCancelAnotherPatientsMedicResponse
+  4s 235ms PerformerCollapseCriticalDeathAreAuthoritativeAcrossRestore
+  4s 195ms ALooseCowIsDrivenHomeWithThePlayerBehindIt
+  4s 184ms AChewedBarCableShutsTheBarUntilMaintenanceSplicesIt
+  4s 178ms CurvedLegalRouteStillReachesThePen
+  4s 145ms NamesNeverRepeatAndDontDependOnOrderOrNumbering
+  4s 059ms StewardPhysicallyReachesAnIndoorFightThroughTheOpenLongSide
+  4s 015ms TheStandaloneShiftStillWorks
+  3s 764ms AManualSweepStartedMidSecondEndsOnALitterSecondAndAlwaysSaves
+  3s 739ms ActuallyDrinkingBeerAddsNeedOnlyDuringConsumptionNotPurchaseOrHolding
+  3s 716ms ActualRainWetnessSpareTheIndoorGuestButSoaksTheOutsideApron
+  3s 664ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (WaterTap,4)
+  3s 649ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Toilet,5)
+  3s 603ms AnyPhysicallyPresentRoleCountsEvenBeforeTheBandPlays
+  3s 587ms OverBudgetDraftSavesButCannotOpenAndMalformedPlanRejects
+  3s 566ms DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore
+  3s 553ms RestoreRefusesSomeoneOffSiteWhoIsStillDown
+  3s 543ms TierTwoHasAFreeSecondMedicSlotAndDoesNotDealDoctorsOrders
+  3s 526ms BinDraftChargeAndCurrentVersionRestoreAreExact
+  3s 487ms RecordedAndCanonicalTierTwoBothUseBarnWithNoPondProgrammeAndNoNewMoney
+  3s 458ms TimetableShowsBothOwningTabsThenOnlyUnresolvedTabAndClearsWhenReady
+  3s 451ms FasterStewardStaysCloseAheadWithoutPositionJumpsAndCompletes
+  3s 322ms FreshSeedsProduceVariedBoundedNeedsAndGuestOnlyReleaseBeforeFirstBand
+  3s 302ms DepartureSevereBoundarySaveFailureNeverPublishesCollapse
+  3s 236ms NobodyNewPicksAToiletWhoseQueueHasNoRoomToGrow
+  3s 235ms FreeWaterIsOnlyForTheDayCostsTwentyPoundsEachTimeAndHasNoRefund
+  3s 233ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (True,True)
+  3s 204ms QueuedGuestForfeitsLongToiletLineButUsingOwnerStaysAndChoicePersists
+  3s 181ms ReachFindsWhoIsInFrontBestActionFirst
+  3s 169ms AnIdleGoodyTwoShoesFetchesNearbyLitterAndBinsIt
+  3s 156ms PopularityThatTheEarlierSetsDontGiveIsRefusedOnRestore
+  3s 151ms NineSlotRebookingRefundsOnlyTheHighestImpactWithoutRepeatingGrants
+  3s 125ms AClassicCampaignIsUnchanged
+  3s 116ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (True,False)
+  3s 099ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (False,True)
+  3s 053ms SomeoneQueuingAtAPizzaVanWeighsStayingAtPizzasPaceNotAPhantomChipsQueue
+  3s 048ms SharedResolverAssignsMovesSwapsReplacesRemovesAndRejectsStaleOrInvalid
+  3s 033ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Bar,3)
+  3s 028ms SaveDuringPhysicalDisposalAndPickupReplaysAndRejectsMalformedRoutes
+  2s 996ms OutsideGeneratorFullAssetBoundsAreUncoveredReservedAndDoNotBlockDoorOrBandRoutes
+  2s 939ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (False,False)
+  2s 885ms MovementIsHeldUntilChangedAndTheSameInputsGiveTheSameDay
+  2s 835ms EqualCostRouteAndFinalStateAreStableAcrossTickBatching
+  2s 810ms AddingAndRemovingASecondBarRecomputesTheCurrentDisplayNames
+  2s 777ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (1)
+  2s 777ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (3)
+  2s 701ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (2)
+  2s 700ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (0)
+  2s 678ms NobodyIsOfferedFoodUntilTheyArePeckish
+  2s 653ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (7)
+  2s 635ms QueuedGuestReroutesFromFullToiletButNeverOverridesMedicalRoute
+  2s 626ms ALostGuestIsPointedTheRightWay
+  2s 595ms PausedAndRestoredReturnReplaysExactlyAndReassignmentRemovesPacing
+  2s 569ms QueuesMayGrowOntoEmptyAudienceGroundButNeverBesideAListener
+  2s 524ms MalformedSetupAndCollectionsRejectWithoutThrowing
+  2s 522ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (6)
+  2s 500ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (2)
+  2s 485ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (4)
+  2s 470ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (3)
+  2s 466ms HenryIsTheManagersTankerCallAndOneLooAtATime
+  2s 456ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (5)
+  2s 425ms LooseVendorSlotsGrowOnlyAsNeededKeepPrefixAndPersistExactReplay
+  2s 337ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (1)
+  2s 233ms StewardAndRecordedTierTwoUseDeclaredRevisionBeforeOpening
+  2s 225ms AFullBinFarFromTheStewardPostStillGetsEmptied
+  2s 198ms HotThirstyGuestsFeelItInTheirMoodHeatLessSo
+  2s 121ms AMedicReachingADrinkCollapsePastTheCriticalMarkStillSavesThem
+  2s 105ms IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline
+  2s 059ms AMissedFirstSetIsRecordedAndItsRecordCannotBeDropped
+  1s 990ms FetchUsesOrdinaryPaceThenJoinsTheShortLead
+  1s 966ms RejectedCommandRollbackAndSaveFailureKeepCurrentGeometry
+  1s 927ms CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (False)
+  1s 908ms SaveFailureRetainsHandCursorMoneyAndIdsAndSuccessfulChoiceReloadsExactly
+  1s 882ms StewardWaitsWhenAnotherCowHoldsTheReturnThenResumes
+  1s 840ms QueuedGuestForfeitsPlaceForWorthwhileAlternativeButOwnerAndNearFrontStay
+  1s 826ms TheRelationshipFeeIsWhatTheBookingThePlanThePaymentAndTheSaveAllUse
+  1s 802ms RelationshipsThatTheEarlierSetsDontGiveAreRefusedOnRestore
+  1s 764ms LabelledBuildFixtureReassessesBothPhysicalServicesAndKeepsOwners
+  1s 738ms BuildLimitsGoUpByOneTapToiletBarAndVanAtTierTwo
+  1s 724ms TierTwoHasNormalUnlocksRainRevealAndAffordableTwoStagePreparation
+  1s 716ms BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare
+  1s 700ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Staff,SoftDrink)
+  1s 692ms DrinkCareCountsFromTheMedicsArrivalNotFromAnInterruptedTreatment
+  1s 690ms SafetyRetainedFoodCollapseAndDepartureStowWithoutWaitingForCleanupCadence
+  1s 688ms BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded
+  1s 681ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,Chips)
+  1s 636ms CoverIsWalkedOnNotBuiltOn
+  1s 622ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,Beer)
+  1s 619ms CompletedPackagingDropsAtomicallyAtPhysicalExitAndSaveStillLoads
+  1s 614ms ACarryEditedConsistentlyStillCannotEraseDebtOrInventCashFavourOrKit
+  1s 613ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,Chips)
+  1s 594ms ValidBuildToiletAtFormerPostSiteAutosavesAndRestoresWithoutLosingPriorSlot
+  1s 591ms FailedSaveRollsBackDependentClicksAndPreservesLastDurableSlot
+  1s 590ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Staff,Chips)
+  1s 555ms CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (True)
+  1s 554ms TheShortLabelSurvivesPreparationToLiveAndRestoringBothPhases
+  1s 538ms AHerdThatRunsFarTooLongGivesUpAndFreesTheSteward
+  1s 519ms TheShiftPlansItselfAndHandsThePlayerTheSecondSteward
+  1s 512ms AChewedGeneratorLeadCutsTheStageAndBothStalls
+  1s 504ms ClassicStewardPostsStopAtTheStewardsItCanHire
+  1s 499ms TwoToiletsHaveDistinctSavedFacilityStateAndRoutes
+  1s 486ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,Beer)
+  1s 483ms FightMetricUsesOneActualEncounterIncludingGuestAndExcludesPerformerPair
+  1s 481ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (1)
+  1s 480ms LegacyCaptureAndCompactProductionPresenterRemainEquivalent
+  1s 473ms TwoCowsDrivenToTheGateFromEitherSideBothGetHome
+  1s 467ms AttendeesCountPhysicalGuestPresenceIncludingCollapseWithoutChangingSafetyRoster
+  1s 457ms ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit
+  1s 428ms TierOneBarnHasOrdinaryFloorAndNoRaisedStageOrSecondProgramme
+  1s 417ms FileHostPreservesDraftConfirmationCancellationManualLoadAndFreshReset
+  1s 405ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (True,False)
+  1s 384ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,SoftDrink)
+  1s 373ms SameSeedRetryRebuildsTheGuestScheduleAndOpeningNeeds
+  1s 363ms RecordedClearIsEligibleAndMenuStartEqualsTheOrdinaryTransition
+  1s 348ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,SoftDrink)
+  1s 331ms CarriedFavourAndTheSpentWaterShareComeForward
+  1s 310ms PaidItemPartialConsumptionResumeAndPauseAreExact
+  1s 306ms MalformedPreparationRejectsMissingRosterAndUnpaidProperty
+  1s 304ms PopularityCarriesIntoTheNextFestivalAndThroughARetry
+  1s 293ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (False,False)
+  1s 284ms MixedBatchPublicationIsExactForVariableSpeedRetargetFixtureAndObservationsAreDetached
+  1s 273ms MultipleBarsKeepTheirDistinctNamesWhenStartingAndRestoringLive
+  1s 264ms MedicalInterruptionReleasesExclusiveOwnerButKeepsDoorOpenUntilInteriorClears
+  1s 253ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (False,True)
+  1s 247ms BuildChecklistKeepsEveryRequirementVisibleAcrossCompletionRemovalAndReload
+  1s 226ms RealManualInputStopsAtTractorButCrossesTheRemainingBarnFloor
+  1s 222ms InteriorOnlyCoverInitializesWithoutPlacementsAndSurvivesNormalSave
+  1s 219ms IndependentClothingHairChoicesAreStablePureAndCoverAllPairs
+  1s 218ms IdentityUsesStableSeedAndIdWithoutChangingAuthoritativeState
+  1s 209ms TheStandaloneShiftsPlanIsSavedToo
+  1s 206ms LastFestivalsLayoutIsCopiedWhereItStillFitsAndSaysHowManyDidnt
+  1s 191ms TheDrumKitIsSolidToThePlayer
+  1s 175ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (True,True)
+  1s 173ms CashReconcilesWithoutAddingTierOneTicketsOrStartFundsTwice
+  1s 154ms RigsAreHiredNotBoughtAndAProRigCostsMore
+  1s 143ms MaintenanceAndOptionalEquipmentDoNotHideTheActualStaffBlocker
+  1s 134ms MissingRoleSlotRejectsHireWithoutChangingDraftOrIds
+  1s 121ms ActualKnowledgeRelationshipsAndStandingCarryWhileBookingsCrewPerksAndStockReset
+  1s 091ms MalformedHistoricalLayoutsFailWithoutThrowing
+  1s 083ms FatalRetryKeepsBinsAndClearsAllWasteAndSweepClaims
+  1s 081ms CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (False)
+  1s 036ms SameBuildTickBatchingProducesIdenticalQueueState
+  1s 017ms MovingTentOverBinAndMovingBinUnderTentUseTheSameRule
+  1s 012ms SemanticTamperRejectsBudgetsStockHeldOrdersAndMalformedCollections
+  1s 001ms AnEmptyLooNeedsNoCallAndDavWantsPayingUpFront
+  996ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Critical)
+  995ms MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft
+  993ms FixtureUsesOneWorldWithRealPeopleWalletsAndThreeQueues (100,Congested)
+  982ms EveryHundredAttendeeOriginHasAWalkableRouteToTheGate
+  972ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("tier-2")
+  970ms LockedActsAreRefusedAndStretchFeesReachThePlan
+  966ms EntireDuckBodiesClearDeliveredShorePadsAndEachOtherDuringTwentyMinutes
+  959ms BladdersFillFasterOrSlower
+  938ms ManualSaveLoadsBackAndANewCampaignStartsClean
+  920ms ChangedStateIsWrittenInTheBackgroundOnceTheCadenceIsDue
+  918ms MarqueeKeepsOffAudiencesStageReservesTheRestAreaAndOtherServices
+  898ms RealSavedPickupReconstructsTheSamePhaseAndTargetWithoutCosmeticFields
+  888ms WholeTyresAndBallastPlusBodyClearanceAreBlockedWithoutClosingEitherDoor
+  882ms AllCurrentControlsUseSurvivalWithExplicitRolesAndCapabilities
+  871ms ACarriedLayoutTheFestivalBeforeCouldntHavePlacedIsRejectedOnRestore
+  847ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Distress)
+  846ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (5)
+  841ms PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice
+  837ms BuildingKeepsOffThePondStageAndItsCrowdOnlyWhenItRuns
+  835ms TwoUrgentGuestsChooseDifferentNearbyToilets
+  833ms EveryGuestHasAUniqueNameThatNoStaffOrPerformerShares
+  813ms DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated
+  813ms ASecondTapNeedsTheAnotherRoundPerk
+  802ms FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip
+  801ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (6)
+  800ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Collapsed)
+  784ms QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt
+  783ms SameTickSalesProjectFestivalCashNotBuyerDebitOrCostAndLoadResetsHistory
+  778ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (2)
+  770ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (3)
+  768ms OpeningPaysOnlyRemainingSiteAndStockCharges
+  768ms ALooseCowBlocksTheWay
+  761ms MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing
+  755ms CompactObservationPreservesEveryPersonQueueOwnershipAndPresentationIdentityWithoutHashing
+  752ms NothingIsKeptClearForRestUntilFirstAidIsPlaced
+  749ms UnsupportedOrMissingIdentityAndImpossibleCapabilityFailRestore
+  743ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (4)
+  731ms CommunitySharingCapsFastDrinkersAndCannotBeCommittedTwice
+  724ms HandsOnPlayerClimbsThePhysicalBarnStairAndCannotStepOffItsTread
+  702ms IndexedPathfinderMatchesSeededRandomAndInterleavedCalls
+  687ms AStallCantOverlapTheCornerOfTheBigWaterMain
+  680ms DiagnosticProbeDoesNotChangeAuthoritativeState
+  680ms CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (True)
+  671ms TapsNeedMuchTheSameRoomWhicheverWayTheyAreSpaced
+  671ms FailedConfirmationSaveKeepsAcceptedSalesAndEarlierValidDraft
+  666ms TheCopyIsWorkedOutOnceAndPricedAsItLands
+  665ms ListenersKeepClearOfEveryQueueNotJustWater
+  656ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("pond-trial")
+  656ms HiredCandidatesNameTheirSlotAndSetTheirAbilities
+  624ms RejectedCommandLeavesTheSessionExactlyAsItWas
+  599ms SaveResumeImmediatelyAfterRetargetPreservesSegmentOrigin
+  597ms R004OldLayoutSaveIsRejectedWithoutChangingTheFile
+  594ms GroundAndWaspsGiveBoundedLossAndSafeAvoidancePauseFreezes
+  579ms CongestedLayoutAddsARealNarrowFenceOpening
+  572ms BeerCostsHalfAgainAndNobodyIsTeetotal
+  570ms SituationQueryRequiresPhysicalDisposalAndMovingPastLitter
+  558ms OrdinaryCampaignsCarryNoShift
+  548ms TwoVansSellDifferentFoodAndCurryWaitsForTierTwo
+  538ms AHandsOnCampaignHasThePlayersStewardOnDayOneOnTopOfTheCrewForNothing
+  534ms DiagnosticProvenanceCannotBeRemovedOrAttachedToOrdinaryCampaigns
+  532ms TheAudienceAreaInFrontOfTheStageStaysClearOfServicesButNotBins
+  528ms OneMarqueeAtTierOneTwoAtTierTwoAndItIsNeverRequired
+  505ms TwoStewardsCannotClaimTheSameWaste
+  475ms SharedConsumptionEligibilityUsesCounterDistanceOwnershipAndOperationState
+  462ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("tier-1")
+  458ms BeerRefusalAbstentionStaffAndOnstagePendingPhysiology
+  450ms ServiceExitOwnershipProtectsDestinationUntilArrivalThenAcceptedIntentRoundTrips
+  450ms EmptyingThresholdIsExactly90PercentEvenManualAndClearsOverflowWasps
+  447ms InterruptedVisitorWaitingJustOutsideDoesNotKeepTheToiletShut
+  445ms AGoodyTwoShoesLeavesLitterWhenTheBinCannotBeReached
+  443ms AToiletOnlyNeedsRoomForItselfAndItsDoorstepNotAWholeQueue
+  442ms IbsAndSlowDrinkingShowInTheirNumbers
+  441ms AcknowledgementPreservesDraftRngCashAndTickAndRoundTrips
+  433ms DiscountedAffordabilityUsesActualPriceAndStaffBeerRefusalIsUnchanged
+  431ms CurrentSaveRejectsRemovedOrWalkableFootprintBeforeHashValidation
+  429ms ControlledBarnHasDistinctProgrammeAndPowerWithoutChangingNormalAllocation
+  429ms CleanupInterruptedForSafetyPreservesWasteAndCannotDuplicateTarget
+  427ms DisposalRequiresArrivalAndActionAndOverflowStillAccepts
+  427ms NewDefaultVendorsStandInARowAlongTheLaneWithAlignedEntrances
+  412ms FreshBuildSeedsStayDeterministicAndRerolledHandSurvivesDiskLoad
+  405ms ExplicitRevisionPreservesLegacySaveAndOnlyChangesDeclaredGeometry
+  393ms TierTwosDefaultLayoutPutsItsSecondTapByThePondAndStandsWithOrWithoutThePond
+  391ms HalfTravelPersistenceResumesToIdenticalArrival
+  389ms PondStageGroundIsClearAndItsBandCanClimbToEveryMark
+  387ms ATrialBooksThreeActsAndAnEngineerForEachStage
+  383ms SensitiveGuestsOverheatFasterInProportion
+  382ms NoRouteCannotLeaveStaleLogicalOrPhysicalReservation
+  380ms WithoutTheTrialTheFestivalIsTheTrailerStageAsBefore
+  379ms SweepsStayBoundedAtCurrentPostAndReturnAfterTargetBudget
+  377ms NoBinAndUrgentDropKeepActualPositionAndReleaseClaim
+  370ms FullTankRejectsNewVisitsAndSmellPenaltyIsLocalAndCapped
+  369ms AClassicCampaignHasNoPlayerStewardAndWritesNoMode
+  368ms PersistentCampaignViewReusesHoldingsWithoutOwningFestivalSetupOrMutatingAuthority
+  367ms EachWeatherTypeHasAnExactIndependentSavedForecast (HeavyRain)
+  363ms FootprintTurnsWithTheTentAndOnlyThePolesAndPegsBlock
+  357ms MalformedMultiQueueCollectionsAndGlobalDuplicatesRejectWithoutThrowing
+  355ms RecordedRatesBuildFeesStockAndCapitalReconcileWithoutDoubleCounting
+  346ms APickForAVanNotYetPlacedIsNeverSwitchedLater
+  344ms WithEveryGeneratorInThePoolGoneTheStallsStopServing
+  330ms MilestoneThatCannotBeSavedStillStartsAndAdvancesAfterDismissal
+  330ms TierTwoAllowsOneMoreBarAndVanThanTierOne
+  326ms ActualCompletionCreatesOnePieceForEveryConsumingRoleAndPartialCreatesNone
+  321ms SlowLeaderAndFasterFollowerBothComplete
+  319ms FullBinRemarkTakesPriorityOverGroundAndPresentationDoesNotChangeState
+  317ms PhaseComesOnlyFromAuthoritativeTicksAndDoesNotConsumeWaste
+  314ms EachWeatherTypeHasAnExactIndependentSavedForecast (Showery)
+  312ms UnsoldStockIsWrittenOffInTheOperatingResult
+  311ms EachWeatherTypeHasAnExactIndependentSavedForecast (Mild)
+  309ms DraftPlacementRemovalAndCancelAccountingAreUnpaid
+  293ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("insufficient-wallet")
+  293ms WithoutAnItemisedOrderTheStockTableLeavesBoughtBlank
+  290ms EachStageHasItsOwnSoundEngineer
+  289ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("beer-refusal")
+  288ms FixtureUsesOneWorldWithRealPeopleWalletsAndThreeQueues (50,Representative)
+  284ms NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange
+  283ms EachWeatherTypeHasAnExactIndependentSavedForecast (Cloudy)
+  280ms CancellationRefundsActualMoneyAndRestoresSameCandidateIdentities
+  279ms FoodHalvesNewAbsorptionAndWaterDoesNotSober
+  279ms TheDevelopmentRouteOpensTierTwoOnACarriedState
+  271ms GateRoutesToActualServicesPostsStageAndBothBarnFrontApronsRemainViable
+  271ms EachWeatherTypeHasAnExactIndependentSavedForecast (Pleasant)
+  270ms ApproachEquipsAndBinEmptyUsesItsExistingThreeSecondClock
+  269ms BookingStartsWithoutTicketCreditAndConfirmationResizesActualGuests
+  261ms StaggeredWaterSlotsHaveClearanceAndWalkableRoutes
+  261ms EachWeatherTypeHasAnExactIndependentSavedForecast (Heatwave)
+  255ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("out-of-stock")
+  255ms AFightDeathGetsTheFightLesson
+  255ms EveryStallsCableRunsBehindItAndMovesWithIt
+  246ms MovingABarRenamesItAndTheOthers
+  234ms OpeningNeedsASoundEngineerAMedicAndASteward
+  226ms CoexistingInjuryKeepsOriginalDeadlineWhenAlcoholCrossesCollapseDuration
+  225ms CandidatesAreFixedForASeedAndVaryBetweenSeeds
+  223ms TheDefaultLayoutsNameTheirBarsInRelationToEachOtherAndTheirVansByTrader
+  218ms UpgradeRejectsAnAlreadyStartedLegacySessionWithoutMutatingVersion
+  217ms PaidSaveRejectsForgedHeadersQuotesAndPhasesAndCaptureArraysAreIsolated
+  214ms RetryResetsOnlyAttemptAcknowledgementAndFixedAssignment
+  214ms CustomEastFieldTapRemainsSaveable
+  206ms FixtureUsesOneWorldThreePhysicalDestinationsAndExplicitRetargets
+  205ms TwoFrontOpeningsConnectTheInteriorButWallsAndDeckRimStaySolid
+  196ms RetargetCapacityRequiresPairedSlotsAndExitsAndRoundTripsUnequalSafeShape
+  185ms BadHugeIdsAreRejectedWithoutEnumeratingTheNumberAndSurvivalStillHasItsLimits
+  180ms TheTwoGeneratorsPoolAndTierTwosDefaultFitsOnTheBasicPa
+  175ms OnlyGroundThatHasTheBarnGetsItsWalls
+  171ms WaitingAndInsideClaimsContinueIdenticallyAfterRestore
+  171ms RuntimeMastersMatchApprovedManifestAndNativeCatalogue
+  162ms EveryPerkRemovalRestoresItsBoundedEffectAndOwnedExclusion
+  156ms ThePlanShowsTheEveningPeakAgainstTheFarmDiesel
+  140ms SampledStarterMarketsOfferABasicRecoveryFromTheExistingLowestCarry
+  138ms OnePlacedBarUsesTheShortDisplayLabelWithoutChangingRecordedNamesOrState
+  136ms EveryWaitingGuestStartsOnTheMapAndCanReachTheGate
+  133ms LabelsMarkTheExtremesAndMostGuestsShowFewOrNone
+  133ms ClosureAndAbandonmentReleaseAllReservationsAndReopenClean
+  132ms TheNamesFollowTheStagesThatAreOpen
+  129ms RoutineChoicesAreTransitionTriggeredGloballySpacedAndNotRepeatedPerTick
+  125ms FiftyPeopleBoundOrdinaryTextWhileActualPairsRemainVisible
+  122ms FiftyProtectedPeopleStayWithinRoutineBudgetDuringRepeatedObservation
+  121ms AnyoneNotInABandHasNoStage
+  117ms EssentialSetupShortfallWarnsBeforeOverdraftAndStillPermitsConfirmation
+  116ms NeighbourIndexAndPaletteAssignmentAreStable
+  116ms PerpendicularAndDiagonalCrossingsDischarge (True)
+  116ms ASingleStageKeepsTheFarmDieselAlone
+  113ms ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded
+  111ms TamperedCarriedStateIsRejectedOnRestore
+  109ms ATierOneMarketTopsOutOneGradeAboveStandard
+  108ms RearFieldNorthToSouthRouteStructurallyDetoursAroundLargeBarn
+  102ms NobodySaysTheyLoveThisSongWhenNoBandIsPlaying
+  102ms DelayedBandQuestionsBecomeAngryWithExistingThrottlesAndNeverReplayAfterLoad
+  102ms OfferIsSeededCoversEveryGenreAndShowsFiveNearMisses
+  101ms FreeTicketsUseActualCapacityAndCannotCreateRefundCash
+  100ms IndexedPathfinderExactlyMatchesFrozenReferenceCases
+  98ms DelayedFrontGuestCannotBeServedRemotely
+  96ms EachRoleOffersSixNamedCandidatesWithAStandardOne
+  93ms ACandidateCannotFillBothTheMainAndTheExtraSlot
+  91ms TicketPriceSetsExpectationsThatShapeEnjoyment
+  90ms SixtyMetresTakesTwentyFiveRealSecondsAtOneX
+  90ms MarketIsStableWhilePriceAndPopularityChangeMonotonically
+  90ms TierOneStaysTheHeatwave
+  88ms ReadsDoNotChangeSessionRandomnessAndOrdinalGetsItsOwnMarket
+  88ms TheOpeningToiletStandsClearOfBothCrowds
+  86ms SameTargetRetargetKeepsContinuousForwardMovement
+  85ms RestoreRejectsDuplicateActiveExitOwnershipWithFreshAuthoritativeHash
+  85ms DelayedBandQuestionYieldsToUrgentMedicalAndEndsWithResolvedGrievance
+  83ms ClassicHasSeededWeatherDefinitionAndStrictIndependentIdentity
+  80ms RestoreRejectsDuplicateFutureExitAssignmentsBeforeAnyDeparture
+  76ms UnreachableTargetIsBoundedNoRouteAndDoesNotTeleport
+  76ms ResolvedStewardResponseDoesNotRePairLaterUnrelatedArgumentOrInspector
+  76ms FightMarksBothRecordedParticipantsAndMedicalUrgencyWinsAfterRestore
+  71ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("offset head-on three")
+  71ms ComplaintShoutsAreTransitionTriggeredThrottledAndNotReplayedOnLoad
+  70ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("diagonal four")
+  69ms BothFittedArmsRetainTheirLengthsForNearFootTargetsThroughoutPickup ("male")
+  66ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("perpendicular four")
+  65ms InjectedFailurePreservesPriorGoodSlotAndSuccessfulReplaceKeepsBackup
+  63ms DifferentTargetRetargetStartsAtCurrentAuthoritativePosition
+  61ms ExactlyTwoObstructedWaitingSlotsMoveToUniqueClearCells
+  60ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("six-way knot")
+  60ms ExactCashSucceedsWhileInsufficientCashAndEmptyStockAreAtomicRejections
+  60ms PurchaseTransfersCashConsumesStockAndBooksBalancedEntries
+  59ms R004RearBarnAndSeparatedResponseFacilitiesHaveWalkableApproaches
+  57ms TwoWalkersSentToTheSameSpotBothSettleWithoutAKnot
+  55ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("five-way knot")
+  55ms BothFittedArmsRetainTheirLengthsForNearFootTargetsThroughoutPickup ("female")
+  55ms ValidFixtureLoadsTwiceWithSameHashAndResolvedReferences
+  50ms RoundedHedgeEndsBlockFoliageCrossingsWithoutTrappingArrivalRows
+  50ms CumulativeTransfersReconcileAcrossMultiplePurchases
+  49ms AlertsDeduplicatePrioritizeBoundFadeAndDoNotRefreshOnRepeatedObservation
+  49ms LastItemGoesToFirstBuyerInSubmissionOrder
+  49ms ProvisionalDistributionIsMostlyOrdinaryAndEachFestivalHasAKeyedDraw
+  48ms InvalidAmountsAndMissingIdentitiesRejectWithoutMutation
+  48ms AcceptedCommandAndTransactionIdentitiesAreBothIdempotent
+  48ms TransactionIdentityAndLedgerAreAuthoritativeHashInputs
+  47ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("head-on pair")
+  44ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("medical.return")
+  44ms SaveResumeContinuationMatchesUninterruptedHashTransactionsIdsAndRandom
+  39ms GroundRemarksNeedFourPiecesAndRespectSpacingCooldownAndSafety
+  37ms CorruptionTruncationUnknownSchemaAndContentMismatchAreActionable
+  36ms AWalkerNeedingTheExactCellWaitsBesideTheStanderThenStepsOnWhenTheyLeave
+  36ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("litter.goody-pickup")
+  35ms SixteenDesignerCombinationsPreserveProtectedBytesAlphaAndOriginal
+  34ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("performance.listen")
+  33ms RotatedReservationBlocksWholeSmallBarnAndReleasesPriorLongRearStrip
+  32ms DeliveredManifestFilesAndAllProductAnchorsRemainExact ("attendee_poses_v6_manifest.json",25)
+  32ms DeliveredManifestFilesAndAllProductAnchorsRemainExact ("attendee_poses_v2_manifest.json",0)
+  30ms SaveFactsReplayAndRejectIllegalPhasePriceOrContractTampering
+  28ms EachUseHasTheCalibratedSmallChance
+  27ms SmokeResultIsFixed
+  26ms RoleAssetsV2MatchTheirBuildReports
+  24ms PausedCommandSavesImmediatelyAndRemainsAppliedOnce
+  23ms BuildMismatchIsWarningAndSlotNamesCannotEscapeDirectory
+  23ms AboutHalfTheMarketHasAQuirkAndOppositesNeverPair
+  22ms AcceptedPurchaseCannotReplayAfterLoading
+  21ms SameAuthorityInputSeeksExactlyAndHandGripsFollowProps
+  21ms TheListKeepsTheMostTellingCallsInTheOrderTheyCameIn
+  20ms ComedyBurstsHaveRapidJabsAndLongerIrregularPausesWithoutSimultaneousSwings
+  19ms SideBySidePeckishGuestsTakeChipsAndHungryOnesPizza
+  19ms HeldExitDeniesEntryThenReleasedExitPermitsDischarge
+  19ms LingeringPaceAndStopsAreKeyedAndBounded
+  18ms GuidanceEnclosesPrivateMarketOutcomesAndCapacityIsHard
+  18ms HeadwearFollowsTheRules
+  17ms StuckPeopleShoutMoreDesperatelyAndABrokenTapGetsOneGrumble
+  17ms InvalidDimensionsIndicesAndProtectedSlotEditsAreRejected
+  14ms TheShowersComeFromTheSeedAndTierAndAreSaved
+  14ms InvalidJsonReturnsContextWithoutThrowing
+  14ms BandsWhoLikedPlayingForYouAreAlwaysOfferedButBandsYouUpsetAreNot
+  14ms ACrowdThatDriftsOffMovesTheRelationshipLessThanOneThatStays
+  13ms FixedAssignmentDoesNotInventWeatherOrConsumeRandomStreams
+  13ms ABandMemberAboutToPlayALongSetDrinksFirstRatherThanCollapseOnStage
+  13ms BetterMusicHoldsPeopleLonger
+  13ms GoesBeforeAFavouriteSetRatherThanDuringIt
+  13ms MildNeedsKeepWatchingAndUrgentNeedsLeave
+  13ms ReliefThatLandsLateStillCounts
+  13ms TheToiletGoesFirstWhenItWillBeMoreUrgentByTheBar
+  12ms AToiletOnTheWayToTheBarIsWorthTheStop
+  12ms HeldQueuePlaceOutscoresStartingOver
+  12ms TiesKeepTheCallersOrder
+  12ms AFartherTapWinsWhenItIsOnTheWayToTheNextStop
+  12ms EveryHeaderUsesRawFieldDirectionAndDeterministicNameIdTies
+  12ms FestivalDefinitionsResolveTheExistingTierParameters
+  12ms LowerWitteringFarmHasStableUniqueIdsAndBoundedPositions
+  11ms NoTierOneBudgetIsMoreThanTheCarryBoundAllows
+  10ms WriteControlledNativeFixturesWhenRequested
+  10ms ThePondStagesCrowdIsAsBigAsTheTrailers
+  9ms NullCollectionsAndEntriesReturnDiagnosticsThroughJsonAdapter
+  8ms TraitsMoveTheWageByAPercentageThatMatchesTheirSign
+  8ms SimulationAssemblyHasNoGodotDependency
+  8ms DisposalComplainsOnceOnlyWhenActualFullBinArrivalIsObserved
+  8ms BarnFrontsAlignAndApprovedAssetsAndLargeTransformRemainExact
+  8ms ReputationAndBookedScenesMoveTowardTheResult
+  8ms PauseTerminalAndHiddenTimeDoNotEnterTheCosmeticClock
+  7ms ReputationZeroBooksLocalsFreelyStretchesToFiftyAndRefusesTheRest
+  7ms SceneCredibilityHelpsItsOwnGenreAndHurtsClashingOnes
+  7ms OpposingPeopleUseFiniteBatchPassageWithSafeSweptMotion
+  7ms ThePressLineGoesToTheBiggestMomentOfTheShift
+  7ms CatalogueHasUniqueActsInEveryGenreWithLocalsInEach
+  7ms WaterRelievesThirstAndSomeHeat
+  7ms ReviewCooldownMeaningfulGainAndStableTieAvoidOscillation
+  7ms EarlierApproachersAddExpectedDemandWithoutTakingPhysicalPlaces
+  6ms ABarBesideThePondStageBarIsNamedFromIt
+  6ms DuplicateOrStaleAcknowledgementIsRejectedWithoutMutation
+  6ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (0)
+  6ms PairAlternatesSingleSwingOwnersWithDelayedCounterpartReactions
+  6ms ShorterLineCanBeatNearerServiceButLongTravelCanReverseIt
+  6ms OfferHasOnlyCurrentEligibleProductAndSaleHidesItImmediately
+  6ms OnlyPunkFansWearMohawks
+  5ms InspectingScenarioObjectsCannotMutatePausedAuthoritativeState
+  5ms FreezePreservesBothPosesPhaseAndPendingTurnWithoutCatchup
+  5ms ReorderingUnorderedRecordsDoesNotChangeHash
+  5ms TalentLooselyFollowsFameWithRealSurprises
+  5ms FourHundredTicksAreIndependentOfBatchSizes
+  5ms EntityIdsAllocateMonotonicallyAndAllocationStateIsHashed
+  5ms RestoreRejectsInsidePersonMissingFromRegionOccupants
+  5ms ActualHandlingCancelsPunchAndInterruptedHandlingReturnsToGuardWithoutBacklog
+  5ms BlockedSpawnAndRequiredTargetAreReported
+  5ms TierOneHasNoCarryAndCannotSkipAhead
+  4ms SameSeedAndCommandsProduceIdenticalIntermediateAndFinalHashes
+  4ms ALoneBarIsJustBarUnlessItsByAStage
+  4ms HalfStarMidpointsRoundUpIncludingZeroAndMaximum
+  4ms BearingsThatClashGoToEightPointsThenNumbers
+  4ms CheapTerrainDetourRemainsOptimal
+  4ms CosmeticAndUnrelatedStreamsDoNotPerturbBehaviourStream
+  4ms DrawDiscountsOverlapAndDoesNotDependOnOrderGenreOrTalent
+  4ms FullAndUnreachableAlternativesAreExcludedButExistingPhysicalPlaceCounts
+  4ms CapacityUsesProductionEightyTickPerSecondClockUnits
+  4ms PathAvoidsBlockedCellsAndCannotCutDiagonalCorners
+  3ms PrissinessScalesUnpleasantLossesBetweenHalfAndHalfAgain
+  3ms SharedTimestampMappingPreservesElapsedOutputAndSeparatesDurations
+  3ms ALateSurgeAfterAnEmptySetScoresPoorly
+  3ms RequestedSpeedIsNonAuthoritativeAndDoesNotAdvanceTime
+  3ms ASingleStageDayIsUnchangedAndThePondsFullThirdSetLengthensTheDay
+  3ms SparseResetIsFrozenAndImmediatelyInterruptibleByNextService
+  3ms FreeEntryAndZeroSalesNeverInventRefundMoney (10000)
+  3ms FolkFansFavourFlowerCrownsAndBeardsAndTheChoiceIsStable
+  3ms PauseStopsTicksAndExpiryButAllowsValidCommands
+  2ms RebookingReleasesOnlyActualPaidFeesAndRefundsOnlyTheIncrement
+  2ms NewcomersWonOverRaisePopularityWithinTheCap
+  2ms FastForwardAndRebuildRetainOnlyNewestStableTransaction
+  2ms PerpendicularAndDiagonalCrossingsDischarge (False)
+  2ms AGoodGigRaisesTheRelationshipAndABadOneLowersItBelowZero
+  2ms TheLabelReadsTheSetAsTheScoreDoes
+  2ms PeopleRouteRoundASwampAndWadeSlowlyThroughOne
+  1ms EqualTickCommandsUseSubmissionOrderAndAcceptedIdsAreIdempotent
+  1ms ConfirmCreatesActualSalesAndBalancedBandChargesExactlyOnce
+  1ms SeparateEncountersAreRepeatableButHaveDifferentBoundedCadences
+  1ms CheckedInPreviousIdentitySchemaRequiresExplicitMigration
+  1ms InheritedBuildingsAreImmovableAndGateStartsVisuallyOpen
+  1ms IndividuallyRoundedLowCostEdgesRetainOptimalElevenCostRoute
+  1ms ReleasedSlotsRefundPaidFeesAndCannotOpenUntilRefilled
+  1ms BlockedExitPreventsEntryEvenWhenOneStepCrossesWholeCore
+  1ms RequeuedBoundaryTicksRemainScheduledAfterAsynchronousWait
+  0ms RequiredInvalidCategoriesAreActionableAndProduceNoCatalogue
+  0ms ActualRemainingOwnerAndCurrentPositionControlComparison
+  0ms TheSlightlyHungryPickChipsAndTheVeryHungryTheFillingFood
+  0ms DrinkingPaceVariesDeterministicallyByPerson
+  0ms RadioedCallsCountHalfSoAnsweringOneAndRadioingTheRestIsNotFullMarks
+  0ms TerrainCostPreservesFractionalMovementRemainder
+  0ms CurryIsSlowToServeVeryFillingAndTheBestValueForMoney
+  0ms CameraKeyboardPanIsScreenRelativeAtEveryRotation
+  0ms ReorderIsFreeButEveryChangedNameHasAtLeastComparableDisappointment
+  0ms WritesDayLogsForComparison
+  0ms GenreFilteringOnlyProjectsRowsAndNeverMutatesCatalog
+  0ms WritesWalkOuts
+  0ms TheGradeScale
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (Chips,"food_hold","eating")
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (SoftDrink,"drink_hold","drinking")
+  0ms WritesTierTwoCrowds
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (Beer,"drink_hold","drinking")
+  0ms TheFeeHalvesAtBestAndDoublesAtWorstToTheNearestPound
+  0ms FrozenPhasesPropsAndTimersResumeWithoutHiddenTimeOrEventReplay
+  0ms FactualThirstyCopyKeepsExistingLayoutContentIdentity
+  0ms CurrencyFormattingOmitsOnlyRoundPoundDecimals
+  0ms StallIdsKeepTheFirstOfEachKindAsBefore
+  0ms NegativeBookingBudgetHasFullCancellationRecoveryWithoutNewDebt
+  0ms SeveralBarsByOneStageTakeBearingsFromEachOther
+  0ms EachHiccupLowersTheScore
+  0ms HowLongFoodTakesAndHowMuchItPleasesFollowWhatItIsNotTheVanPitchedToday
+  0ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("medical-death:1:1","heat illness")
+  0ms TheBestAndWorstGigsAreHeldToTheirRange
+  0ms FreeEntryAndZeroSalesNeverInventRefundMoney (0)
+  0ms ConservativeBudgetAllowsHonestNegativeProjectionWithoutBookingAllowance
+  0ms FacingIsWholeDegreesEveryPlatformAgreesOn
+  0ms BearingsPointNorthUpTheSiteMap
+  0ms WrongPhaseAndUnknownTargetRejectWithoutMutation
+  0ms PersonalityConvenienceDetourUrgencyAndRolesProduceDifferentDecisions
+  0ms ShortActualDensityRetreatBackstepsButSideForwardAndStoppedStepsDoNot
+  0ms TwoBarsByNoStageAreNamedEastAndWestOfEachOther
+  0ms ZeroCommandIdRejectsWithoutMutationAndCannotEnterSaveState
+  0ms WritesGigRecords
+  0ms ApplauseStrengthAndClipChoiceScaleWithActualAudienceAndEarnedEnjoyment
+  0ms FailureCancellationAndPonchoNeverLeaveAnOfferedItem
+  0ms ADodgyKneeCountsAgainstPace
+  0ms SomeoneSwapsQueuesOnlyToBeServedClearlySooner
+  0ms ExactSupercoverRejectsBlockedCrossingsBoundariesAndDiagonalCorners
+  0ms ExactStarBoundaries (1999,1)
+  0ms OutOfBoundsSpawnAndRequiredTargetAreReported
+  0ms MeaningfulTuningChangeChangesHash
+  0ms OrdinaryLossIsLessSevereThanLostHeadlinerOrLargePopularityLoss
+  0ms ContinuousStairClearanceRejectsRailAndTreadEdgeCrossings
+  0ms RestoredOrUnsafePairsDoNotReplayEntryOrScheduleSwings
+  0ms ComparableAndSubstantialBoundariesAreExplicit
+  0ms RefundTargetsRoundUpAndRepeatedChangesCannotResetOrCompoundThem
+  0ms ExactStarBoundaries (0,1)
+  0ms TheGradeLosesAPointPerTenSecondsOnStageUpToFive
+  0ms AlreadyReachedWaypointCompletesWithoutMovement
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (1)
+  0ms TheNamePoolsCoverTheWholeMarket
+  0ms TheOpeningBudgetIsExactlyTierOneTicketsPlusTheStarterLoan
+  0ms NormalRouteImmediatelyResetsHeadingAndStageRelativeGeometryWorksOffCentre
+  0ms ABigPortionIsWorthItsSizeOnlyToSomeoneHungryEnoughToFinishIt
+  0ms CancellationAfterRebookingRefundsRemainingHoldersWithoutPayingTwice
+  0ms MultipleNewActsAreMatchedToMissingActsEvenWhenTheirSlotsCross
+  0ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("equipment-death:1:1","generator incident")
+  0ms TierTwoSellsFiftyTicketsAtFifteenPounds
+  0ms NoGuestsIsUnratedAndRoundingCannotChangeBoundary
+  0ms ADrinkDeathIsNotBlamedOnTheHeat
+  0ms IdentityComesFromCasualtyAndNotConceptExample
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (2)
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (3)
+  0ms ExactStarBoundaries (2000,2)
+  0ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("disorder-death:1:1","fatal injury")
+  0ms ExactStarBoundaries (3999,2)
+  0ms ExactStarBoundaries (10000,5)
+  0ms ExactStarBoundaries (4000,3)
+  0ms ExactStarBoundaries (6000,4)
+  0ms ExactStarBoundaries (5999,3)
+  0ms ExactStarBoundaries (7999,4)
+  0ms ExactStarBoundaries (8000,5)
