@@ -196,6 +196,8 @@ public sealed class StallNamesTests
         Assert.IsNull(s.LastFestivalLayoutFit(), "A development Tier 2 has no last festival.");
         Assert.IsFalse(BuildSession.Send(s, new UseLastFestivalLayoutCommand()).IsAccepted);
         // Tier 1's default with its second loo and a bin on the generator's clear ground, which this festival refuses.
+        // Not a layout real Tier 1 play makes: the carried layout is checked without the generator, the copy with it,
+        // which is the "still fits, says how many didn't" path. Keep it a mechanism test.
         var previous = GameSession.StandardBuildLayout(1)
             .Select(item => item.Id == "toilet.extra-1" ? item with { Cell = new(82, 153) } : item)
             .Append(new BuildPlacement("bin.2", BuildServiceKind.Bin, new(82, 161), 0))
