@@ -7,6 +7,17 @@ namespace Festival.Tests;
 public sealed class BarnStageTests
 {
     [TestMethod]
+    public void OnlyGroundThatHasTheBarnGetsItsWalls()
+    {
+        // The farm keeps the barn's wall sweep, with the stage open or not.
+        foreach(var open in new[]{false,true})
+            Assert.IsTrue(BarnLayout.WallsIn(new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain(open))),$"stage open: {open}");
+        // An open field doesn't: crossing where the barn's front wall would be is fine there.
+        Assert.IsFalse(BarnLayout.WallsIn(new TraversalGrid()));
+        Assert.IsFalse(BarnLayout.MovementSweepClear(-9_000,BarnLayout.OriginZ+4_000,-9_000,BarnLayout.OriginZ+8_000),"The sweep itself still sees the wall.");
+    }
+
+    [TestMethod]
     public void TwoFrontOpeningsConnectTheInteriorButWallsAndDeckRimStaySolid()
     {
         var grid=new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());

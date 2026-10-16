@@ -69,6 +69,10 @@ public static class BarnLayout
             yield return (cell, (floor || door) && (!stageActive || !stageFootprint && !stairSides || Deck(cell) || Stairs(cell)));
         }
     }
+    /// <summary>Whether a grid holds the barn's walls: every wall cell of its perimeter is present and solid.
+    /// Fixtures and custom terrain without the barn don't, so its continuous wall sweep must not apply to them.</summary>
+    public static bool WallsIn(TraversalGrid grid) =>
+        Terrain(stageActive: false).All(item => item.Walkable || grid.Contains(item.Cell) && !grid.Get(item.Cell).IsWalkable);
     public static IEnumerable<(GridCell Cell, bool Walkable)> StageCells()
     {
         // The fixed stage is already in Terrain; the fixture additionally has a real outside generator footprint.
@@ -102,6 +106,20 @@ public static class BarnLayout
 public sealed partial class GameSession
 {
     private IReadOnlyList<FestivalStage>? _diagnosticStages;
+    // The grid is replaced as builds land, so whether it holds the barn is worked out once per grid.
+    private TraversalGrid? _barnWallsGrid;
+    private bool _barnWalls;
+    private bool BarnWalls
+    {
+        get
+        {
+            if (!ReferenceEquals(_barnWallsGrid, _traversalGrid)) { _barnWallsGrid = _traversalGrid; _barnWalls = _traversalGrid is { } grid && BarnLayout.WallsIn(grid); }
+            return _barnWalls;
+        }
+    }
+    /// <summary>The barn's walls and stairs, only where this session's ground actually has the barn.</summary>
+    private bool BarnSweepClear(int fromX, int fromZ, int toX, int toZ) =>
+        !BarnWalls || BarnLayout.MovementSweepClear(fromX, fromZ, toX, toZ, BarnStageOpen, BarnTractorPresent);
     /// <summary>Not a campaign unlock or persisted mode. Only the opt-in controlled fixture sets this.</summary>
     public bool BarnDiagnostic => _diagnosticStages is not null;
     public int BarnOccupants => _navigationAgents.Values.Count(nav =>
