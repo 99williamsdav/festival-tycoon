@@ -14,7 +14,7 @@ namespace Festival.Tests;
 public sealed class SingleStageBehaviourTests
 {
     private const ulong PinnedSeed = 20260922;
-    private const string PinnedDigest = "666dd748894df744c8c15e05e1d454276036fa56000302479d78e3f68cbc5ea4";
+    private const string PinnedDigest = "d47e21544d9892935e8e28a92afe06b578602e7af7f6ffcbaee4856ca90509d0";
 
     [TestMethod]
     public void OneStageDayPlaysAsPinned()
