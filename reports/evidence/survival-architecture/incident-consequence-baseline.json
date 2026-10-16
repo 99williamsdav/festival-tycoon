@@ -2,7 +2,7 @@
   {
     "name": "equipment-tier1-control0-death",
     "tick": 8000,
-    "digest": "B84519CB0A156305797C8264CFE4110EF7C87E3E5C4ABDCB7B0ACA5661C7FE35",
+    "digest": "6233A8D60443ADAB20D5F7BA47EFBE36D77EACEABDE5A4B69557307E90ED8F77",
     "events": [
       {
         "Tick": 337,
@@ -866,7 +866,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -894,6 +894,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -905,13 +912,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -1223,17 +1223,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -1265,7 +1265,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -1370,6 +1370,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -1384,17 +1391,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -1405,13 +1412,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -1419,7 +1419,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -1510,7 +1510,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -1580,7 +1580,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -1657,7 +1657,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -1804,7 +1804,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -1846,7 +1846,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -2370,7 +2370,7 @@
   {
     "name": "disorder-tier1-control0-death",
     "tick": 8000,
-    "digest": "3BB480F49BD4296FC75AF1FBC26B112F4559DC6B96B0A6B368FE84FFBCFA1459",
+    "digest": "C53E12545BA41EA7B7112F8B87C4AC3D0176E942BBE658C8CCE67F497E4CB30A",
     "events": [
       {
         "Tick": 337,
@@ -3234,7 +3234,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -3262,6 +3262,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -3273,13 +3280,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -3591,17 +3591,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -3633,7 +3633,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -3738,6 +3738,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -3752,17 +3759,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -3773,13 +3780,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -3787,7 +3787,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -3878,7 +3878,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -3948,7 +3948,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -4025,7 +4025,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -4172,7 +4172,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -4214,7 +4214,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -4738,7 +4738,7 @@
   {
     "name": "equipment-tier1-control1-death",
     "tick": 8000,
-    "digest": "E3B9E3B6B4DDE4A2E183E8415828AB89D81C3BFEC77C42BF95ECDDA530059C6A",
+    "digest": "E7D34E6119759D34303C8CF57307FB5C1388A0F871C354E1A9E22F56B105B8D3",
     "events": [
       {
         "Tick": 337,
@@ -5602,7 +5602,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -5630,6 +5630,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -5641,13 +5648,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -5959,17 +5959,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -6001,7 +6001,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -6106,6 +6106,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -6120,17 +6127,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -6141,13 +6148,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -6155,7 +6155,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -6246,7 +6246,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -6316,7 +6316,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -6393,7 +6393,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -6540,7 +6540,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -6582,7 +6582,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -7114,7 +7114,7 @@
   {
     "name": "disorder-tier1-control1-death",
     "tick": 8000,
-    "digest": "3A79BE2E051ED247F80EC1BB356CC19975B4D6D6AE277D4723A1FFAC3739FBA9",
+    "digest": "1DE369881066B0B3C40720732C39AA8AD1E3B076EEB35D7C3D987931AD76A4B0",
     "events": [
       {
         "Tick": 337,
@@ -7978,7 +7978,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -8006,6 +8006,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -8017,13 +8024,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -8335,17 +8335,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -8377,7 +8377,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -8482,6 +8482,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -8496,17 +8503,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -8517,13 +8524,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -8531,7 +8531,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -8622,7 +8622,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -8692,7 +8692,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -8769,7 +8769,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -8916,7 +8916,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -8958,7 +8958,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -9490,7 +9490,7 @@
   {
     "name": "equipment-tier1-control2-death",
     "tick": 8000,
-    "digest": "99DFEEA3819FFA2608839EE1B0D408B423DB29F07903C2C985BD962BEABD8464",
+    "digest": "821A26D7B8ECB20E0A9A3F7D1BFCE8455D9B14707A51B19D7D237FC46B7BD502",
     "events": [
       {
         "Tick": 337,
@@ -10361,7 +10361,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -10389,6 +10389,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -10400,13 +10407,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -10718,17 +10718,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -10760,7 +10760,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -10865,6 +10865,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -10879,17 +10886,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -10900,13 +10907,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -10914,7 +10914,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -11005,7 +11005,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -11075,7 +11075,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -11152,7 +11152,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -11299,7 +11299,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -11348,7 +11348,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -11888,7 +11888,7 @@
   {
     "name": "disorder-tier1-control2-death",
     "tick": 8000,
-    "digest": "093656DC915B9C0A736F6883111CD264BBE26FC3E3323DE64A871E526BB10CF7",
+    "digest": "B39CCB943D9C052F2F302C7BCA195F3C76DDF47AD9F3272B9A78F94A7EC6B6CF",
     "events": [
       {
         "Tick": 337,
@@ -12759,7 +12759,7 @@
         }
       },
       {
-        "Tick": 4029,
+        "Tick": 4036,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -12787,6 +12787,13 @@
         }
       },
       {
+        "Tick": 4046,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 4052,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -12798,13 +12805,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 3
-        }
-      },
-      {
-        "Tick": 4054,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -13116,17 +13116,17 @@
         }
       },
       {
+        "Tick": 4920,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
         "Tick": 4935,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 8
-        }
-      },
-      {
-        "Tick": 4937,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -13158,7 +13158,7 @@
         }
       },
       {
-        "Tick": 5047,
+        "Tick": 5031,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -13263,6 +13263,13 @@
         }
       },
       {
+        "Tick": 5317,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 5323,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -13277,17 +13284,17 @@
         }
       },
       {
-        "Tick": 5333,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
-        }
-      },
-      {
         "Tick": 5347,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 39
+        }
+      },
+      {
+        "Tick": 5436,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 19
         }
       },
       {
@@ -13298,13 +13305,6 @@
         }
       },
       {
-        "Tick": 5451,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 19
-        }
-      },
-      {
         "Tick": 5465,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -13312,7 +13312,7 @@
         }
       },
       {
-        "Tick": 5499,
+        "Tick": 5478,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -13403,7 +13403,7 @@
         }
       },
       {
-        "Tick": 5734,
+        "Tick": 5741,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 26
@@ -13473,7 +13473,7 @@
         }
       },
       {
-        "Tick": 5973,
+        "Tick": 5957,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -13550,7 +13550,7 @@
         }
       },
       {
-        "Tick": 6453,
+        "Tick": 6438,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -13697,7 +13697,7 @@
         }
       },
       {
-        "Tick": 7415,
+        "Tick": 7399,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 20
@@ -13746,7 +13746,7 @@
         }
       },
       {
-        "Tick": 7733,
+        "Tick": 7718,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
@@ -14286,7 +14286,7 @@
   {
     "name": "equipment-tier2-control0-death",
     "tick": 8000,
-    "digest": "473AC68C9B8C1CE5E7671524E298D5B6E0CAE96FD273429AA2FD7349E8796747",
+    "digest": "9A1BC6757F912F2DA21374FE52B2127E696A469285F7917A30D9E1E396C4AA4C",
     "events": [
       {
         "Tick": 369,
@@ -15136,7 +15136,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -15402,6 +15402,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -15420,13 +15427,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -15570,17 +15570,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -15892,10 +15892,17 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5134,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5157,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
         }
       },
       {
@@ -15903,13 +15910,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -15927,17 +15927,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -16011,17 +16011,17 @@
         }
       },
       {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 5434,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -16081,14 +16081,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -16102,17 +16102,17 @@
         }
       },
       {
+        "Tick": 5628,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 22
+        }
+      },
+      {
         "Tick": 5633,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 5637,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 22
         }
       },
       {
@@ -16130,24 +16130,24 @@
         }
       },
       {
-        "Tick": 5732,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
+        "Tick": 5722,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
         }
       },
       {
-        "Tick": 5744,
+        "Tick": 5726,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 15
+        }
+      },
+      {
+        "Tick": 5732,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
         }
       },
       {
@@ -16200,17 +16200,17 @@
         }
       },
       {
+        "Tick": 6050,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 47
+        }
+      },
+      {
         "Tick": 6058,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 6075,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 47
         }
       },
       {
@@ -16228,17 +16228,17 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -16298,7 +16298,7 @@
         }
       },
       {
-        "Tick": 6442,
+        "Tick": 6437,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -16333,7 +16333,7 @@
         }
       },
       {
-        "Tick": 6573,
+        "Tick": 6555,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
@@ -16396,7 +16396,7 @@
         }
       },
       {
-        "Tick": 6862,
+        "Tick": 6839,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
@@ -16424,6 +16424,13 @@
         }
       },
       {
+        "Tick": 6950,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 6956,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -16431,10 +16438,17 @@
         }
       },
       {
-        "Tick": 6962,
+        "Tick": 6983,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 42
+          "Value": 18
+        }
+      },
+      {
+        "Tick": 6996,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 51
         }
       },
       {
@@ -16442,20 +16456,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 6999,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 18
-        }
-      },
-      {
-        "Tick": 7011,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 51
         }
       },
       {
@@ -16473,24 +16473,38 @@
         }
       },
       {
-        "Tick": 7118,
+        "Tick": 7103,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
         }
       },
       {
-        "Tick": 7128,
+        "Tick": 7113,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 52
         }
       },
       {
-        "Tick": 7132,
+        "Tick": 7116,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
+        }
+      },
+      {
+        "Tick": 7154,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
+        "Tick": 7164,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 17
         }
       },
       {
@@ -16498,13 +16512,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 30
-        }
-      },
-      {
-        "Tick": 7167,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -16536,10 +16543,17 @@
         }
       },
       {
-        "Tick": 7331,
+        "Tick": 7316,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 51
+        }
+      },
+      {
+        "Tick": 7361,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
         }
       },
       {
@@ -16564,13 +16578,6 @@
         }
       },
       {
-        "Tick": 7441,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
-        }
-      },
-      {
         "Tick": 7497,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -16578,10 +16585,10 @@
         }
       },
       {
-        "Tick": 7502,
+        "Tick": 7520,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 17
+          "Value": 42
         }
       },
       {
@@ -16592,7 +16599,7 @@
         }
       },
       {
-        "Tick": 7571,
+        "Tick": 7556,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
@@ -16603,13 +16610,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
-        }
-      },
-      {
-        "Tick": 7600,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -16662,7 +16662,7 @@
         }
       },
       {
-        "Tick": 7816,
+        "Tick": 7799,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -16697,7 +16697,7 @@
         }
       },
       {
-        "Tick": 7991,
+        "Tick": 7976,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
@@ -17459,7 +17459,7 @@
   {
     "name": "disorder-tier2-control0-death",
     "tick": 8000,
-    "digest": "EE45544A1EDEB91FD81EA4A61DEACB9FE5062C22371D82FF423A0B346126D9BA",
+    "digest": "362CCEEE2223CCE69F8DD329FD098CBBB091151D8231B4AE7CF51C2398497BFB",
     "events": [
       {
         "Tick": 369,
@@ -18309,7 +18309,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -18575,6 +18575,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -18593,13 +18600,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -18743,17 +18743,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -19065,10 +19065,17 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5134,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5157,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
         }
       },
       {
@@ -19076,13 +19083,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -19100,17 +19100,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -19184,17 +19184,17 @@
         }
       },
       {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 5434,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -19254,14 +19254,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -19275,17 +19275,17 @@
         }
       },
       {
+        "Tick": 5628,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 22
+        }
+      },
+      {
         "Tick": 5633,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 5637,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 22
         }
       },
       {
@@ -19303,24 +19303,24 @@
         }
       },
       {
-        "Tick": 5732,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
+        "Tick": 5722,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
         }
       },
       {
-        "Tick": 5744,
+        "Tick": 5726,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 15
+        }
+      },
+      {
+        "Tick": 5732,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
         }
       },
       {
@@ -19373,17 +19373,17 @@
         }
       },
       {
+        "Tick": 6050,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 47
+        }
+      },
+      {
         "Tick": 6058,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 6075,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 47
         }
       },
       {
@@ -19401,17 +19401,17 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -19471,7 +19471,7 @@
         }
       },
       {
-        "Tick": 6442,
+        "Tick": 6437,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -19506,7 +19506,7 @@
         }
       },
       {
-        "Tick": 6573,
+        "Tick": 6555,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
@@ -19569,7 +19569,7 @@
         }
       },
       {
-        "Tick": 6862,
+        "Tick": 6839,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
@@ -19597,6 +19597,13 @@
         }
       },
       {
+        "Tick": 6950,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 6956,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -19604,10 +19611,17 @@
         }
       },
       {
-        "Tick": 6962,
+        "Tick": 6983,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 42
+          "Value": 18
+        }
+      },
+      {
+        "Tick": 6996,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 51
         }
       },
       {
@@ -19615,20 +19629,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 6999,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 18
-        }
-      },
-      {
-        "Tick": 7011,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 51
         }
       },
       {
@@ -19646,24 +19646,38 @@
         }
       },
       {
-        "Tick": 7118,
+        "Tick": 7103,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
         }
       },
       {
-        "Tick": 7128,
+        "Tick": 7113,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 52
         }
       },
       {
-        "Tick": 7132,
+        "Tick": 7116,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
+        }
+      },
+      {
+        "Tick": 7154,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
+        "Tick": 7164,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 17
         }
       },
       {
@@ -19671,13 +19685,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 30
-        }
-      },
-      {
-        "Tick": 7167,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -19709,10 +19716,17 @@
         }
       },
       {
-        "Tick": 7331,
+        "Tick": 7316,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 51
+        }
+      },
+      {
+        "Tick": 7361,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
         }
       },
       {
@@ -19737,13 +19751,6 @@
         }
       },
       {
-        "Tick": 7441,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
-        }
-      },
-      {
         "Tick": 7497,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -19751,10 +19758,10 @@
         }
       },
       {
-        "Tick": 7502,
+        "Tick": 7520,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 17
+          "Value": 42
         }
       },
       {
@@ -19765,7 +19772,7 @@
         }
       },
       {
-        "Tick": 7571,
+        "Tick": 7556,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
@@ -19776,13 +19783,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
-        }
-      },
-      {
-        "Tick": 7600,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -19835,7 +19835,7 @@
         }
       },
       {
-        "Tick": 7816,
+        "Tick": 7799,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -19870,7 +19870,7 @@
         }
       },
       {
-        "Tick": 7991,
+        "Tick": 7976,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
@@ -20632,7 +20632,7 @@
   {
     "name": "equipment-tier2-control1-death",
     "tick": 8000,
-    "digest": "127FE48A9B6A1F40558F053124541BB0ED72E3575E8D0A6F26D3750CCA1343FE",
+    "digest": "6F9452639A49F8CE3B9E8AC10CE766F2AA870F36076686EC77D1656DF6B19C2F",
     "events": [
       {
         "Tick": 369,
@@ -21482,7 +21482,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -21748,6 +21748,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -21766,13 +21773,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -21916,17 +21916,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -22231,6 +22231,13 @@
         }
       },
       {
+        "Tick": 5124,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 27
+        }
+      },
+      {
         "Tick": 5129,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -22238,10 +22245,10 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5157,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 27
+          "Value": 52
         }
       },
       {
@@ -22249,13 +22256,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -22273,17 +22273,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -22364,10 +22364,17 @@
         }
       },
       {
-        "Tick": 5419,
+        "Tick": 5402,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
         }
       },
       {
@@ -22375,13 +22382,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -22441,14 +22441,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -22462,17 +22462,17 @@
         }
       },
       {
+        "Tick": 5628,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 22
+        }
+      },
+      {
         "Tick": 5633,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 5637,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 22
         }
       },
       {
@@ -22490,17 +22490,17 @@
         }
       },
       {
+        "Tick": 5722,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 11
+        }
+      },
+      {
         "Tick": 5732,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 11
         }
       },
       {
@@ -22525,7 +22525,7 @@
         }
       },
       {
-        "Tick": 5915,
+        "Tick": 5905,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 40
@@ -22581,7 +22581,7 @@
         }
       },
       {
-        "Tick": 6057,
+        "Tick": 6040,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 23
@@ -22623,6 +22623,20 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -22630,17 +22644,10 @@
         }
       },
       {
-        "Tick": 6132,
+        "Tick": 6131,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 16
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
+          "Value": 9
         }
       },
       {
@@ -22658,10 +22665,24 @@
         }
       },
       {
-        "Tick": 6222,
+        "Tick": 6189,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 6
+        }
+      },
+      {
+        "Tick": 6204,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
+        }
+      },
+      {
+        "Tick": 6292,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 30
         }
       },
       {
@@ -22711,6 +22732,13 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 13
+        }
+      },
+      {
+        "Tick": 6429,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 6
         }
       },
       {
@@ -22798,7 +22826,7 @@
         }
       },
       {
-        "Tick": 6772,
+        "Tick": 6757,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 52
@@ -22819,7 +22847,7 @@
         }
       },
       {
-        "Tick": 6856,
+        "Tick": 6840,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 21
@@ -22854,13 +22882,6 @@
         }
       },
       {
-        "Tick": 6975,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 6
-        }
-      },
-      {
         "Tick": 6996,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -22889,7 +22910,7 @@
         }
       },
       {
-        "Tick": 7132,
+        "Tick": 7116,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 40
@@ -22931,17 +22952,17 @@
         }
       },
       {
+        "Tick": 7300,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 7318,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
-        }
-      },
-      {
-        "Tick": 7320,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
         }
       },
       {
@@ -22956,13 +22977,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 28
-        }
-      },
-      {
-        "Tick": 7411,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 3
         }
       },
       {
@@ -22987,24 +23001,17 @@
         }
       },
       {
-        "Tick": 7488,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 45
-        }
-      },
-      {
-        "Tick": 7502,
+        "Tick": 7484,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
         }
       },
       {
-        "Tick": 7597,
+        "Tick": 7488,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 11
+          "Value": 45
         }
       },
       {
@@ -23029,31 +23036,31 @@
         }
       },
       {
-        "Tick": 7634,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 15
-        }
-      },
-      {
-        "Tick": 7662,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
-        }
-      },
-      {
-        "Tick": 7705,
+        "Tick": 7627,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 30
         }
       },
       {
-        "Tick": 7706,
+        "Tick": 7644,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 3
+          "Value": 11
+        }
+      },
+      {
+        "Tick": 7651,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
+        "Tick": 7690,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 15
         }
       },
       {
@@ -23068,6 +23075,13 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 7755,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 3
         }
       },
       {
@@ -23113,6 +23127,13 @@
         }
       },
       {
+        "Tick": 7862,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 3
+        }
+      },
+      {
         "Tick": 7927,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -23120,17 +23141,10 @@
         }
       },
       {
-        "Tick": 7962,
+        "Tick": 7961,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 7991,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 11
         }
       }
     ],
@@ -23487,7 +23501,7 @@
           "AttemptId": 1,
           "PersonId": "Zoe Fenwick",
           "Role": 1,
-          "Cause": "Generator overload killed Zoe Fenwick (Guest) at (-4810,9202) near unit (-20250,14500); load 76%; condition 80%; warning tick 3200, acknowledged False; response: Farm generator running within capacity; job None.",
+          "Cause": "Generator overload killed Zoe Fenwick (Guest) at (4250,10250) near unit (-20250,14500); load 76%; condition 80%; warning tick 3200, acknowledged False; response: Farm generator running within capacity; job None.",
           "Tick": 8000,
           "TransactionId": "equipment-death:20260922:1"
         }
@@ -23511,7 +23525,7 @@
   {
     "name": "equipment-tier2-control1-retry",
     "tick": 8000,
-    "digest": "EDB8C2EAC0CF315093EABCA196681135BEB5D6960EB1DD38F18D21ED642C9722",
+    "digest": "A186D3D40F848F08AEBEF7D74748DC718DA2FD0DAD9105EED1A6C353114A50E3",
     "events": [],
     "randomStreams": [
       {
@@ -23872,7 +23886,7 @@
           "AttemptId": 1,
           "PersonId": "Zoe Fenwick",
           "Role": 1,
-          "Cause": "Generator overload killed Zoe Fenwick (Guest) at (-4810,9202) near unit (-20250,14500); load 76%; condition 80%; warning tick 3200, acknowledged False; response: Farm generator running within capacity; job None.",
+          "Cause": "Generator overload killed Zoe Fenwick (Guest) at (4250,10250) near unit (-20250,14500); load 76%; condition 80%; warning tick 3200, acknowledged False; response: Farm generator running within capacity; job None.",
           "Tick": 8000,
           "TransactionId": "equipment-death:20260922:1"
         }
@@ -23897,7 +23911,7 @@
   {
     "name": "disorder-tier2-control1-death",
     "tick": 8000,
-    "digest": "C09B8F88CDED015FB2F4E66F04DECD6FEFAAEC7E7AD267034183407E978F7E11",
+    "digest": "B17C7A49D9AF23529603DDE46F24E27D35D6B3EC5F683DF4A2D040B6D83B336E",
     "events": [
       {
         "Tick": 369,
@@ -24747,7 +24761,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -25013,6 +25027,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -25031,13 +25052,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -25181,17 +25195,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -25496,6 +25510,13 @@
         }
       },
       {
+        "Tick": 5124,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 27
+        }
+      },
+      {
         "Tick": 5129,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -25503,10 +25524,10 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5157,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 27
+          "Value": 52
         }
       },
       {
@@ -25514,13 +25535,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -25538,17 +25552,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -25629,10 +25643,17 @@
         }
       },
       {
-        "Tick": 5419,
+        "Tick": 5402,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
         }
       },
       {
@@ -25640,13 +25661,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -25706,14 +25720,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -25727,17 +25741,17 @@
         }
       },
       {
+        "Tick": 5628,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 22
+        }
+      },
+      {
         "Tick": 5633,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 5637,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 22
         }
       },
       {
@@ -25755,17 +25769,17 @@
         }
       },
       {
+        "Tick": 5722,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 11
+        }
+      },
+      {
         "Tick": 5732,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 11
         }
       },
       {
@@ -25790,7 +25804,7 @@
         }
       },
       {
-        "Tick": 5915,
+        "Tick": 5905,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 40
@@ -25846,7 +25860,7 @@
         }
       },
       {
-        "Tick": 6057,
+        "Tick": 6040,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 23
@@ -25888,6 +25902,20 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -25895,17 +25923,10 @@
         }
       },
       {
-        "Tick": 6132,
+        "Tick": 6131,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 16
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
+          "Value": 9
         }
       },
       {
@@ -25923,10 +25944,24 @@
         }
       },
       {
-        "Tick": 6222,
+        "Tick": 6189,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 6
+        }
+      },
+      {
+        "Tick": 6204,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
+        }
+      },
+      {
+        "Tick": 6292,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 30
         }
       },
       {
@@ -25976,6 +26011,13 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 13
+        }
+      },
+      {
+        "Tick": 6429,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 6
         }
       },
       {
@@ -26063,7 +26105,7 @@
         }
       },
       {
-        "Tick": 6772,
+        "Tick": 6757,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 52
@@ -26084,7 +26126,7 @@
         }
       },
       {
-        "Tick": 6856,
+        "Tick": 6840,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 21
@@ -26119,13 +26161,6 @@
         }
       },
       {
-        "Tick": 6975,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 6
-        }
-      },
-      {
         "Tick": 6996,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -26154,7 +26189,7 @@
         }
       },
       {
-        "Tick": 7132,
+        "Tick": 7116,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 40
@@ -26196,17 +26231,17 @@
         }
       },
       {
+        "Tick": 7300,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 14
+        }
+      },
+      {
         "Tick": 7318,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
-        }
-      },
-      {
-        "Tick": 7320,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 14
         }
       },
       {
@@ -26221,13 +26256,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 28
-        }
-      },
-      {
-        "Tick": 7411,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 3
         }
       },
       {
@@ -26252,24 +26280,17 @@
         }
       },
       {
-        "Tick": 7488,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 45
-        }
-      },
-      {
-        "Tick": 7502,
+        "Tick": 7484,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
         }
       },
       {
-        "Tick": 7597,
+        "Tick": 7488,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 11
+          "Value": 45
         }
       },
       {
@@ -26294,31 +26315,31 @@
         }
       },
       {
-        "Tick": 7634,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 15
-        }
-      },
-      {
-        "Tick": 7662,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
-        }
-      },
-      {
-        "Tick": 7705,
+        "Tick": 7627,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 30
         }
       },
       {
-        "Tick": 7706,
+        "Tick": 7644,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 3
+          "Value": 11
+        }
+      },
+      {
+        "Tick": 7651,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
+        "Tick": 7690,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 15
         }
       },
       {
@@ -26333,6 +26354,13 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 7755,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 3
         }
       },
       {
@@ -26378,6 +26406,13 @@
         }
       },
       {
+        "Tick": 7862,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 3
+        }
+      },
+      {
         "Tick": 7927,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -26385,17 +26420,10 @@
         }
       },
       {
-        "Tick": 7962,
+        "Tick": 7961,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 7991,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 11
         }
       }
     ],
@@ -27162,7 +27190,7 @@
   {
     "name": "equipment-tier2-control2-death",
     "tick": 8000,
-    "digest": "690338FF4F4B1D8AD4904F1008B91DDAEA342B08808CBA9B64A2D8C3DC131CE8",
+    "digest": "B7B75C0451F8D617DBB10705F8F5361EB808BF817E087D9E1B7C7A64C0315C20",
     "events": [
       {
         "Tick": 369,
@@ -28019,7 +28047,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -28292,6 +28320,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -28310,13 +28345,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -28467,17 +28495,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -28789,10 +28817,17 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5134,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5157,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
         }
       },
       {
@@ -28800,13 +28835,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -28824,17 +28852,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -28922,6 +28950,13 @@
         }
       },
       {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 5429,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -28933,13 +28968,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -28992,14 +29020,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -29013,7 +29041,7 @@
         }
       },
       {
-        "Tick": 5637,
+        "Tick": 5628,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 22
@@ -29034,24 +29062,24 @@
         }
       },
       {
-        "Tick": 5732,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
+        "Tick": 5722,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
         }
       },
       {
-        "Tick": 5744,
+        "Tick": 5726,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 15
+        }
+      },
+      {
+        "Tick": 5732,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
         }
       },
       {
@@ -29104,7 +29132,7 @@
         }
       },
       {
-        "Tick": 6075,
+        "Tick": 6050,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 47
@@ -29118,17 +29146,17 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -29237,7 +29265,7 @@
         }
       },
       {
-        "Tick": 6442,
+        "Tick": 6437,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -29279,7 +29307,7 @@
         }
       },
       {
-        "Tick": 6573,
+        "Tick": 6555,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
@@ -29370,17 +29398,17 @@
         }
       },
       {
+        "Tick": 6839,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
+        }
+      },
+      {
         "Tick": 6853,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 6862,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
         }
       },
       {
@@ -29412,6 +29440,13 @@
         }
       },
       {
+        "Tick": 6944,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 6946,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -29419,21 +29454,14 @@
         }
       },
       {
-        "Tick": 6962,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
-        }
-      },
-      {
-        "Tick": 6999,
+        "Tick": 6983,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 18
         }
       },
       {
-        "Tick": 7019,
+        "Tick": 7002,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
@@ -29496,7 +29524,7 @@
         }
       },
       {
-        "Tick": 7306,
+        "Tick": 7300,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -29510,17 +29538,17 @@
         }
       },
       {
+        "Tick": 7361,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 7379,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 44
-        }
-      },
-      {
-        "Tick": 7441,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -29531,10 +29559,17 @@
         }
       },
       {
-        "Tick": 7497,
+        "Tick": 7519,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 37
+        }
+      },
+      {
+        "Tick": 7520,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
         }
       },
       {
@@ -29559,17 +29594,17 @@
         }
       },
       {
-        "Tick": 7564,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
-        }
-      },
-      {
-        "Tick": 7571,
+        "Tick": 7556,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
+        }
+      },
+      {
+        "Tick": 7588,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
         }
       },
       {
@@ -29577,13 +29612,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
-        }
-      },
-      {
-        "Tick": 7600,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -29629,7 +29657,7 @@
         }
       },
       {
-        "Tick": 7990,
+        "Tick": 7979,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 49
@@ -30407,7 +30435,7 @@
   {
     "name": "disorder-tier2-control2-death",
     "tick": 8000,
-    "digest": "B47AAD7EB1457168643C2A1CB02DBC40E1B49370D7806286CA976907B84C9C56",
+    "digest": "90484996B0833A9F2EF2B9A98EEA9BC5640F2450880C706F43597A3FF08780C2",
     "events": [
       {
         "Tick": 369,
@@ -31264,7 +31292,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -31537,6 +31565,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -31555,13 +31590,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -31712,17 +31740,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -32034,10 +32062,17 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5134,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5157,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
         }
       },
       {
@@ -32045,13 +32080,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -32069,17 +32097,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -32167,6 +32195,13 @@
         }
       },
       {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 5429,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -32178,13 +32213,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -32237,14 +32265,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -32258,7 +32286,7 @@
         }
       },
       {
-        "Tick": 5637,
+        "Tick": 5628,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 22
@@ -32279,24 +32307,24 @@
         }
       },
       {
-        "Tick": 5732,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
+        "Tick": 5722,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
         }
       },
       {
-        "Tick": 5744,
+        "Tick": 5726,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 15
+        }
+      },
+      {
+        "Tick": 5732,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
         }
       },
       {
@@ -32349,7 +32377,7 @@
         }
       },
       {
-        "Tick": 6075,
+        "Tick": 6050,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 47
@@ -32363,17 +32391,17 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -32482,7 +32510,7 @@
         }
       },
       {
-        "Tick": 6442,
+        "Tick": 6437,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -32524,7 +32552,7 @@
         }
       },
       {
-        "Tick": 6573,
+        "Tick": 6555,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
@@ -32615,17 +32643,17 @@
         }
       },
       {
+        "Tick": 6839,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
+        }
+      },
+      {
         "Tick": 6853,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 6862,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
         }
       },
       {
@@ -32657,6 +32685,13 @@
         }
       },
       {
+        "Tick": 6944,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 6946,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -32664,21 +32699,14 @@
         }
       },
       {
-        "Tick": 6962,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
-        }
-      },
-      {
-        "Tick": 6999,
+        "Tick": 6983,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 18
         }
       },
       {
-        "Tick": 7019,
+        "Tick": 7002,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
@@ -32741,7 +32769,7 @@
         }
       },
       {
-        "Tick": 7306,
+        "Tick": 7300,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 14
@@ -32755,17 +32783,17 @@
         }
       },
       {
+        "Tick": 7361,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 7379,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 44
-        }
-      },
-      {
-        "Tick": 7441,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -32776,10 +32804,17 @@
         }
       },
       {
-        "Tick": 7497,
+        "Tick": 7519,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 37
+        }
+      },
+      {
+        "Tick": 7520,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
         }
       },
       {
@@ -32804,17 +32839,17 @@
         }
       },
       {
-        "Tick": 7564,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
-        }
-      },
-      {
-        "Tick": 7571,
+        "Tick": 7556,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
+        }
+      },
+      {
+        "Tick": 7588,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
         }
       },
       {
@@ -32822,13 +32857,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
-        }
-      },
-      {
-        "Tick": 7600,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -32874,7 +32902,7 @@
         }
       },
       {
-        "Tick": 7990,
+        "Tick": 7979,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 49
@@ -33652,7 +33680,7 @@
   {
     "name": "natural-tick-rain-medical-death",
     "tick": 8001,
-    "digest": "D7ACD46494B1196189541C9C635ADAC9F8C8A280E5BA8C6E1140096B5FF07312",
+    "digest": "8A2097A047D8769F96CDB6B44ED5112C4EC87FE1E8E34A9FB5C1D652BCD5A190",
     "events": [
       {
         "Tick": 369,
@@ -34502,7 +34530,7 @@
         }
       },
       {
-        "Tick": 3671,
+        "Tick": 3650,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 29
@@ -34768,6 +34796,13 @@
         }
       },
       {
+        "Tick": 4120,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4121,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -34786,13 +34821,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 4137,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -34936,17 +34964,17 @@
         }
       },
       {
+        "Tick": 4440,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 4456,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 48
-        }
-      },
-      {
-        "Tick": 4457,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -35258,10 +35286,17 @@
         }
       },
       {
-        "Tick": 5141,
+        "Tick": 5134,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 27
+        }
+      },
+      {
+        "Tick": 5157,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 52
         }
       },
       {
@@ -35269,13 +35304,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 61
-        }
-      },
-      {
-        "Tick": 5172,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 52
         }
       },
       {
@@ -35293,17 +35321,17 @@
         }
       },
       {
+        "Tick": 5204,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 10
+        }
+      },
+      {
         "Tick": 5214,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 45
-        }
-      },
-      {
-        "Tick": 5219,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 10
         }
       },
       {
@@ -35377,17 +35405,17 @@
         }
       },
       {
+        "Tick": 5428,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 23
+        }
+      },
+      {
         "Tick": 5434,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 41
-        }
-      },
-      {
-        "Tick": 5445,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 23
         }
       },
       {
@@ -35447,14 +35475,14 @@
         }
       },
       {
-        "Tick": 5544,
+        "Tick": 5534,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 31
         }
       },
       {
-        "Tick": 5576,
+        "Tick": 5559,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 25
@@ -35468,17 +35496,17 @@
         }
       },
       {
+        "Tick": 5628,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 22
+        }
+      },
+      {
         "Tick": 5633,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 5637,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 22
         }
       },
       {
@@ -35496,24 +35524,24 @@
         }
       },
       {
-        "Tick": 5732,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 4
-        }
-      },
-      {
-        "Tick": 5739,
+        "Tick": 5722,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
         }
       },
       {
-        "Tick": 5744,
+        "Tick": 5726,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 15
+        }
+      },
+      {
+        "Tick": 5732,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 4
         }
       },
       {
@@ -35566,17 +35594,17 @@
         }
       },
       {
+        "Tick": 6050,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 47
+        }
+      },
+      {
         "Tick": 6058,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
-        }
-      },
-      {
-        "Tick": 6075,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 47
         }
       },
       {
@@ -35594,17 +35622,17 @@
         }
       },
       {
+        "Tick": 6117,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 16
+        }
+      },
+      {
         "Tick": 6122,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
-        }
-      },
-      {
-        "Tick": 6132,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 16
         }
       },
       {
@@ -35664,7 +35692,7 @@
         }
       },
       {
-        "Tick": 6442,
+        "Tick": 6437,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -35699,7 +35727,7 @@
         }
       },
       {
-        "Tick": 6573,
+        "Tick": 6555,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 17
@@ -35762,7 +35790,7 @@
         }
       },
       {
-        "Tick": 6862,
+        "Tick": 6839,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
@@ -35790,6 +35818,13 @@
         }
       },
       {
+        "Tick": 6950,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
+        }
+      },
+      {
         "Tick": 6956,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -35797,10 +35832,17 @@
         }
       },
       {
-        "Tick": 6962,
+        "Tick": 6983,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 42
+          "Value": 18
+        }
+      },
+      {
+        "Tick": 6996,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 51
         }
       },
       {
@@ -35808,20 +35850,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 53
-        }
-      },
-      {
-        "Tick": 6999,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 18
-        }
-      },
-      {
-        "Tick": 7011,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 51
         }
       },
       {
@@ -35839,24 +35867,38 @@
         }
       },
       {
-        "Tick": 7118,
+        "Tick": 7103,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 16
         }
       },
       {
-        "Tick": 7128,
+        "Tick": 7113,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 52
         }
       },
       {
-        "Tick": 7132,
+        "Tick": 7116,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 4
+        }
+      },
+      {
+        "Tick": 7154,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 25
+        }
+      },
+      {
+        "Tick": 7164,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 17
         }
       },
       {
@@ -35864,13 +35906,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 30
-        }
-      },
-      {
-        "Tick": 7167,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 25
         }
       },
       {
@@ -35902,10 +35937,17 @@
         }
       },
       {
-        "Tick": 7331,
+        "Tick": 7316,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 51
+        }
+      },
+      {
+        "Tick": 7361,
+        "EventType": "navigation_arrived",
+        "EntityId": {
+          "Value": 42
         }
       },
       {
@@ -35930,13 +35972,6 @@
         }
       },
       {
-        "Tick": 7441,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
-        }
-      },
-      {
         "Tick": 7497,
         "EventType": "navigation_arrived",
         "EntityId": {
@@ -35944,10 +35979,10 @@
         }
       },
       {
-        "Tick": 7502,
+        "Tick": 7520,
         "EventType": "navigation_arrived",
         "EntityId": {
-          "Value": 17
+          "Value": 42
         }
       },
       {
@@ -35958,7 +35993,7 @@
         }
       },
       {
-        "Tick": 7571,
+        "Tick": 7556,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 34
@@ -35969,13 +36004,6 @@
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
-        }
-      },
-      {
-        "Tick": 7600,
-        "EventType": "navigation_arrived",
-        "EntityId": {
-          "Value": 42
         }
       },
       {
@@ -36028,7 +36056,7 @@
         }
       },
       {
-        "Tick": 7816,
+        "Tick": 7799,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 5
@@ -36063,7 +36091,7 @@
         }
       },
       {
-        "Tick": 7991,
+        "Tick": 7976,
         "EventType": "navigation_arrived",
         "EntityId": {
           "Value": 11
