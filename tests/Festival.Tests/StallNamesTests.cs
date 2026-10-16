@@ -30,7 +30,8 @@ public sealed class StallNamesTests
 
         var two = NextFestivalTests.Drafted(TierTwo());
         Assert.AreEqual("East Bar", two.StallName(Stalls.FirstBar));
-        Assert.AreEqual("Pond Stage Bar", two.StallName(Stalls.Id(BuildServiceKind.Bar, 2)), "The second bar serves the Pond Stage's crowd.");
+        // Tier 2's second stage is the Barn, so the second bar by the pond is named by the compass.
+        Assert.AreEqual("East Bar 2", two.StallName(Stalls.Id(BuildServiceKind.Bar, 2)));
         Assert.AreEqual("Chip Off The Old Block", two.StallName(Stalls.FirstVan));
         Assert.AreEqual("Korma Chameleon", two.StallName(Stalls.Id(BuildServiceKind.FoodVan, 2)));
         // Every bar and van has a name, and no two share one.
@@ -147,8 +148,10 @@ public sealed class StallNamesTests
         // The cache is keyed on the stages too: a bar by the pond is "Pond Stage Bar" only while that stage is open.
         var s = NextFestivalTests.Drafted(TierTwo());
         var second = Stalls.Id(BuildServiceKind.Bar, 2);
+        var stages = typeof(GameSession).GetField("_diagnosticStages", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        stages.SetValue(s, FestivalStages.For(pondOpen: true));
         Assert.AreEqual("Pond Stage Bar", s.StallName(second));
-        typeof(GameSession).GetField("_diagnosticStages", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, FestivalStages.MainOnly);
+        stages.SetValue(s, FestivalStages.MainOnly);
         Assert.AreEqual("East Bar 2", s.StallName(second), "Without the pond it's east of the middle, beside the first bar.");
     }
 
@@ -192,10 +195,10 @@ public sealed class StallNamesTests
         var s = NextFestivalTests.Drafted(TierTwo());
         Assert.IsNull(s.LastFestivalLayoutFit(), "A development Tier 2 has no last festival.");
         Assert.IsFalse(BuildSession.Send(s, new UseLastFestivalLayoutCommand()).IsAccepted);
-        // Tier 1's default with its second loo on what's now the Pond Stage's crowd, and a bin on its riser's ground.
+        // Tier 1's default with its second loo and a bin on the generator's clear ground, which this festival refuses.
         var previous = GameSession.StandardBuildLayout(1)
-            .Select(item => item.Id == "toilet.extra-1" ? item with { Cell = new(168, 140) } : item)
-            .Append(new BuildPlacement("bin.2", BuildServiceKind.Bin, new(155, 158), 0))
+            .Select(item => item.Id == "toilet.extra-1" ? item with { Cell = new(82, 153) } : item)
+            .Append(new BuildPlacement("bin.2", BuildServiceKind.Bin, new(82, 161), 0))
             .Append(new BuildPlacement("bin.3", BuildServiceKind.Bin, new(160, 120), 0))
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         SetPreparation(s, p => p with { PreviousLayout = previous });
@@ -224,7 +227,7 @@ public sealed class StallNamesTests
         {
             var next = placed.Append(item).OrderBy(other => other.Id, StringComparer.Ordinal).ToArray();
             if (placed.Count(other => other.Kind == item.Kind) >= s.ServiceLimit(item.Kind) ||
-                validate.Invoke(null, [next, s.Stages, s.CaptureEquipment(), p.WaterTowerOwned, p.Tier]) is not null) skipped++;
+                validate.Invoke(null, [next, s.Stages, s.CaptureEquipment(), p.WaterTowerOwned, p.Tier, false]) is not null) skipped++;
             else placed = [.. next];
         }
         return (placed.ToArray(), skipped);
@@ -284,7 +287,7 @@ public sealed class StallNamesTests
     public void TheCopyIsWorkedOutOnceAndPricedAsItLands()
     {
         var s = NextFestivalTests.Drafted(TierTwo());
-        var previous = GameSession.StandardBuildLayout(2).Select(item => item.Id == "toilet.extra-1" ? item with { Cell = new(168, 140) } : item)
+        var previous = GameSession.StandardBuildLayout(2).Select(item => item.Id == "toilet.extra-1" ? item with { Cell = new(82, 153) } : item)
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         SetPreparation(s, p => p with { PreviousLayout = previous });
         var first = s.LastFestivalLayoutFit()!.Value;
@@ -356,6 +359,6 @@ public sealed class StallNamesTests
         foreach (var stage in FestivalStages.All)
             Assert.IsFalse(GameSession.BuildFootprint(placement).Concat(GameSession.ToiletSolidCells(toilet)).Any(stage.InAudienceArea), stage.Id);
         var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.Static | BindingFlags.NonPublic)!;
-        Assert.IsNull(validate.Invoke(null, [new[] { placement }, FestivalStages.All, null, false, 2]));
+        Assert.IsNull(validate.Invoke(null, [new[] { placement }, FestivalStages.All, null, false, 2, false]));
     }
 }

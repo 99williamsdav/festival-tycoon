@@ -53,7 +53,8 @@ public sealed class R005LayoutTests
             Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(x, z)).IsWalkable, $"{x},{z}");
         foreach (var (x,z) in new[] { (19000,-24000), (19000,-10500), (28500,-17000), (19000,-11000), (11500,-10500) })
             Assert.IsTrue(grid.Get(TraversalGrid.WorldToCell(x,z)).IsWalkable, $"Approach {x},{z}");
-        Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0,-23000)).IsWalkable);
+        Assert.IsTrue(grid.Get(TraversalGrid.WorldToCell(0,-23000)).IsWalkable, "Barn Stage interior is open.");
+        Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0,-29000)).IsWalkable, "The large barn rear wall remains.");
     }
 
     [TestMethod]

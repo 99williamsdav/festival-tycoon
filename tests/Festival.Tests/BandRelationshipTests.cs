@@ -26,7 +26,7 @@ public sealed class BandRelationshipTests
 
     /// <summary>The relationships and popularity a campaign's sets work out to.</summary>
     private static (ActRelationship[]?, PopularityShift[]?) Replay(CarriedGig[] history) =>
-        ((ActRelationship[]?, PopularityShift[]?))typeof(GameSession).GetMethod("Replay", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [history, false])!;
+        ((ActRelationship[]?, PopularityShift[]?))typeof(GameSession).GetMethod("Replay", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [history, false, false, null])!;
 
     /// <summary>A Tier 1 set that held its crowd and won over <paramref name="newcomers"/> guests who weren't fans going in.</summary>
     private static CarriedGig WonOver(string actId, int newcomers) => new(1, actId, true, false, 20, 18, 18 * 300, []) { WonOver = newcomers, AverageCrowdTenths = 160 };

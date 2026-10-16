@@ -44,7 +44,9 @@ public sealed class FarmSceneTests
         Assert.AreEqual(-23d, barn.ZMetres);
         Assert.AreEqual(0, barn.YawQuarterTurns, "The large barn doors must face the road.");
         var grid = new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());
-        Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable);
+        // Barn Stage opened the interior; the rear wall still blocks.
+        Assert.IsTrue(grid.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable);
+        Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0, -29_000)).IsWalkable);
         foreach (var cell in new[] { GameSession.MedicalMedicCell, GameSession.MedicalRestCell,
                      GameSession.DisorderSecurityBaseCell, GameSession.MedicalExitCell })
             Assert.IsTrue(grid.Get(cell).IsWalkable, $"Approach {cell} must remain walkable.");
