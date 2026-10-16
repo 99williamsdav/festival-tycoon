@@ -66,7 +66,7 @@ public partial class Main
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        BeginHandsOn(GameSession.CreateHandsOnCampaign(seed));
+        BeginHandsOn(GameSession.CreateHandsOnCampaign(seed).WithCurrentBarnGeometry());
         GD.Print($"HANDS_ON_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} steward={_session.HandsOnStewardId}");
     }
 

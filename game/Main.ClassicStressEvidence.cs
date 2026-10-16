@@ -49,7 +49,7 @@ public partial class Main
     }
     private void StressNormalReady()
     {
-        BeginClassicCampaign(GameSession.CreateClassicCampaign(20260922));CloseClassicForecast();_classicForecastAccepted=true;
+        BeginClassicCampaign(GameSession.CreateClassicCampaign(20260922).WithCurrentBarnGeometry());CloseClassicForecast();_classicForecastAccepted=true;
         var perk=_session.CapturePerks()!;ArchitectureSend(new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
         ArchitectureSend(new SetClassicTicketPriceCommand(500));
         var acts=_session.GetFestivalActs().Where(a=>_session.ActStandingOf(a)==ActStanding.Available).OrderBy(_session.ActFee).ThenBy(a=>a.Id,StringComparer.Ordinal).Take(3).Select(a=>a.Id).ToArray();
@@ -66,7 +66,7 @@ public partial class Main
             var frame=_classicStressFrame++;
             if(frame==0)
             {
-                _challengeFlowEnabled=true;BeginClassicCampaign(GameSession.CreateClassicCampaign(20260922));CloseClassicForecast();
+                _challengeFlowEnabled=true;BeginClassicCampaign(GameSession.CreateClassicCampaign(20260922).WithCurrentBarnGeometry());CloseClassicForecast();
                 StressCheck("ordinary-initial-save",SaveMilestone("Normal Classic isolation baseline"));
                 _classicStressOrdinaryHash=_session.CaptureSnapshot().AuthoritativeHash;_classicStressOrdinaryFiles=StressNormalFiles();
                 CloseClassicForecast();_classicForecastAccepted=true;
@@ -139,7 +139,7 @@ public partial class Main
             if(frame==168)StressPicture("14-pond-only-own-generator-cut");
             if(frame==176)
             {
-                BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true));StressOverview();
+                BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true).WithCurrentBarnGeometry());StressOverview();
                 foreach(var (kind,count) in new[]{(BuildServiceKind.FoodVan,5),(BuildServiceKind.WaterTap,4),(BuildServiceKind.Toilet,4),
                     (BuildServiceKind.Bar,3),(BuildServiceKind.FirstAid,2),(BuildServiceKind.StewardPost,2),(BuildServiceKind.Marquee,2),(BuildServiceKind.Bin,14)})
                     while(_session.CaptureBuildPlacements().Count(p=>p.Kind==kind)<count)StressPlace(kind);
@@ -164,7 +164,7 @@ public partial class Main
             if(frame==216)StressPicture("19-additional-buildings-world");
             if(frame==224)
             {
-                BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true));StressOverview();
+                BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true).WithCurrentBarnGeometry());StressOverview();
                 StressCheck("explicit-reset-restores-reference",_session.CapturePreparation()!.OpeningCashPennies==150000&&_session.CapturePreparation()!.SeenActs.Length==3&&_session.CaptureClassicHistory()!.CompletedFestivals.Length==1);
                 StressCheck("normal-save-still-byte-identical",_classicStressOrdinaryFiles.All(p=>File.Exists(p.Key)&&StressFileHash(p.Key)==p.Value));
             }
@@ -233,7 +233,7 @@ public partial class Main
     }
     private void StressSingleStage(int mask,string stageId)
     {
-        BeginClassicCampaign(GameSession.CreateClassicDevelopmentStart(mask,true,true));StressOverview();
+        BeginClassicCampaign(GameSession.CreateClassicDevelopmentStart(mask,true,true).WithCurrentBarnGeometry());StressOverview();
         var perk=_session.CapturePerks()!;ArchitectureSend(new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
         var acts=_session.GetFestivalActs().Where(a=>_session.ActStandingOf(a)!=ActStanding.Locked).OrderBy(_session.ActFee).Take(3).Select(a=>a.Id).ToArray();
         ArchitectureSend(new SetProgrammeCommand(acts){StageId=stageId});ArchitectureSend(new ConfirmClassicBookingsCommand());ArchitectureSend(new UseDefaultBuildLayoutCommand());
@@ -252,7 +252,7 @@ public partial class Main
         if(_classicStressProfileReady==0)
         {
             if(_classicStressProfileKind=="baseline")StressNormalReady();
-            else if(_classicStressProfileKind=="stress")BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true));
+            else if(_classicStressProfileKind=="stress")BeginClassicCampaign(GameSession.CreateClassicDevelopmentTestDefaults(true,true).WithCurrentBarnGeometry());
             else throw new ArgumentException("Use baseline or stress for the Classic profile.");
             StressOverview();PreparationStart();_session.AdvanceWithoutSnapshot(8000);_foundationPresentation.Reset(_session.CaptureObservation());_host.Clock.ResetBoundary();
             RenderingServer.ViewportSetMeasureRenderTime(GetViewport().GetViewportRid(),true);

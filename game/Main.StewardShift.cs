@@ -41,7 +41,7 @@ public partial class Main
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        BeginStewardShift(GameSession.CreateStewardShift(seed, tier));
+        BeginStewardShift(GameSession.CreateStewardShift(seed, tier,currentBarnGeometry:true));
         GD.Print($"STEWARD_SHIFT_STARTED id={_session.CampaignId.Value} seed={seed} tier={tier} player={_session.PlayerStewardId}");
     }
 

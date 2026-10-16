@@ -25,7 +25,7 @@ public partial class Main
     {
         if (tier is < 1 or > GameSession.HighestTier) throw new ArgumentOutOfRangeException(nameof(tier));
         LeaveHandsOnHost();
-        var next = tier == 1 ? CreateFreshBuildCampaign(out _) : GameSession.CreateRecordedTierTwoStart();
+        var next = tier == 1 ? CreateFreshBuildCampaign(out _) : GameSession.CreateRecordedTierTwoStart().WithCurrentBarnGeometry();
         SwitchToFestival(next);
         GD.Print($"DEVELOPMENT_TIER_STARTED id={_session.CampaignId.Value} seed={_session.CampaignSeed} tier={tier} status={_session.PreparedStatus}");
         StartMenu.Close();
@@ -86,7 +86,7 @@ public partial class Main
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        return pondStageTrial ? GameSession.CreateBuildCampaign(seed, pondStageTrial: true) : GameSession.CreateBuildCampaign(seed);
+        return (pondStageTrial ? GameSession.CreateBuildCampaign(seed, pondStageTrial: true) : GameSession.CreateBuildCampaign(seed)).WithCurrentBarnGeometry();
     }
 
 }

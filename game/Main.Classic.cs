@@ -35,7 +35,7 @@ public partial class Main
         do seed=BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while(seed==0||_menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        BeginClassicCampaign(GameSession.CreateClassicCampaign(seed));
+        BeginClassicCampaign(GameSession.CreateClassicCampaign(seed).WithCurrentBarnGeometry());
     }
     private void BeginClassicCampaign(GameSession session)
     {

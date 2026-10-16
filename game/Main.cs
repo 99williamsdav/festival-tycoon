@@ -48,8 +48,8 @@ public partial class Main : Node, IHudHost
         _host = new SessionHost(_barnEvidenceOutput is not null ? BarnStageFixture.Create(20260922) :
             _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
-            _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag) :
-            _litterEvidenceOutput is not null || _cowHerdEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility,
+            _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag).WithCurrentBarnGeometry() :
+            _litterEvidenceOutput is not null || _cowHerdEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922).WithCurrentBarnGeometry(), SaveDirectory, _saveCompatibility,
             _saveWarningEvidenceOutput is null ? null : _ => { if (_saveWarningInjectFailure) throw new IOException("Injected native save failure before replacement"); });
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_tractorEvidenceOutput is not null){ProcessTractorEvidence(delta);return;}
         if(_classicStressEvidenceOutput is not null){ProcessClassicStressEvidence(delta);return;}
         if(_cowHerdEvidenceOutput is not null){ProcessCowHerdEvidence();return;}
         if(_ticketEvidenceOutput is not null){ProcessTicketEvidence();return;}
@@ -637,6 +638,7 @@ public partial class Main : Node, IHudHost
             else if(args[i]=="--capture-classic-weather"&&i+1<args.Length){_weatherEvidenceOutput=args[++i];_architectureEvidenceOutput=_weatherEvidenceOutput;}
             else if(args[i]=="--capture-cow-herd"&&i+1<args.Length){_cowHerdEvidenceOutput=args[++i];_architectureEvidenceOutput=_cowHerdEvidenceOutput;}
             else if(args[i]=="--capture-classic-stress"&&i+1<args.Length){_classicStressEvidenceOutput=args[++i];_architectureEvidenceOutput=_classicStressEvidenceOutput;}
+            else if(args[i]=="--capture-tractor"&&i+1<args.Length){_tractorEvidenceOutput=args[++i];_architectureEvidenceOutput=_tractorEvidenceOutput;}
             else if(args[i]=="--classic-stress-profile"&&i+1<args.Length)_classicStressProfileKind=args[++i];
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)

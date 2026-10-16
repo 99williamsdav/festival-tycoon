@@ -39,7 +39,7 @@ public partial class Main
             var session=defaults?GameSession.CreateClassicDevelopmentTestDefaults(guarantee.ButtonPressed,cash.ButtonPressed):
                 GameSession.CreateClassicDevelopmentStart(mask,guarantee.ButtonPressed,cash.ButtonPressed);
             _classicDevelopmentPicker?.QueueFree();_classicDevelopmentPicker=null;
-            BeginClassicCampaign(session);SaveMilestone("Classic development start");
+            BeginClassicCampaign(session.WithCurrentBarnGeometry());SaveMilestone("Classic development start");
         }
         var start=Ui.Style(new Button{Name="ClassicDevStart",Text="Start with these choices"},Ui.ButtonKind.Primary,16);buttons.AddChild(start);start.Pressed+=()=>Begin(false);
         var defaultsButton=Ui.Style(new Button{Name="ClassicDevDefaults",Text="Use defaults for test · all 3 stages"},Ui.ButtonKind.Secondary,16);buttons.AddChild(defaultsButton);defaultsButton.Pressed+=()=>Begin(true);

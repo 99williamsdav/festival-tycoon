@@ -14,6 +14,7 @@ public partial class Main
     private string? _barnGeneratorVariant;
     private Label3D? _barnStageHeading;
     private Node3D? _barnStageKit;
+    private Node3D? _barnTractor;
     private Node3D[] _barnConversionParts = [];
     private OmniLight3D[] _barnVenueLights = [];
     private ulong _barnGeneratorPickId;
@@ -54,6 +55,9 @@ public partial class Main
     private void BuildBarnStageWorld(StaticBody3D body, Node3D model)
     {
         _barnFade = RoofFade.Attach(model,BarnFadeSurface,twoSided:false);
+        // Separate sibling: barn roof/wall fade must never change the tractor's opaque materials.
+        _barnTractor=InstantiateAsset("res://assets/environment/blue-tractor-v1/blue_tractor_B_v1.glb");
+        _barnTractor.Name="BarnStorageTractor";_barnTractor.Position=new(0,0,2.1f);body.AddChild(_barnTractor);
         // Only sparse frame targets pick the building. The authoritative walls are in BarnLayout, not this ray layer.
         foreach (var (x,z,height) in new[] {(-4.1f,6f,5.4f),(4.1f,6f,5.4f),(-8.75f,5.9f,2.8f),(-6.55f,5.9f,2.8f),
             (-9.8f,-5.9f,5.4f),(9.8f,-5.9f,5.4f),(-9.8f,5.9f,5.4f),(9.8f,5.9f,5.4f)})
@@ -79,6 +83,7 @@ public partial class Main
     private void SyncBarnConversion()
     {
         var active = _session.BarnStageOpen;
+        if(_barnTractor is not null)_barnTractor.Visible=_session.BarnTractorPresent;
         if (_barnStageKit is not null) _barnStageKit.Visible = active;
         foreach(var part in _barnConversionParts) part.Visible = active;
         if (_barnStageHeading is not null) _barnStageHeading.Visible = active;
