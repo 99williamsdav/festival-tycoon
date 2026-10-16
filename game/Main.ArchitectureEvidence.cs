@@ -30,8 +30,8 @@ public partial class Main
     private void ArchitectureSave(string name)
     {
         var hash = _session.CaptureSnapshot().AuthoritativeHash;
-        var save = SaveFileAdapter.SaveSlot(_host.SaveDirectory, name, new(_session, _saveCompatibility, "native-smoke", DateTimeOffset.UtcNow));
-        var loaded = SaveFileAdapter.LoadSlot(_host.SaveDirectory, name, _saveCompatibility);
+        var save = SaveFileAdapter.SaveSlot(_host.SaveDirectory, name, new(_session, _host.Compatibility, "native-smoke", DateTimeOffset.UtcNow));
+        var loaded = SaveFileAdapter.LoadSlot(_host.SaveDirectory, name, _host.Compatibility);
         ArchitectureCheck(name + "-file-roundtrip", save.IsSuccess && loaded.IsSuccess && loaded.Session!.Identity == _session.Identity
             && loaded.Session.CaptureSnapshot().AuthoritativeHash == hash);
     }

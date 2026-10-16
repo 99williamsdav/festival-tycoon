@@ -20,7 +20,8 @@ diff, check it against the intent and the project rules below, and reply with fi
 2. **Saves are validated by recomputation.** On load, `ValidatePersisted*` methods rebuild what the
    state should be (offers, wages, names, payments, staff profiles) and reject anything that differs.
    Any change to derived values, such as a wage or a generated name, changes what old saves contain, so:
-3. **Bump the save identity** (`r0-build-vN` in `game/Main.cs`, `_saveCompatibility`) whenever saved
+3. **Bump the save identity** (`r0-build-vN` in `game/Main.cs`, `_saveCompatibility`; Classic has its own
+   `ClassicSaveIdentity` in `game/Main.Classic.cs`, which names both its folder and its header) whenever saved
    content or anything derived from it changes. A missed bump means old saves fail validation.
 4. **New saved or derived state needs a matching validation rule** and a restore round-trip test
    (`GameSession.Restore(s.CapturePersistenceSnapshot())` must succeed with an equal authoritative hash).

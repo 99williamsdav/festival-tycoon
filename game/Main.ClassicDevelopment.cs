@@ -11,9 +11,9 @@ public partial class Main
     private CanvasLayer? _classicDevelopmentPicker;
     private string? _classicStressEvidenceOutput;
     private string ClassicDevelopmentSaveDirectory=>(_classicStressEvidenceOutput??_architectureEvidenceOutput) is {} output?System.IO.Path.Combine(output,"development-saves"):
-        ProjectSettings.GlobalizePath("user://saves/r0-classic-development-v1");
+        ProjectSettings.GlobalizePath("user://saves/r0-classic-development-v2");
     private GameSession? SavedClassicDevelopment()=>_classicDevelopmentHost?.Session??
-        (AutosaveRotation.LoadNewestValid(ClassicDevelopmentSaveDirectory,_saveCompatibility).Session is{IsClassicDevelopment:true} saved?saved:null);
+        (AutosaveRotation.LoadNewestValid(ClassicDevelopmentSaveDirectory,_classicSaveCompatibility).Session is{IsClassicDevelopment:true} saved?saved:null);
     private void ShowClassicDevelopmentPicker()
     {
         _classicDevelopmentPicker?.QueueFree();

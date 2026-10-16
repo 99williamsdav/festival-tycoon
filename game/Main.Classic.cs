@@ -11,10 +11,15 @@ public partial class Main
 {
     private SessionHost? _classicCampaignHost;
     private SessionHost? _classicDevelopmentHost;
+    // Classic keeps its own identity so its header moves with its folder; Survival's r0-build-vN doesn't.
+    // Bump both together whenever Classic's saved content or its derived rules change.
+    private const string ClassicSaveIdentity = "r0-classic-v102";
+    private SaveCompatibility _classicSaveCompatibility =>
+        new("0.0.1-" + ClassicSaveIdentity, LowerWitteringFarmScenario.ContentCompatibilityHash, ClassicSaveIdentity);
     private string ClassicSaveDirectory=>_architectureEvidenceOutput is not null
-        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v101");
+        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/"+ClassicSaveIdentity);
     private GameSession? SavedClassicCampaign()=>_classicCampaignHost?.Session??
-        (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_saveCompatibility).Session is{IsClassicCampaign:true,IsClassicDevelopment:false} saved?saved:null);
+        (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_classicSaveCompatibility).Session is{IsClassicCampaign:true,IsClassicDevelopment:false} saved?saved:null);
 
     private void PickClassicCampaign()
     {
@@ -41,8 +46,8 @@ public partial class Main
     {
         LeaveHandsOnHost();ParkCampaignHost();
         if(session.IsClassicDevelopment)
-        {_classicDevelopmentHost??=new SessionHost(session,ClassicDevelopmentSaveDirectory,_saveCompatibility);_host=_classicDevelopmentHost;}
-        else{_classicCampaignHost??=new SessionHost(session,ClassicSaveDirectory,_saveCompatibility);_host=_classicCampaignHost;}
+        {_classicDevelopmentHost??=new SessionHost(session,ClassicDevelopmentSaveDirectory,_classicSaveCompatibility);_host=_classicDevelopmentHost;}
+        else{_classicCampaignHost??=new SessionHost(session,ClassicSaveDirectory,_classicSaveCompatibility);_host=_classicCampaignHost;}
         SwitchToFestival(session);StartMenu.Close();RefreshChallengeReveal();
         _preparationMessage=$"Classic{(_session.IsClassicDevelopment?" DEVELOPMENT TEST":"")} · Festival {_session.FestivalNumber}. {_session.CaptureClassicForecast()!.Summary} Choose three acts per open stage and hire your crew.";
         RefreshPreparationHud();

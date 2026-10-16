@@ -269,7 +269,7 @@ public partial class Main
         var elapsed=Stopwatch.GetElapsedTime(_classicStressProfileStarted,now).TotalSeconds;if(elapsed<90)return;
         static object Stats(IEnumerable<double> values)
         {var sorted=values.Order().ToArray();double P(double p)=>sorted[Math.Clamp((int)Math.Ceiling(sorted.Length*p)-1,0,sorted.Length-1)];return new{count=sorted.Length,mean=sorted.Average(),p50=P(.5),p95=P(.95),p99=P(.99),max=sorted[^1]};}
-        var p=_session.CapturePreparation()!;var cadence=AutosaveRotation.LoadNewestValid(_host.SaveDirectory,_saveCompatibility);
+        var p=_session.CapturePreparation()!;var cadence=AutosaveRotation.LoadNewestValid(_host.SaveDirectory,_host.Compatibility);
         var result=new{diagnostic="Classic native production-method profile",kind=_classicStressProfileKind,debug=OS.IsDebugBuild(),
             godot=Engine.GetVersionInfo()["string"].AsString(),os=System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             cpuCount=System.Environment.ProcessorCount,architecture=System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString(),
