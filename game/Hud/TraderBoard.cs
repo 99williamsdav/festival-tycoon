@@ -34,7 +34,7 @@ internal sealed class TraderBoard(IHudHost _hud, Action _changed)
     /// <summary>The dimmed area and board, for the HUD's "is the mouse over UI" checks.</summary>
     public Control? Panel => _dim;
 
-    private enum Look { Normal, Booked, TierLocked, Elsewhere, ComingSoon }
+    private enum Look { Normal, Booked, TierLocked, Elsewhere, ComingSoon, Fixed }
 
     public void Build(CanvasLayer layer)
     {
@@ -114,7 +114,8 @@ internal sealed class TraderBoard(IHudHost _hud, Action _changed)
         _root.Visible = allowed && Van is not null;
         if (!_root.Visible || Van is not { } van) return;
         var tier = session.CapturePreparation()?.Tier ?? 1;
-        var key = $"{van}|{tier}|{session.IsClassicCampaign}|" + string.Join(",", placed.Select(item => item + "=" + session.TraderAt(item).Id)) + "|" +
+        var open = session.CanChooseFoodTraders;
+        var key = $"{van}|{tier}|{session.IsClassicCampaign}|{open}|" + string.Join(",", placed.Select(item => item + "=" + session.TraderAt(item).Id)) + "|" +
             string.Join(",", FoodTraders.All.Select(trader => session.TraderUnavailable(van, trader) ?? "ok"));
         if (key == _key) return;
         _key = key;
@@ -134,7 +135,10 @@ internal sealed class TraderBoard(IHudHost _hud, Action _changed)
         {
             var issue = trader.Id == current.Id ? null : session.TraderUnavailable(van, trader);
             var elsewhere = issue is null || trader.FromTier > tier ? null : session.TraderBookedElsewhere(van, trader);
-            var look = trader.Id == current.Id ? Look.Booked : trader.FromTier > tier ? Look.TierLocked : elsewhere is not null ? Look.Elsewhere : Look.Normal;
+            // Once the plan is paid at Start the traders are fixed: every other flyer locks.
+            var look = trader.Id == current.Id ? Look.Booked : trader.FromTier > tier ? Look.TierLocked : elsewhere is not null ? Look.Elsewhere
+                : open ? Look.Normal : Look.Fixed;
+            if (look == Look.Fixed) issue = "Traders are fixed once the festival's plan is paid at Start.";
             var sharing = placed.Count(other => other != van && session.TraderAt(other).Product == trader.Product);
             var note = look is Look.Normal or Look.Booked ? TraderFlyers.SameCuisineNote(trader, sharing) : null;
             var card = Card(width, trader.Name, trader.Menu, trader.Strapline, new Color(trader.CardColour), trader.Art,
@@ -220,7 +224,7 @@ internal sealed class TraderBoard(IHudHost _hud, Action _changed)
     private Button Card(float w, string name, string menu, string strapline, Color colour, string art, string pays, string portion, TraderPips? pips, Look look,
         IReadOnlyList<TraderChip> chips, string? note, string? tape, string? elsewhere, string van)
     {
-        var grey = look is Look.TierLocked or Look.Elsewhere;
+        var grey = look is Look.TierLocked or Look.Elsewhere or Look.Fixed;
         var faded = grey || look == Look.ComingSoon;
         var card = new Button { Size = Ui.S(w, CardHeight), CustomMinimumSize = Ui.S(w, CardHeight), Disabled = look is not (Look.Normal or Look.Booked),
             FocusMode = look is Look.Normal or Look.Booked ? Control.FocusModeEnum.All : Control.FocusModeEnum.None, MouseDefaultCursorShape = look == Look.Normal ? Control.CursorShape.PointingHand : Control.CursorShape.Arrow };

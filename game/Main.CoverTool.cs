@@ -32,6 +32,7 @@ public partial class Main
 
     private void BeginCoverTool(GroundCoverAction action)
     {
+        TraderFlyerBoard.Dismiss();
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
         CancelBuildPlacement();
         CancelCoverTool();

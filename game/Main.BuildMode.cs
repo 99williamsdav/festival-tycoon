@@ -72,6 +72,8 @@ public partial class Main : IBuildActions
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
         _buildDrawerOpen = true; _hudWorkspaceOpen = false;
+        // Showing a Build row (or any other part of the catalogue) puts the trader board away, so it can't pop back later.
+        if (focus is not BuildServiceKind.FoodVan) TraderFlyerBoard.Dismiss();
         RefreshHudWorkspace();
         if (focus is { } kind) Drawer.FocusRow(kind);
     }
@@ -115,6 +117,8 @@ public partial class Main : IBuildActions
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing) return;
 CancelBuildPlacement();
+        // Placing or moving anything but a van puts the trader board away; a van keeps it (a new van opens its own tab).
+        if (kind != BuildServiceKind.FoodVan) TraderFlyerBoard.Dismiss();
         _buildGhostKind = kind; _buildMovingId = movingId;
         _buildClickRejected = false;
         _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :
@@ -184,14 +188,15 @@ CancelBuildPlacement();
         { _preparationMessage = issue; _buildClickRejected = true; RefreshPreparationHud(); return; }
         var command = _buildMovingId is null ? (SessionCommand)new PlaceBuildServiceCommand(kind, cell, _buildQuarterTurns) :
             new MoveBuildServiceCommand(_buildMovingId, cell, _buildQuarterTurns);
-        // A new van opens the trader board on its tab, to choose who pitches there.
-        var newVan = kind == BuildServiceKind.FoodVan && _buildMovingId is null ? Stalls.Next(kind, _session.CaptureBuildPlacements().Select(item => item.Id)) : null;
+        var placingVan = kind == BuildServiceKind.FoodVan && _buildMovingId is null;
+        var vansBefore = _session.PlacedVans.ToArray();
         var before = _session.CaptureSnapshot().AuthoritativeHash;
         CommitEquipmentAction(command);
         if (_session.CaptureSnapshot().AuthoritativeHash == before) return;
         CancelBuildPlacement(); SyncBuildWorld();
         _buildDrawerOpen = true;
         RefreshHudWorkspace(); Drawer.Refresh();
-        if (newVan is not null) OpenTraderBoard(newVan);
+        // A new van opens the trader board on its tab, to choose who pitches there: the van the placement actually added.
+        if (placingVan && _session.PlacedVans.Except(vansBefore).FirstOrDefault() is { } newVan) OpenTraderBoard(newVan);
     }
 }

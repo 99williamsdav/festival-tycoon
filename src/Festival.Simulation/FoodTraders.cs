@@ -189,9 +189,12 @@ public sealed partial class GameSession
             .Concat(ChosenTraders(_preparation?.Plan).Where(item => item.VanId != vanId))
             .FirstOrDefault(item => item.Trader.Id == trader.Id).VanId;
 
+    /// <summary>Whether traders can still be chosen: while preparing, until the plan is paid at Start.</summary>
+    public bool CanChooseFoodTraders => _preparation is { Status: PreparationStatus.Preparing, Plan: { Committed: false } };
+
     private CommandResult? ValidateChooseFoodTrader(EntityId? target, ChooseFoodTraderCommand command)
     {
-        if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
+        if (target is not null || !CanChooseFoodTraders)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose the food trader while preparing.");
         if (FoodTraders.Find(command.TraderId) is not { } trader) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown food trader.");
         if (!Stalls.IsVan(command.VanId) || Stalls.Number(command.VanId) > ServiceLimit(BuildServiceKind.FoodVan))

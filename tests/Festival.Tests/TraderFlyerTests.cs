@@ -91,6 +91,21 @@ public sealed class TraderFlyerTests
     }
 
     [TestMethod]
+    public void TradersCanBeChosenOnlyUntilThePlanIsPaidAndTheBoardLocksWithTheCommand()
+    {
+        var s = BuildSession.Planned();
+        Assert.IsTrue(s.CanChooseFoodTraders);
+        Assert.IsTrue(Validate(s, new ChooseFoodTraderCommand(Pizza.Id)) is null);
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        Assert.IsFalse(s.CanChooseFoodTraders, "Paid at Start: the flyers lock.");
+        Assert.IsNotNull(Validate(s, new ChooseFoodTraderCommand(Pizza.Id)), "And the command agrees.");
+    }
+
+    private static CommandResult? Validate(GameSession s, SessionCommand command) => s.ValidateCommand(new(new(s.NextSubmissionSequence + 1), s.CampaignId,
+        s.Phase, s.CurrentTick, s.NextSubmissionSequence, null, command));
+
+    [TestMethod]
     public void ASurvivalTraderAtAnotherVanSaysWhichVan()
     {
         var s = BuildSession.Planned();
