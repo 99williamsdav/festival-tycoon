@@ -609,6 +609,7 @@ public sealed partial class GameSession
         session.RestoreWeather(snapshot.Weather);
         session._stewardShift = snapshot.StewardShift;
         if (session.PlayerStewardWorkIssue() is { } shiftWork) return SessionRestoreResult.Failure(shiftWork);
+        if (session.ListenerPlaceIssue() is { } placeIssue) return SessionRestoreResult.Failure(placeIssue);
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");

@@ -163,10 +163,11 @@ public sealed partial class GameSession
         foreach (var origin in disorder.Incidents.Where(origin => origin.HandlingAttempt is not null))
         {
             var attempt = origin.HandlingAttempt!;
-            // The player steward's own break-up (PlayerBreakUp) is a finished attempt by a staff member with no crew response
-            // job, and the shift lets go of the player's id once the day is over.
-            var byPlayer = snapshot.StewardShift is not null && attempt.Outcome is FightHandlingOutcome.Succeeded or FightHandlingOutcome.Failed &&
-                snapshot.Preparation?.People.Any(person => person.AgentId == attempt.WorkerId && person.Role == ProtectedPersonRole.Staff) == true;
+            // The player steward's own break-up (PlayerBreakUp) is a finished attempt by someone with no crew response job:
+            // the player on shift, or, once the day is over and the shift has let go of the player's id, the hands-on
+            // campaign's own steward.
+            var player = snapshot.StewardShift is { } shift ? shift.PlayerId ?? HandsOnStewardOf(snapshot.Preparation) : null;
+            var byPlayer = player == attempt.WorkerId && attempt.Outcome is FightHandlingOutcome.Succeeded or FightHandlingOutcome.Failed;
             if (!Enum.IsDefined(attempt.Outcome) ||
                 !byPlayer && !jobs.Any(job => job.WorkerId == attempt.WorkerId) || jobs.Any(job => job.WorkerId == origin.OpponentId) ||
                 attempt.StartedTick < origin.FightTick || attempt.StartedTick > snapshot.CurrentTick ||

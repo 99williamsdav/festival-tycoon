@@ -131,7 +131,7 @@ public sealed class CrowdStandingTests
     [TestMethod]
     public void AFanAtTheFrontEnjoysTheSetMoreThanAtTheBack()
     {
-        var earned = new List<int>();
+        var earned = new List<int>(); // per second listened, so a step aside partway through costs nothing here
         foreach (var depth in new[] { 0, 16 })
         {
             var s = LiveSession(20260922);
@@ -143,9 +143,10 @@ public sealed class CrowdStandingTests
                 ? l with { Place = place, AtPlace = true, Enthusiasm = 100, ListenedTicks = 0, EnjoymentEarned = 0, LastDecisionTick = s.CurrentTick + 1_000_000 }
                 : l with { Place = null, AtPlace = false, LastDecisionTick = s.CurrentTick + 1_000_000 }).ToArray() });
             s.AdvanceWithoutSnapshot(1_600);
-            earned.Add(s.CaptureLivePerformance()!.Listeners.Single(l => l.AgentId == fan).EnjoymentEarned);
+            var after = s.CaptureLivePerformance()!.Listeners.Single(l => l.AgentId == fan);
+            earned.Add(after.EnjoymentEarned * 100 / Math.Max(1, after.ListenedTicks / 80));
         }
-        Console.WriteLine($"A fan's enjoyment over twenty seconds: front {earned[0]}, back {earned[1]}");
+        Console.WriteLine($"A fan's enjoyment per hundred seconds: front {earned[0]}, back {earned[1]}");
         Assert.IsTrue(earned[1] > 0, "The fan at the back still hears the set.");
         Assert.IsTrue(earned[0] * 100 >= earned[1] * 110, "The front is worth more to a fan.");
     }
@@ -172,8 +173,26 @@ public sealed class CrowdStandingTests
         var outside = With(l => l.AgentId == placed[1].AgentId ? l with { Place = new GridCell(Trailer.AudienceBounds.MaxX + 1, Trailer.Sightline) } : l);
         var blocked = saved.TraversalGrid!.Cells.First(c => !c.IsWalkable && Trailer.InAudienceArea(new(c.X, c.Z)));
         var solid = With(l => l.AgentId == placed[1].AgentId ? l with { Place = new GridCell(blocked.X, blocked.Z) } : l);
-        foreach (var bad in new[] { shared, outside, solid })
+        // Nor on the stage's own access ground (outside every audience, so the area check refuses it first).
+        var access = Enumerable.Range(80, 40).SelectMany(x => Enumerable.Range(120, 50).Select(z => new GridCell(x, z))).First(Trailer.Access);
+        var onAccess = With(l => l.AgentId == placed[1].AgentId ? l with { Place = access } : l);
+        foreach (var bad in new[] { shared, outside, solid, onAccess })
             Assert.IsFalse(GameSession.Restore(saved with { LivePerformances = [bad] }).IsSuccess);
+
+        // Nor on a queue's own cell, where a queue has grown into the audience's ground.
+        GridCell[] QueueCells() => s.CaptureWaterPoints().SelectMany(p => s.CaptureWaterQueueCells(p.Id))
+            .Concat(s.CaptureVendors().SelectMany(v => s.CaptureImmersionQueueCells(v.Id)))
+            .Concat(s.CaptureToilets().SelectMany(t => t.QueueCells ?? [])).Where(Trailer.InAudienceArea).ToArray();
+        for (var i = 0; i < 60 && QueueCells().Length == 0; i++) s.AdvanceWithoutSnapshot(400);
+        var queue = QueueCells().First();
+        var later = s.CapturePersistenceSnapshot();
+        var laterLive = later.LivePerformances![0]!;
+        var someone = laterLive.Listeners.First(l => l.Place is not null && s.CapturePerson(l.AgentId) is { Departed: false });
+        var onQueue = laterLive with { Listeners = laterLive.Listeners.Select(l => l.AgentId == someone.AgentId ? l with { Place = queue } :
+            l.Place == queue ? l with { Place = null } : l).ToArray() };
+        var refused = GameSession.Restore(later with { LivePerformances = [onQueue] });
+        Assert.IsFalse(refused.IsSuccess);
+        Assert.AreEqual("Live performance listener stands on a queue.", refused.Error);
     }
 
     [TestMethod]
@@ -247,7 +266,112 @@ public sealed class CrowdStandingTests
         Assert.IsTrue(front > middle && middle > back && back < 1.2, "And thins towards the back.");
     }
 
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AMedicReachesSomeoneWhoCollapsesInAPackedFrontRow()
+    {
+        var s = PackedTwoHundred();
+        var (patient, _) = Surrounded(s);
+        var tick = s.CurrentTick;
+        Call(s, "UpdatePerson", patient, (Func<Person, Person>)(p => p with { HealthStage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed,
+            HealthWarningTick = tick - 1, HealthCollapseTick = tick }));
+        var medic = s.GetMedicResponses()[0].WorkerId;
+        // Sent as soon as they're free (a medic may be finishing a drink).
+        for (var i = 0; i < 60 && !BuildSession.Send(s, new MedicalCommand(patient, MedicalAction.DispatchMedic, medic)).IsAccepted; i++) s.AdvanceWithoutSnapshot(20);
+        Assert.AreEqual(patient, s.GetMedicResponses().Single(m => m.WorkerId == medic).PatientId, "The medic was sent.");
+        var sent = s.CurrentTick;
+        for (var i = 0; i < 1_600 && s.GetMedicResponses().Single(m => m.WorkerId == medic).Stage == MedicalResponseStage.Travelling; i++) s.AdvanceWithoutSnapshot(1);
+        var job = s.GetMedicResponses().Single(m => m.WorkerId == medic);
+        // Twenty seconds is the walk from the tent with the crowd making way; a stall at the patient's side runs past it.
+        Assert.AreEqual(MedicalResponseStage.Treating, job.Stage, $"The crowd lets the medic through to a front-row patient: {job.Description}");
+        Assert.AreEqual(patient, job.PatientId);
+        Console.WriteLine($"Medic reached the patient in {s.CurrentTick - sent} ticks.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AStewardReachesAFightInsideAPackedCrowd()
+    {
+        var s = PackedTwoHundred();
+        var (first, second) = Surrounded(s);
+        Call(s, "BeginDisorderFight", first, second, "labelled:packed-crowd-fight");
+        var worker = s.CaptureDisorder()!.SecurityId;
+        for (var i = 0; i < 60 && !BuildSession.Send(s, new DisorderCommand(DisorderAction.DispatchSecurity, first, worker)).IsAccepted; i++) s.AdvanceWithoutSnapshot(20);
+        Assert.AreEqual(first, s.GetStewardResponses().Single(j => j.WorkerId == worker).TargetId, "The steward was sent.");
+        var start = s.CurrentTick;
+        DisorderIncidentOrigin Fight() => s.CaptureDisorder()!.Incidents.Last(o => o.InitiatorId == first && o.OpponentId == second);
+        for (var i = 0; i < 800 && Fight().HandlingAttempt is null; i++) s.AdvanceWithoutSnapshot(1);
+        // Before the fight comes to blows (ten seconds in), the steward is there.
+        Assert.IsNotNull(Fight().HandlingAttempt, "The steward got through the crowd to the fight.");
+        Assert.AreEqual(worker, Fight().HandlingAttempt!.WorkerId);
+        Console.WriteLine($"Steward reached the fight in {s.CurrentTick - start} ticks.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void NobodyAtRestSharesACellWithAListener()
+    {
+        var s = TwoHundred();
+        var shared = new List<string>();
+        var started = s.CurrentTick;
+        while (s.PreparedStatus is PreparationStatus.Running && s.CurrentTick - started < Trailer.SlotEnds[2])
+        {
+            s.AdvanceWithoutSnapshot(400);
+            var standing = s.CaptureLivePerformances().SelectMany(live => live.Listeners).Where(l => l.AtPlace && l.Place is not null)
+                .ToDictionary(l => l.AgentId, l => l.Place!.Value);
+            var departed = s.CapturePreparation()!.People.Where(p => p.Departed).Select(p => p.AgentId).ToHashSet();
+            var cells = standing.Values.ToHashSet();
+            foreach (var agent in s.CaptureSnapshot().NavigationAgents)
+            {
+                if (agent.Action == AgentNavigationAction.Travelling || departed.Contains(agent.Id.Value)) continue;
+                var here = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+                if (cells.Contains(here) && !(standing.TryGetValue(agent.Id.Value, out var own) && own == here))
+                    shared.Add($"{s.CurrentTick - started}: {agent.Id.Value} ({agent.IntentId}) on a listener's cell {here}");
+            }
+        }
+        Console.WriteLine($"Checked to {s.CurrentTick - started}; {shared.Count} shared.");
+        Assert.AreEqual(0, shared.Count, string.Join("\n", shared.Take(10)));
+    }
+
     // ---- Set-up ----
+
+    private static void Call(GameSession s, string method, params object[] args) =>
+        typeof(GameSession).GetMethod(method, Hidden)!.Invoke(s, args);
+
+    /// <summary>A 200-guest Tier 1 day, opened.</summary>
+    private static GameSession TwoHundred()
+    {
+        var s = Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, 200);
+        var perks = s.CapturePerks()!;
+        BuildSession.Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
+        BuildSession.Accept(s, new UseDefaultBuildLayoutCommand());
+        BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        return s;
+    }
+
+    /// <summary>A 200-guest day an hour into its first set, its front packed; no taps or loos break to keep the crew busy.</summary>
+    private static GameSession PackedTwoHundred()
+    {
+        var s = BuildSession.WithoutFaults(TwoHundred());
+        s.AdvanceWithoutSnapshot(Trailer.SlotStarts[0] + 4_800);
+        return s;
+    }
+
+    /// <summary>Two neighbours at their places in the first metre, the first with the most people round them.</summary>
+    private static (ulong, ulong) Surrounded(GameSession s)
+    {
+        var standing = s.CaptureLivePerformance()!.Listeners.Where(l => l.AtPlace && s.CapturePerson(l.AgentId) is { Departed: false, Intent: MedicalIntent.WatchShow })
+            .ToDictionary(l => l.Place!.Value, l => l.AgentId);
+        int Around(GridCell c) => Enumerable.Range(-1, 3).SelectMany(dx => Enumerable.Range(-1, 3).Select(dz => new GridCell(c.X + dx, c.Z + dz))).Count(standing.ContainsKey) - 1;
+        var front = standing.Keys.Where(c => Trailer.Depth(c) <= 1 && Around(c) >= 5 &&
+            Enumerable.Range(-1, 3).Any(dz => dz != 0 && standing.ContainsKey(new(c.X, c.Z + dz)))).OrderByDescending(Around).ThenBy(c => c).First();
+        var beside = new[] { new GridCell(front.X, front.Z + 1), new GridCell(front.X, front.Z - 1) }.First(standing.ContainsKey);
+        Console.WriteLine($"Front-row guest at {front} with {Around(front)} of eight cells round them taken.");
+        return (standing[front], standing[beside]);
+    }
 
     /// <summary>A Tier 1 day at its first set, with the stage's band on and the set playing.</summary>
     private static GameSession LiveSession(ulong seed)

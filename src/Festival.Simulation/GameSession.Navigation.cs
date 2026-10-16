@@ -125,13 +125,15 @@ public sealed partial class GameSession
             return new NavigationAgentSnapshot(agent.Id, prior.X, prior.Z, prior.Action, null, [], 0,
                 prior.X, prior.Z, 0, 0, 0, null, agent.WalkingSpeedPermille);
         }));
-        // A crowd stands a person to a half-metre cell, closer than walkers keep apart, so anyone may squeeze past a listener
-        // standing in an audience; only one standing on the walker's own goal still holds them up.
+        // A crowd stands a person to a half-metre cell, closer than walkers keep apart, so anyone may squeeze past whoever is
+        // standing still in an audience (a listener, someone picking up litter); only one standing on the walker's own goal
+        // still holds them up. Nobody comes to rest that way: a sidestep must be clear of everyone, and anyone who does stop
+        // on a listener's place sends that listener aside (ClaimedAudienceCells).
         _crowdStanders.Clear();
         foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id) && MovementOccupant(item.Id.Value)))
         {
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
-            if (agent.Action == AgentNavigationAction.Arrived && agent.IntentId?.StartsWith("performance.listen", StringComparison.Ordinal) == true &&
+            if (agent.Action != AgentNavigationAction.Travelling &&
                 TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres) is var standing && InStagesAudience(standing))
                 _crowdStanders[agent.Id] = standing;
         }
@@ -299,7 +301,7 @@ public sealed partial class GameSession
         return false;
     }
 
-    // Listeners standing in an audience this tick, by the cell they stand on; walkers may squeeze past them.
+    // Everyone standing still in an audience this tick, by the cell they stand on; walkers may squeeze past them.
     private readonly Dictionary<EntityId, GridCell> _crowdStanders = [];
 
     /// <summary>Whether anyone but <paramref name="except"/> is too close, a listener standing in a crowd only if on <paramref name="goal"/>.</summary>
@@ -309,6 +311,10 @@ public sealed partial class GameSession
             if (id != except && !(_crowdStanders.TryGetValue(id, out var standing) && standing != goal)) return true;
         return false;
     }
+
+    // A sidestep never lands on anyone, a crowd's listeners included: a walker can come to rest on a sidestep.
+    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>
+        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Count > 0;
 
     private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z, EntityId except) =>
         occupied.Query(x, z, SeparationRadiusMillimetres - 1).Any(id => id != except);
@@ -329,7 +335,7 @@ public sealed partial class GameSession
             var cell = TraversalGrid.WorldToCell(x, z);
             if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) ||
                 !BarnSweepClear(backup.X,backup.Z,x,z) ||
-                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflictPastCrowd(occupied, x, z, null, agent.Destination)) continue;
+                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
             if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;
             return true;

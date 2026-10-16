@@ -232,51 +232,66 @@ public sealed partial class GameSession
         HashSet<GridCell>? queueGround = null;
         CrowdGround? ground = null;
         bool[]? standable = null;
+        // Someone else resting on a listener's place, or a responder or anyone else on their way to stand on it, sends the
+        // listener aside straight away: nobody shares a cell with someone standing still.
+        var claimed = ClaimedAudienceCells();
+        var forced = claimed.Count == 0 ? [] : Enumerable.Range(0, listeners.Length)
+            .Where(i => listeners[i].Place is { } held && claimed.Contains(held) && !departed.Contains(listeners[i].AgentId)).ToHashSet();
         // Four identity cohorts spread bounded decisions. A full re-weigh waits out the dwell, a step forward into a gap a
         // shorter one, and either must beat staying put by a clear margin, so a settled crowd doesn't chase small changes.
-        foreach (var index in (periodic && live.Stage != LiveSetStage.Finished ? Enumerable.Range(0, listeners.Length)
-                     .Where(i => (CurrentTick / 80) % 4 == (long)(listeners[i].AgentId % 4)).OrderBy(i => listeners[i].AgentId)
-                     : Enumerable.Empty<int>()))
+        var deciding = (periodic && live.Stage != LiveSetStage.Finished ? Enumerable.Range(0, listeners.Length)
+                .Where(i => (CurrentTick / 80) % 4 == (long)(listeners[i].AgentId % 4)) : Enumerable.Empty<int>())
+            .Concat(forced).Distinct().OrderBy(i => listeners[i].AgentId).ToArray();
+        foreach (var index in deciding)
         {
             var listener = listeners[index];
+            var aside = forced.Contains(index);
             if (AudienceNavigationOwned(listener.AgentId) ||
                 PersonIn(PersonView.Roster, listener.AgentId) is not { Admitted: true, Departed: false }) continue;
             var since = CurrentTick - listener.LastDecisionTick;
-            var full = since >= CrowdStanding.DwellTicks;
+            var full = aside || since >= CrowdStanding.DwellTicks;
             if (!full && (since < CrowdStanding.ShuffleDwellTicks || listener.Place is null)) continue;
             if (full) listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
-            if (listener.Place is not null && (start.Action != AgentNavigationAction.Arrived || start.Destination != listener.Place)) continue;
+            if (!aside && listener.Place is not null && (start.Action != AgentNavigationAction.Arrived || start.Destination != listener.Place)) continue;
             ground ??= CrowdGroundOf(stage, listeners, departed);
-            standable ??= CrowdStandable(ground, ref queueGround);
+            standable ??= CrowdStandable(ground, claimed, ref queueGround);
             var personalSpace = PersonalSpaceOf(listener);
             ground.LeaveOut(listener.Place);
-            var currentCost = listener.Place is { } current ? CrowdSpotCost(ground, listener, personalSpace, current, startCell) : int.MaxValue;
-            var options = CrowdCandidates(ground, listener.Place, startCell, full)
-                .Where(cell => standable[(cell.Z - ground.MinZ) * ground.Width + cell.X - ground.MinX] && !reserved.Contains(cell))
+            var currentCost = listener.Place is { } current && !aside ? CrowdSpotCost(ground, listener, personalSpace, current, startCell) : int.MaxValue;
+            bool Free(GridCell cell) => standable[(cell.Z - ground.MinZ) * ground.Width + cell.X - ground.MinX] && !reserved.Contains(cell);
+            var candidates = CrowdCandidates(ground, listener.Place, startCell, full).Where(Free).ToArray();
+            // Stepping aside in a packed crowd: anywhere on the ground will do if there's no room close by.
+            if (aside && candidates.Length == 0) candidates = CrowdCandidates(ground, null, startCell, true).Where(Free).ToArray();
+            var options = candidates
                 .Select(cell => (Cell: cell, Cost: CrowdSpotCost(ground, listener, personalSpace, cell, startCell)))
-                .Where(item => listener.Place is null || item.Cost + CrowdStanding.ImprovementThreshold <= currentCost)
+                .Where(item => currentCost == int.MaxValue || item.Cost + CrowdStanding.ImprovementThreshold <= currentCost)
                 .OrderBy(item => item.Cost).ThenBy(item => item.Cell).Take(8).ToArray();
             var crowdingHere = listener.Place is null ? 0 : ground.CrowdingAt(startCell);
             ground.LeaveOut(null);
+            var moved = false;
             foreach (var option in options)
             {
-                var route = DeterministicPathfinder.FindPath(_traversalGrid!, startCell, option.Cell);
-                if (!route.Found) continue;
-                if (listener.Place is { } old) { reserved.Remove(old); ground.Set(old, false); }
-                reserved.Add(option.Cell);
-                ground.Set(option.Cell, true);
-                listeners[index] = listener with { Place = option.Cell, AtPlace = false, LastDecisionTick = CurrentTick };
                 var near = def.NearGround;
                 var local = startCell.X >= near.MinX && startCell.X <= near.MaxX && startCell.Z >= near.MinZ && startCell.Z <= near.MaxZ;
                 var densityRetreat = local && listener.Place is not null && def.Depth(option.Cell) > def.Depth(startCell) && crowdingHere > personalSpace;
+                // The route there is planned once, preferring the crowd's gaps; a spot it can't reach is passed over.
                 _crowdRouteCost = CrowdRouteCost(ground);
                 ApplyAgentDestination(new(listener.AgentId), new(option.Cell,
                     densityRetreat ? "performance.listen-local-retreat" : local ? "performance.listen-local" : "performance.listen"));
                 _crowdRouteCost = null;
+                if (_navigationAgents[new(listener.AgentId)].Action == AgentNavigationAction.NoRoute) continue;
+                if (listener.Place is { } old) { reserved.Remove(old); ground.Set(old, false); }
+                reserved.Add(option.Cell);
+                ground.Set(option.Cell, true);
+                listeners[index] = listener with { Place = option.Cell, AtPlace = false, LastDecisionTick = CurrentTick };
+                moved = true;
                 break;
             }
+            // Nowhere reachable after all: back to the place they had.
+            if (!moved && options.Length > 0 && listener.Place is { } back)
+                ApplyAgentDestination(new(listener.AgentId), new(back, "performance.listen"));
         }
         Person[]? rewardedPeople = null;
         // How the set is playing, once for every listener this tick.
@@ -527,6 +542,23 @@ public sealed partial class GameSession
             ? AudiencePacePermille(listener.Enthusiasm) : 1000;
 
     /// <summary>
+    /// After a restore has rebuilt the queues: no listener still on site holds a place on a queue's own cell, which live
+    /// play never picks (it keeps two cells clear of every queue, a stricter rule than a save need meet).
+    /// </summary>
+    private string? ListenerPlaceIssue()
+    {
+        if (_livePerformances.All(live => live is null)) return null;
+        var queues = WaterPoints().SelectMany(point => CaptureWaterQueueCells(point.Id))
+            .Concat(_immersion is null ? [] : Vendors.SelectMany(VendorQueueCells))
+            .Concat(EffectiveToilets(_facilities).SelectMany(toilet => toilet.QueueCells ?? [])).ToHashSet();
+        foreach (var live in _livePerformances)
+            foreach (var listener in live?.Listeners ?? [])
+                if (listener.Place is { } place && queues.Contains(place) && PersonIn(PersonView.Roster, listener.AgentId) is { Departed: false })
+                    return "Live performance listener stands on a queue.";
+        return null;
+    }
+
+    /// <summary>
     /// Every stage's saved set: none before opening, or one entry a stage, in stage order, null for a stage with no set
     /// yet. Across the stages every guest is in exactly one crowd, and nobody plays in two bands at once.
     /// </summary>
@@ -593,7 +625,7 @@ public sealed partial class GameSession
             live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
                 item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * MaxEnjoymentPerSecond ||
                 item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
-                item.Place is { } place && (place.X < limits.MinX || place.X > limits.MaxX || place.Z < limits.MinZ || place.Z > limits.MaxZ)))
+                item.Place is { } place && (place.X < limits.MinX || place.X > limits.MaxX || place.Z < limits.MinZ || place.Z > limits.MaxZ || def.Access(place))))
             return "Live performance state invalid.";
         // One listener still on site to a cell, and every place on ground that can be stood on.
         var departed = preparation.People.Where(person => person.Departed).Select(person => person.AgentId).ToHashSet();

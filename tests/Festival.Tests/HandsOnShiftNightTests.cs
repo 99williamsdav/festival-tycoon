@@ -13,9 +13,9 @@ public sealed class HandsOnShiftNightTests
     private const ulong Seed = 20260922;
     private const BindingFlags Private = BindingFlags.NonPublic | BindingFlags.Instance;
 
-    private static GameSession Started(bool handsOn = true)
+    private static GameSession Started(bool handsOn = true, ulong seed = Seed)
     {
-        var s = handsOn ? GameSession.CreateHandsOnCampaign(Seed) : GameSession.CreateBuildCampaign(Seed);
+        var s = handsOn ? GameSession.CreateHandsOnCampaign(seed) : GameSession.CreateBuildCampaign(seed);
         var perks = s.CapturePerks()!;
         string[] quiet = ["extra-pair-of-hands", "doctors-orders"];
         for (var draws = 0; !perks.Hand.Any(quiet.Contains); draws++)
@@ -143,5 +143,29 @@ public sealed class HandsOnShiftNightTests
         CollectionAssert.AreEqual(night, StewardShiftPress.Highlights(night, 7).ToArray(), "All of them when they fit.");
         CollectionAssert.AreEqual(new long[] { 1, 2, 3, 4, 6 }, StewardShiftPress.Highlights(night, 5).Select(c => c.Tick).ToArray());
         CollectionAssert.AreEqual(new long[] { 2, 3, 6 }, StewardShiftPress.Highlights(night, 3).Select(c => c.Tick).ToArray());
+    }
+
+    [TestMethod]
+    public void TheAutopilotsOwnBreakUpSavesAndRestoresButNobodyElseCanClaimIt()
+    {
+        // A hands-on day left to the autopilot all day: sooner or later it breaks up a fight itself.
+        var s = Started(seed: 20260924); // a day on which the autopilot meets a fight it can reach
+        var steward = s.HandsOnStewardId!.Value;
+        DisorderIncidentOrigin? broken = null;
+        for (var i = 0; i < 500 && broken is null && s.PreparedStatus == PreparationStatus.Running; i++)
+        {
+            s.AdvanceWithoutSnapshot(80);
+            broken = s.CaptureDisorder()!.Incidents.FirstOrDefault(o => o.HandlingAttempt is { Outcome: FightHandlingOutcome.Succeeded or FightHandlingOutcome.Failed } attempt &&
+                attempt.WorkerId == steward);
+        }
+        Assert.IsNotNull(broken, "The autopilot broke up a fight itself.");
+        Assert.AreEqual(steward, s.PlayerStewardId, "Mid-day: the player's steward is on shift.");
+        BuildSession.Restored(s);
+        // Mid-day the attempt is the player's own: the same record in a bar worker's name is refused.
+        var saved = s.CapturePersistenceSnapshot();
+        var bar = saved.Preparation!.People.First(p => p.Role == ProtectedPersonRole.Staff && p.AgentId != steward &&
+            !saved.Disorder!.Stewards.Any(j => j.WorkerId == p.AgentId) && !saved.Medical!.Medics.Any(m => m.WorkerId == p.AgentId)).AgentId;
+        var forged = saved.Disorder! with { Incidents = saved.Disorder.Incidents.Select(o => o == broken ? o with { HandlingAttempt = o.HandlingAttempt! with { WorkerId = bar } } : o).ToArray() };
+        Assert.IsFalse(GameSession.Restore(saved with { Disorder = forged }).IsSuccess);
     }
 }

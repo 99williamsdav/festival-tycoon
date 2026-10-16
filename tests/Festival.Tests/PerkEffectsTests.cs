@@ -80,6 +80,7 @@ public sealed class PerkEffectsTests
         Assert.AreNotEqual(0UL, slow, "A slow drinker on this roster.");
         Assert.IsTrue(guests.All(g => s.EffectiveMedicalDrinkHeatPerTickFor(g) >= 1), "Even a slow drinker filling a bottle is cooled.");
         var (before, after) = (Days(null), Days(PerkCatalogue.BringYourOwnBottle));
+        Console.WriteLine($"Own bottles: tap visits {before.Taps} to {after.Taps}.");
         Assert.IsTrue(after.Taps < before.Taps, $"Tap visits {before.Taps} to {after.Taps}.");
     }
 
@@ -87,6 +88,7 @@ public sealed class PerkEffectsTests
     public void ColaFiendsBuySoftDrinksInsteadOfQueuingForTheTap()
     {
         var (before, after) = (Days(null), Days(PerkCatalogue.ColaFiends));
+        Console.WriteLine($"Cola fiends: taps/softs {before.Taps}/{before.Softs} to {after.Taps}/{after.Softs}.");
         Assert.IsTrue(after.Softs > before.Softs, $"Soft drinks {before.Softs} to {after.Softs}.");
         // The swap itself: fewer tap visits for every soft drink bought. And, within day-to-day noise (the rush at the bars
         // between sets sends a few to the tap), no more tap visits overall.

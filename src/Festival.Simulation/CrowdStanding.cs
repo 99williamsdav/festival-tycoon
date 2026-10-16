@@ -249,7 +249,7 @@ public sealed partial class GameSession
     /// The cells a listener may stand on: on this stage's audience ground, walkable, clear of every queue and its
     /// corridor, and not someone else's place. Worked out once a pass, when someone first needs it.
     /// </summary>
-    private bool[] CrowdStandable(CrowdGround ground, ref HashSet<GridCell>? queueGround)
+    private bool[] CrowdStandable(CrowdGround ground, HashSet<GridCell> claimed, ref HashSet<GridCell>? queueGround)
     {
         var standable = new bool[ground.Width * ground.Depth];
         for (var z = 0; z < ground.Depth; z++)
@@ -257,7 +257,7 @@ public sealed partial class GameSession
         {
             var cell = new GridCell(ground.MinX + x, ground.MinZ + z);
             standable[z * ground.Width + x] = _traversalGrid!.Contains(cell) && _traversalGrid.Get(cell).IsWalkable && !ground.Stage.Access(cell) &&
-                !NearQueue(cell, queueGround ??= AllQueueGround());
+                !claimed.Contains(cell) && !NearQueue(cell, queueGround ??= AllQueueGround());
         }
         return standable;
     }
@@ -298,19 +298,87 @@ public sealed partial class GameSession
     // thread the gaps where there are any and squeeze past people only where there aren't.
     private int[]? _crowdRouteCost;
     private int[]? _crowdRouteBuffer;
+    private bool[]? _crowdRouteMarked;
+    private readonly List<int> _crowdRouteMarks = [];
+    private int[]? _crowdRouteBase;
+    private bool _crowdRouteBuilt;
     private const int CrowdRouteExtraPermille = 2_000;
 
+    /// <summary>
+    /// The ground's own route cost with this crowd's bodies on top. The 256-by-256 copy is made only when the ground's
+    /// cost changes; otherwise only the audience cells whose body changed are touched. Its content is always just the
+    /// ground's cost plus this one crowd, so nothing carries over from one stage or pass to the next.
+    /// </summary>
     private int[] CrowdRouteCost(CrowdGround ground)
     {
         var cost = _crowdRouteBuffer ??= new int[TraversalGrid.Width * TraversalGrid.Depth];
-        if (_groundRouteCost is { } wet) Array.Copy(wet, cost, cost.Length); else Array.Clear(cost);
+        var marked = _crowdRouteMarked ??= new bool[cost.Length];
+        if (!_crowdRouteBuilt || !ReferenceEquals(_crowdRouteBase, _groundRouteCost))
+        {
+            if (_groundRouteCost is { } wet) Array.Copy(wet, cost, cost.Length); else Array.Clear(cost);
+            foreach (var index in _crowdRouteMarks) marked[index] = false;
+            _crowdRouteMarks.Clear();
+            _crowdRouteBase = _groundRouteCost;
+            _crowdRouteBuilt = true;
+        }
+        // Another crowd's bodies come off first.
+        for (var i = _crowdRouteMarks.Count - 1; i >= 0; i--)
+        {
+            var index = _crowdRouteMarks[i];
+            var cell = new GridCell(index % TraversalGrid.Width, index / TraversalGrid.Width);
+            if (ground.Inside(cell) && ground.Body(cell)) continue;
+            cost[index] -= CrowdRouteExtraPermille; marked[index] = false;
+            _crowdRouteMarks.RemoveAt(i);
+        }
         for (var z = 0; z < ground.Depth; z++)
         for (var x = 0; x < ground.Width; x++)
         {
             var cell = new GridCell(ground.MinX + x, ground.MinZ + z);
-            if (ground.Body(cell) && _traversalGrid!.Contains(cell)) cost[cell.Z * TraversalGrid.Width + cell.X] += CrowdRouteExtraPermille;
+            if (!_traversalGrid!.Contains(cell) || !ground.Body(cell)) continue;
+            var index = cell.Z * TraversalGrid.Width + cell.X;
+            if (marked[index]) continue;
+            cost[index] += CrowdRouteExtraPermille; marked[index] = true;
+            _crowdRouteMarks.Add(index);
         }
         return cost;
+    }
+
+    // Audience cells someone other than their own listener is resting on or bound for, worked out once a tick.
+    private long _claimedTick = -1;
+    private readonly HashSet<GridCell> _claimedCells = [];
+    private readonly Dictionary<ulong, GridCell> _claimPlaces = [];
+
+    /// <summary>
+    /// Audience cells nobody may stand on now, and whose listener steps aside: where anyone not standing on their own
+    /// listening place has come to rest (a walker who stopped, a guest who collapsed or is fighting, a medic at work), and
+    /// where anyone on any errand but listening is on their way to.
+    /// </summary>
+    private HashSet<GridCell> ClaimedAudienceCells()
+    {
+        if (_claimedTick == CurrentTick) return _claimedCells;
+        _claimedTick = CurrentTick;
+        _claimedCells.Clear();
+        _claimPlaces.Clear();
+        foreach (var live in _livePerformances)
+            if (live is not null)
+                foreach (var listener in live.Listeners)
+                    if (listener.Place is { } place) _claimPlaces[listener.AgentId] = place;
+        foreach (var agent in _navigationAgents.Values)
+        {
+            if (PersonIn(PersonView.Roster, agent.Id.Value) is not { Departed: false }) continue;
+            if (agent.Action == AgentNavigationAction.Travelling)
+            {
+                // Heading back to their own place by another errand's route is not a claim on it.
+                if (agent.Destination is { } goal && agent.IntentId?.StartsWith("performance.listen", StringComparison.Ordinal) != true && InStagesAudience(goal) &&
+                    !(_claimPlaces.TryGetValue(agent.Id.Value, out var mine) && mine == goal))
+                    _claimedCells.Add(goal);
+                continue;
+            }
+            var here = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+            if (!InStagesAudience(here) || _claimPlaces.TryGetValue(agent.Id.Value, out var own) && own == here) continue;
+            _claimedCells.Add(here);
+        }
+        return _claimedCells;
     }
 
     /// <summary>A listener's personal space for the act they're listening to now.</summary>
