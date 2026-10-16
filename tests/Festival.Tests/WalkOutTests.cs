@@ -228,6 +228,7 @@ public sealed class WalkOutTests
         Assert.IsTrue(parched is > 80 and < 160, $"{parched} of 400 parched guests stop for water.");
     }
 
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame()

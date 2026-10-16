@@ -198,6 +198,7 @@ public sealed class ImmersionTests
         s.AdvanceWithoutSnapshot(80);Assert.AreEqual(0,s.CaptureImmersion()!.People.Single(p=>p.AgentId==worker).Held!.ConsumedTicks);
         Assert.Contains("equipment",s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker).IntentId!);Assert.AreNotEqual(MaintenanceStage.Completed,s.CaptureEquipment()!.JobStage);Restore(s);
     }
+    [TestCategory("Everyday")]
     [TestCategory("Slow")]
     [TestMethod]
     public void NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly()

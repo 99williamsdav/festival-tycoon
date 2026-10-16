@@ -107,6 +107,7 @@ public sealed class SurvivalArchitectureParityTests
         }
         return observations;
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void ExistingSurvivalBehaviorMatchesThePreRefactorReference()
     {

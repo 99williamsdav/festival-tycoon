@@ -84,7 +84,8 @@ Run from the repository root:
 ```powershell
 .\tools\bootstrap-toolchain.ps1   # once: fetch the pinned Godot editor and templates
 .\tools\build.ps1                 # build everything (Debug by default)
-.\tools\test.ps1                  # fast test suite; add -Slow for whole-day soak tests and probes
+.\tools\test.ps1                  # everyday tests: fast suite + a few whole-day and save guards (~2-3 min)
+.\tools\test.ps1 -Full            # every test, incl. soaks, probes and parity guards; before release zips (~8 min)
 .\tools\run-game.ps1              # launch the game from source
 .\tools\export-windows.ps1        # -> artifacts\windows\FestivalTycoon.exe (+ its data_ folder)
 .\tools\export-macos.ps1          # -> artifacts\macos\FestivalTycoon.zip (universal, ad-hoc signed)
@@ -93,7 +94,12 @@ Run from the repository root:
 - **Windows exports** come as two parts: the exe and the `data_Festival.Game_windows_x86_64` folder beside it, which holds the C# assemblies. Ship both together, e.g. zipped into one folder.
 - **The macOS zip** is unnotarised, so on first launch use right-click → Open.
 - **Headless check:** `.\tools\run-game.ps1 -Headless -QuitAfter 2` runs a startup check without graphics.
-- **Debug builds** are the default for build, test and run, because Godot's development launcher loads Debug assemblies.
+- **Debug builds** are the default for build and run, because Godot's development launcher loads Debug assemblies. Tests build and run in Release: about three times faster, and optimised like the shipped game. Pass `-Configuration Debug` to test the Debug build.
+- **Test sets.** Tests run in parallel on every core.
+  - `[TestCategory("Slow")]` marks soaks, probes, the Survival parity guards and anything taking much over half a minute. The everyday run skips them, except those also tagged `[TestCategory("Everyday")]`: a Tier 1 and a Tier 2 full day, and mid-day and walk-out save round trips.
+  - `-Fast` runs only the untagged tests. `-Filter "FullyQualifiedName~RainTests"` runs any MSTest filter.
+  - `-Timings` prints every test's duration and keeps the output in `reports/test-timings/`.
+  - A new test that plays whole days goes in Slow. If several tests only read the same finished day, share it through a lazily built static, as `BuildRouteTests.Run` and `PerkEffectsTests.Days` do.
 
 **Playtest launch flags:**
 - `--start-tier 2` opens a Tier 2 festival as if Tier 1 had just been completed.

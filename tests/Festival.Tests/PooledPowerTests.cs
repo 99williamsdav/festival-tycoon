@@ -21,6 +21,7 @@ public sealed class PooledPowerTests
         Assert.AreEqual(PowerRules.HiredGeneratorCapacity + StageGeneratorRules.PondCapacity, s.CapturePower().Capacity);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void FourStallsOnTheBasicPaNeverStrainThePoolOnATierTwoDay()
     {

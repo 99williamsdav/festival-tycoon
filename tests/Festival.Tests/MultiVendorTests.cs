@@ -137,6 +137,7 @@ public sealed class MultiVendorTests
         Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Curry, 100) - wait < GameSession.FoodWorth(ImmersionProduct.Chips, 100));
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void AGuestWeighsBothVansAndBothBarsByWalkQueueAndValue()
     {
@@ -178,6 +179,7 @@ public sealed class MultiVendorTests
         Assert.IsTrue(Distance(vendor.Cell) <= Distance(other.Cell) + 4 || vendor.Queue.Length < other.Queue.Length, "The quicker one is nearer, or has the shorter queue.");
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void TheCrowdSplitsBetweenTheVansAndBothBarsSell()
     {
@@ -193,6 +195,7 @@ public sealed class MultiVendorTests
         Assert.IsTrue(first > 0 && second > 0, $"Both bars sell: {first} and {second}.");
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void EachVanKeepsItsOwnAccountAndTheBarsReconcile()
     {
@@ -221,6 +224,7 @@ public sealed class MultiVendorTests
         Assert.IsTrue(s.CaptureFestivalCashFeedbackEvents().Any(item => item.AnchorKey == "vendor.drinks.2"), "The second bar's takings pop up at the second bar.");
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void ADayWithTwoVansAndTwoBarsRestoresMidDayAndPlaysOnTheSame()
     {

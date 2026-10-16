@@ -216,6 +216,7 @@ public sealed class FacilityFaultTests
         AssertRestores(s);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void WithoutMaintenanceAStewardBodgesABrokenTapToHalfFlow()
     {

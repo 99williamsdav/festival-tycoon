@@ -107,6 +107,9 @@ public sealed class ClassicSurvivalParityTests
         }
         return observations;
     }
+    [TestCategory("Slow")]
+    // Also in the everyday run: the one cheap guard that a Survival change slipping onto main gets caught daily.
+    [TestCategory("Everyday")]
     [TestMethod]
     public void SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic()
     {

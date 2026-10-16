@@ -34,6 +34,7 @@ public sealed class IncidentConsequenceParityTests
             (GameSession)typeof(GameSession).GetMethod("CreateLaterFestivalIn",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[CampaignMode.HandsOn,seed,new CampaignId(seed),tier,GameSession.DevelopmentCarryOver(tier),FestivalStanding.Established,Array.Empty<string>(),null,false])!;
         NextFestivalTests.Ready(session);BuildSession.Accept(session,new StartPreparedEditionCommand());return session;
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void FatalEquipmentAndDisorderConsequencesKeepTheirPreExtractionStateAndOrder()
     {

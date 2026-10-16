@@ -1,0 +1,981 @@
+﻿Test Parallelization enabled for C:\Projects\festival-tycoon\.claude\worktrees\agent-a7427eb65d3955a08\tests\Festival.Tests\bin\Release\net8.0\Festival.Tests.dll (Workers: 20, Scope: MethodLevel)
+failed PerpendicularAndDiagonalCrossingsDischarge (True) (86ms)
+  Assertion failed. Expected values to be equal.
+  {"SchemaVersion":1,"Tick":80,"NextTicket":3,"People":[{"Id":1,"IntentGeneration":0,"Position":{"XMillimetres":-180,"ZMillimetres":-180},"SpeedMillimetresPerTick":100,"Route":[{"XMillimetres":600,"ZMillimetres":600}],"RouteIndex":0,"WaitTicks":74,"LocalTicket":1,"RegionId":null,"RegionDirection":null,"RegionPhase":0,"RegionTicket":null,"ServiceId":null,"UsefulProgressTicks":6,"IsInService":false,"ServiceCompleted":false},{"Id":2,"IntentGeneration":0,"Position":{"XMillimetres":180,"ZMillimetres":-180},"SpeedMillimetresPerTick":100,"Route":[{"XMillimetres":-600,"ZMillimetres":600}],"RouteIndex":0,"WaitTicks":74,"LocalTicket":2,"RegionId":null,"RegionDirection":null,"RegionPhase":0,"RegionTicket":null,"ServiceId":null,"UsefulProgressTicks":6,"IsInService":false,"ServiceCompleted":false}],"Regions":[],"Services":[],"Obstacles":[],"RegionDischarges":0,"ServiceCompletions":0,"UnsupportedLayout":false}
+  
+  expected: Completed
+  actual:   PendingWithinBound
+  
+  Assert.AreEqual(TrafficRunOutcome.Completed, AdvanceChecked(kernel, 80))
+  Expected
+    Completed
+  Actual
+    PendingWithinBound
+    at Festival.Tests.TrafficKernelProofTests.PerpendicularAndDiagonalCrossingsDischarge(Boolean diagonal) in /_/tests/Festival.Tests/TrafficKernelProofTests.cs:35
+    at InvokeStub_TrafficKernelProofTests.PerpendicularAndDiagonalCrossingsDischarge(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\.claude\worktrees\agent-a7427eb65d3955a08\tests\Festival.Tests\bin\Release\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 956
+  failed: 1
+  succeeded: 955
+  skipped: 0
+  duration: 12m 30s 325ms
+
+Slowest tests:
+  8m 09s 807ms SurvivalStateHashAndEventsRemainExactlyAsBeforeClassic
+  6m 40s 596ms ProbeRainyTierTwoDays
+  5m 42s 537ms HundredAttendeesAndThreeStagesCompleteAndCarryThroughASecondPaidFestival
+  4m 18s 839ms ProbeTierOneWithAndWithoutAMarquee
+  3m 58s 339ms APondStageTrialTransitionsToBarnAtTierTwo
+  3m 53s 872ms ProbeWholeDays
+  3m 37s 787ms ProbeThreeTrialDays
+  3m 18s 312ms SharedWorldCompletesWithSafeSweepsAndReconciledOwnership
+  3m 13s 662ms ExistingSurvivalBehaviorMatchesThePreRefactorReference
+  3m 03s 151ms TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt
+  2m 58s 437ms SurvivalFatalConsequencesAndHashesRemainExactlyAsBeforeClassic
+  2m 34s 084ms FatalEquipmentAndDisorderConsequencesKeepTheirPreExtractionStateAndOrder
+  2m 30s 807ms ProbeDrinkCollapsesAtTierOneAndTwo
+  2m 16s 020ms ADayWithTwoVansAndTwoBarsRestoresMidDayAndPlaysOnTheSame
+  2m 14s 279ms ProbeTierTwoWithOneAndTwoOfEachStall
+  2m 06s 572ms AGuestWeighsBothVansAndBothBarsByWalkQueueAndValue
+  2m 06s 323ms EachVanKeepsItsOwnAccountAndTheBarsReconcile
+  2m 06s 153ms TheCrowdSplitsBetweenTheVansAndBothBarsSell
+  2m 01s 499ms FourPaidFestivalsCarryActualHoldingsRelationshipsAndResetOnlyTheDay
+  1m 49s 440ms FourPlayedFestivalsReconcileActualTicketsBandFeesAndCashCarry (20260922)
+  1m 40s 033ms FourPlayedFestivalsReconcileActualTicketsBandFeesAndCashCarry (14)
+  1m 34s 323ms WithoutMaintenanceAStewardBodgesABrokenTapToHalfFlow
+  1m 27s 526ms APonchoBuyerStaysDryAndPonchosAreInTheAccounts
+  1m 24s 943ms ThePlayerClimbsEachStagesStepsButNotItsEdgeAndNoGuestEverGetsUp
+  1m 23s 365ms MoreBeerIsSoldForMoreAndTheDayStillRestores
+  1m 22s 749ms AStrawJobEndsAsTheCrowdGoesHome
+  1m 22s 200ms FiftyAgentFixture_IsOneXFourXAndSaveResumeEquivalent
+  1m 22s 116ms FriendlyQueuesCheerUpTheWaitingAndKeepTheirPatience
+  1m 19s 991ms FiftyAutonomousAttendees_AllPurchaseAndDepartWithoutReservations
+  1m 16s 916ms ASlackerVisitsTheVansMoreThanTheStandardCandidate
+  1m 14s 715ms FourStallsOnTheBasicPaNeverStrainThePoolOnATierTwoDay
+  1m 13s 942ms MapTheGroundAtClosing
+  1m 11s 264ms CounteredMusicAndWaterAcrossSeedsHaveNoForcedDisorder
+  1m 05s 779ms TheChargeShowsInTheAccountsAndTheyStillReconcile
+  1m 04s 771ms FinalSettlementSaveFailureDoesNotPublishAndOrdinaryDepartureDoesNotAutosave
+  1m 04s 073ms EarlyUnhappyGuestRetainedInFinalMeanAndHistory
+  59s 147ms NaturalDepartureFrozenReportAndActualFileReload
+  58s 917ms NobodyWaitingOutsideOrGoneHomeWearsTheGateway
+  58s 853ms ActualMedicalCollapseCountsOnceAndFightKnockoutDoesNotCount
+  58s 454ms LedgerOperatingProfitExcludesOpeningFundsAndCapital
+  58s 144ms TheModeCarriesThroughNextFestivalAndCallsMountUpUnanswered
+  57s 974ms APondDayPlaysItsFullLastSetAfterTheTrailerHasFinishedThenCloses
+  57s 710ms ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False)
+  57s 029ms LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls
+  56s 521ms ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True)
+  55s 772ms AHandsOnDayLogsEveryCallOfTheNightWithWhoWent
+  55s 316ms CompletingTierOneOpensTierTwoWithItsCashDebtAndStanding
+  54s 385ms AQuickRepairLeavesWetGrassThatDriesWhileATapLeftAllDayMakesASwamp
+  53s 019ms StandingStillInFirstPersonWithAFullCrewEarnsNothing
+  52s 873ms NoJobNeedOrBreakEverReachesThePlayerAllDayAndTheCrewStillWorks
+  52s 002ms PhysicalArrivalSequenceRejectsDuplicateAndStalePersistenceAndFailsClosedAtExhaustion
+  51s 242ms StrawAndMattingResistChurning
+  50s 638ms AGoodyTwoShoesNeverPicksUpTheSamePieceTwiceOverADay
+  50s 128ms OwnBottlesMeanFewerTripsToTheTapButSlowerFills
+  49s 335ms TheLukewarmShelterWhileFansAndPonchoWearersStay
+  49s 094ms NaturalBuildCompletionAndSavedTerminalAccountsReconcile
+  48s 573ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("steward-only")
+  48s 447ms FailedAndAbandonedCustomersClearCounterAndFinishAtDistinctExits
+  47s 440ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("all-rounder")
+  45s 224ms SwitchingBetweenManualAndAutoIsSavedAndReplaysIdentically
+  44s 363ms WideControlledPassageCompletesSameDemandSoonerWithoutFailuresOrRecovery
+  44s 272ms ColaFiendsBuySoftDrinksInsteadOfQueuingForTheTap
+  43s 837ms StewardsAndTheMedicStayUntilTheLastGuestIsOut ("management-only")
+  43s 275ms RainWetsTheGroundAndBusyGroundChurnsToMud
+  43s 104ms AlcoholicsBuyMoreBeerAndGetDrunker
+  42s 053ms RobotWorkersNeverStopForThemselves
+  41s 515ms RecordsAndQuotesAreTheSameEveryRunAndRestoreAfterASave
+  40s 612ms InsufficientCashAndStockoutReleaseOwnersWithoutDoubleCharging
+  38s 685ms OneStageDayPlaysAsPinned
+  38s 368ms ShelterIsFilledNoFurtherThanItHoldsRoomFor
+  38s 160ms AHandsOnInvasionCarriesIntoTheNextFestival
+  37s 106ms PondBandsComeInByTheGardenGateClimbTheStairPlayOnTimeAndClearOff
+  36s 240ms GuestsWalkOverForTheActTheyWantToSeeMore
+  35s 926ms AGuestNeedsAClearReasonToChangeStage
+  35s 375ms DiagnosticsCountPhysicalActionsAndInterpolationIsCosmeticAndResettable
+  35s 152ms StandingCrowdsWearDeeperThanPassingFeet
+  34s 559ms ProbeToiletQueueBalanceAtTierOne
+  34s 331ms ActualPowerCutAtDeadlineCannotBecomeSetEndApplause
+  34s 301ms AsynchronousBoundaryClockMatchesSynchronousTicksThroughWaitPauseAndSpeedChange
+  33s 422ms TheAutopilotCalmsWithALowerSkillThanThePlayers
+  33s 389ms LeftUpOnAStageTheStewardComesDownAndNeverGoesBackUp
+  31s 902ms MissedUnplayedSlotHasNoApplauseAndCannotCountOwnedMedicalListeners
+  31s 900ms TheCrowdAndBandShoutDuringASetAndMorePolitelyBetweenSets
+  31s 679ms CallsTheCrewCoversDontCountAgainstThePlayer
+  31s 023ms StaffInALooAtTheFinishGiveItUp
+  30s 920ms TheRelationshipHitCannotBeEditedOutOrForgedIn
+  30s 762ms AStewardDownAtTheFinishHoldsTheDayOpenUntilTreatedOrDead (True)
+  30s 248ms RealTierTwoBandAudienceAndPaidEngineerReachBarnInRainAndSecondActChangesOver
+  29s 832ms ThirstAndHeatBuildAndADrinkOrShadeRelievesThem
+  29s 739ms AStewardDownAtTheFinishHoldsTheDayOpenUntilTreatedOrDead (False)
+  29s 653ms AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame
+  29s 258ms MalformedQueueCrossFieldsAreRejectedBeforeHashReconstruction
+  29s 075ms TheVanKeepsItsOwnAccountOfSalesIngredientsAndPitchFeeAndItSurvivesASave
+  28s 958ms CrowdedSiteDisorderEscalatesAndStewardsResolveIt
+  28s 954ms ActualGuestFreeWaterTicksImproveSatisfactionAndResumeExactlyWhileStaffDoNotGain
+  28s 943ms ReferenceCanBeReproducedByOrdinaryPlayerCommandsWithoutGrantsOrPrivateMutations
+  28s 593ms GuestsDriftOutSomeByWayOfALooOrATapAndTheDayFinishesInBound
+  27s 999ms FiveAutonomousGuestsPhysicallyQueueAndPayExactlyOnceInOrder
+  27s 849ms TheIncludedSetupNeverStrainsTheGenerator
+  27s 176ms WalkOutFinishesWhenTheLastGuestIsOffSite (2)
+  27s 013ms AHiredGeneratorCarriesAProRigAllDay
+  26s 367ms TheSameInputsGiveTheSameShift
+  25s 916ms AGuestLeftWithNoRouteTriesAgainAndAStuckOneIsSentHomeAtTheLimit
+  25s 530ms WalkOutFinishesWhenTheLastGuestIsOffSite (51)
+  25s 506ms WalkOutFinishesWhenTheLastGuestIsOffSite (99)
+  25s 489ms WalkOutFinishesWhenTheLastGuestIsOffSite (20260922)
+  24s 868ms CloseReopenRejoinUsesPhysicalArrivalCounterAndRestores
+  24s 585ms EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (True)
+  24s 338ms AGeneratorThatKeepsTippingOverStillSaves
+  24s 105ms TheRelationshipCarriesToTierTwoAndItsFeeThere
+  23s 270ms AGuestWhoCantReachTheirLooOrTapOnTheWayOutGoesHomeInstead
+  23s 022ms CapturedBoundarySaveAllowsLiveTicksAndFailureRestoresRetryPoint
+  22s 912ms EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (False)
+  22s 712ms AMidShowerSaveRoundTrips
+  22s 536ms AQuickDrinkOnTheWayOutIsABoundaryOnTheTickItEnds
+  22s 530ms AStewardFreesSomeoneStuckAndTheyPanicUntilThen
+  22s 415ms WrongFrontIntentBeforeServiceAbandonsAndRemainingQueueCompletes
+  22s 269ms TheNextTickPredictorCountsTheLightsComingOn
+  22s 193ms ToiletsCanStandSideBySideAndBothServeTheDay
+  21s 523ms EarnedReputationFallsOnceToZeroAndAnAllDeceasedCrowdStillCloses
+  21s 270ms ABrokenTapsPuddleStartsSmallAtTheTapAndGrowsOutwards
+  21s 223ms OnePersonCarriesEveryPerSystemRecordThroughAFestivalAndRestore
+  21s 169ms ClaimsDescribeWhatEachPersonIsDoing
+  20s 833ms TheStandaloneShiftHasNoAutopilot
+  20s 653ms RestoreRefusesAPlayerStewardHoldingAnyOtherWork
+  20s 201ms AFailedTierTwoRetriesFromTierTwosOpeningState
+  19s 875ms AGuestCollapsingOnTheWayOutHoldsTheDayOpenUntilTheyAreSeenTo
+  19s 113ms SomeoneWhoCollapsesWhileStuckStaysInsideUntilTheDoorOpensThenLiesOutside
+  19s 060ms ZeroSalesCanFinishAndActualShortfallCanBeCancelledWithoutCampaignEnding
+  19s 002ms SaveResumeMidServiceAndCompletionBoundaryMatchUninterrupted
+  18s 971ms PauseFreezesCompletionBoundaryAndClockReportsOverloadWithoutSkippingDebt
+  18s 851ms AWorkerOnTheWayHeadsBackIfTheJamEndsAnotherWay
+  18s 834ms NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly
+  18s 558ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (7)
+  18s 328ms AOneVanOneBarSaveWritesNoStallOrVanTraderFields
+  18s 236ms WadingThroughASwampUpsetsAGuestAndMudsTheirBoots
+  18s 079ms StandingOnABandMarkCanNeitherStopNorHoldUpTheSet
+  17s 988ms AnOverheatedGuestNearTheMarqueeRestsInItsShadeAndOneNearFirstAidRestsThere
+  17s 987ms AfterTheirSetTheBandWalkOffDownTheStairsBeforeDoingAnythingElse
+  17s 909ms InServiceDestinationIsProtectedAndCompletionRechecksPresence
+  17s 757ms ForgedShiftWorkIsRefused
+  17s 630ms CurrentRevisionSurvivesRealRetryAndCanonicalNextFestival
+  17s 356ms PhysicalRejoinApproachesRemotelyThenAllocatesFreshUniqueSequenceOnArrival
+  17s 316ms DistressedPerformerCanReceivePhysicalMedicTreatment
+  17s 140ms MidEditionSaveContinuesIdentically
+  17s 114ms PerformedPoweredSetEndsOnceWithFrozenActualAudienceAndEnjoymentAndExactReload
+  16s 965ms StuckInANearlyFullLooTheFumesOvercomeThem
+  16s 716ms BarnCutoffInterruptsOnlyBarnAndRestoresWithItsOwnGeneratorIdentity
+  16s 642ms GuidanceOrderedBeforeTheJamStandsDownOnceTheyAreStuck
+  16s 625ms PhysicalArrivalDeterminesQueueOrderAndTieBreakIsStable
+  16s 595ms CuttingOneStagesGeneratorSilencesOnlyThatStage
+  16s 529ms APortalooIsAHotBoxInHotWeather
+  16s 340ms AFaultFreeFixtureStaysFaultFreeAcrossReload
+  16s 246ms ADeathBehindTheLockedDoorFreezesTheSceneAsFound
+  16s 200ms DefaultPlanEditionFinishesWithEveryoneSafelyGone
+  16s 081ms LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover
+  16s 013ms ThePlanUpSlowsTheWalkStopsTheHandsAndIsSavedAndReplayed
+  16s 005ms EveryBookedSetGoesLiveAndListenersAccrueTime
+  15s 931ms GuestsUseToiletsAndBuyFoodDrinkAndBeer
+  15s 829ms OpenFreeWaterKeepsDefaultGuestsOutOfHeatDistress
+  15s 721ms NobodyCanGuideAStuckGuestOutAroundTheRescue
+  15s 714ms ForgedAveragesAreRefusedOnRestore
+  15s 597ms FirstBarnActComesDownTheStairsAndClearsBeforeTheSecondActPlays
+  15s 345ms ForgedNewcomersOnAnEarlierSetAreRefusedOnRestore
+  15s 257ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("medic")
+  15s 225ms ATierTwoHandsOnDayRestoresMidDayWithThePlayerStewardBesideTheExtraSteward
+  14s 954ms TheStandaloneShiftAndClassicCampaignsKeepNoLog
+  14s 931ms NobodyHeatsUpAndThirstComesSlowerInTheRain
+  14s 926ms TheAverageCrowdIsListenersAtTheirPlacesOverEveryTickTheSetWasOn
+  14s 904ms TheAutopilotAnswersACallAndActsButLaterAndSlowerThanAPlayer
+  14s 836ms SavesRestoreMidDayWithBothStagesPlaying
+  14s 807ms ACutShortSetCannotBeRelabelledEnthusiastic
+  14s 782ms EachFatalCauseRecordsItsActualEvidenceAndContinues ("disorder")
+  14s 770ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("maintenance")
+  14s 770ms EachFatalCauseRecordsItsActualEvidenceAndContinues ("equipment")
+  14s 762ms PhysicalDayPresentationAndReloadDoNotChangeAuthoritativeEconomyOrQueues
+  14s 549ms InAHandsOnCampaignTheCrowdSoursAndTheBandHoldsItAgainstYou
+  14s 517ms ThePeakCrowdIsTheMostListenersAtTheirPlacesWhileTheSetPlayed
+  14s 458ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("steward")
+  14s 451ms ABiggerRigSoundsBetterAndAnActIsKnownOnceItHasPlayed
+  14s 381ms DeceasedWorkersReleaseTheirRoleAndNeverResumeTheirDutyRoute ("sound")
+  14s 075ms ForgedNewcomersAreRefusedOnRestore
+  14s 065ms ATamperedRecordIsRefusedOnRestore
+  13s 972ms BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished
+  13s 563ms ARadioedFightIsThePlayersCallAtHalfCreditAndDealtWithButNotPrevented
+  13s 503ms AMidActionSaveRestoresAndReplaysIdentically
+  13s 496ms ARecordsNewcomersAreItsCrowdsNonFansWhoClappedItOutHavingEnjoyedIt
+  13s 435ms RepeatedGuestAndStaffDeathsContinueOnceCleanlyThroughResultsAndCarry
+  13s 345ms APowerCutMidSetIsAHiccupThatCostsTheAct
+  13s 311ms NeverWalksThroughBuildingsHedgesOrTheStage
+  13s 227ms ARetryForgetsTheFailedFestivalsSets
+  13s 196ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Marquee,3)
+  13s 023ms AutosaveRotatesThreeSlotsAndRecoversNewestValid
+  13s 015ms MixedTravelAndQueueSaveContinuesExactly
+  13s 008ms ControlSendsAHiredStewardBeforeThePlayersOwn
+  12s 998ms ARecordFollowsFromItsSetAndQuotesOnlyItsOwnCrowd
+  12s 858ms CompletedStretchContractKeepsOpeningFeeWhenEarnedSceneStandingImproves
+  12s 834ms ASaveMadeOnStageRestoresAndReplaysIdentically
+  12s 816ms TheRestAreaFollowsFirstAidWhereverItIsPlaced
+  12s 756ms AGivenUpCallIsLeftAloneForAWhileAndTheGiveUpIsSaved
+  12s 525ms LooseCowsKeepABodysWidthApartGrazingAmblingAndDriven
+  12s 344ms RestoreRefusesForgedStagePositionsAndRecords
+  12s 342ms StandingByAfterTheMedicArrivesLeavesTheCallUnanswered
+  12s 310ms WaspsKeepTheirHeadsDownInTheRain
+  12s 310ms AFightIsBrokenUpAndTheInstigatorWalkedToTheGate
+  11s 987ms OnlyTheActOnYourOwnStageKeepsYouOutInTheRain
+  11s 981ms WithTheTapsShutAThirstyGuestGetsAFreeCupFromTheBar
+  11s 860ms HandingOverEndsAWalkOutAndNeverLetsTheStewardOntoAStage
+  11s 765ms WetGuestsLoseMoodAndShelterDriesThem
+  11s 424ms CallsOpenCloseAndTimeTheResponse
+  11s 285ms TheProRigOnBothStagesStrainsThePooledSupplyAndBothGeneratorsShowIt
+  11s 030ms BaselineCutoffNeedsNoWorkerOrCashAndRemainsSafeAtLastResponseTick
+  10s 981ms CuttingBarnPowerInterruptsOnlyItsOwnSet
+  10s 905ms WalkingAwayOrLettingGoCancelsTheHold
+  10s 777ms PhysicalDayCreatesSalesAndSaveReplayWithoutFreeAdmissionStock
+  10s 741ms RadioingTheMedicSendsThemBeforeControlWouldAndStandingByCounts
+  10s 696ms TheCrowdMoodBreakdownNamesTheMusicWhileABandPlaysAndAddsUpToWhatGuestsFelt
+  10s 682ms FrozenRainShelterRestoresWithoutChangingRoutesAndResolvedHearingsAlsoRestore
+  10s 678ms AWaitingOrderIsServedTheSameWayOnReplay
+  10s 657ms AnUrgentCallNobodyDealtWithCapsTheGradeAtBSide
+  10s 471ms NoCowIsHerdedUnlessThePlayerAsks
+  10s 466ms WrongServiceIntentAtCompletionCancelsWithoutPaymentAndProgresses
+  10s 428ms ASaveWithImpossibleWaterOrMudIsRejected
+  10s 422ms AnUrgentCallTheCrewHandledIsUnansweredButDoesNotCapTheGrade
+  10s 307ms ThePlayersActionsAddMoodToTheScore
+  10s 251ms ACalmSucceedsWhenHeldAndOffersTheWalkOut
+  10s 048ms FileSaveRoundTripPreservesMidServiceQueueAndExactContinuation
+  9s 975ms AFailedCalmCanTipAnArgumentIntoAFight
+  9s 946ms AGuestWhoCollapsesMidEscortIsLetGo
+  9s 745ms ActualRebookingPersistsRefundsAndFansWithoutExtraSalesOrRepeatedCredits
+  9s 638ms ARepairSettlesEveryGeneratorInThePoolSoTheyGoOnWarningTogether
+  9s 421ms APooledSaveRefusesAnIsolatedFarmGeneratorAndAStrainThatHasDriftedApart
+  9s 383ms ASaveMidShiftRestoresAndReplaysIdentically
+  9s 351ms StewardOnlyRadiosTheMedicAndHenryButNotTheCrew
+  8s 911ms StandingByBeforeTheMedicAnswersTheCall
+  8s 835ms SwitchingOffStillServesThoseAlreadyQueuing
+  8s 717ms SnapshotFreeAndLegacyPublicationSchedulesRemainAuthoritativelyEquivalent
+  8s 582ms ThreeDistinctWeightedChoicesUseSeparateSavedEntropyAndOneReroll
+  8s 557ms PeopleWalkRoundACowRatherThanThroughIt
+  8s 522ms BarnBandActuallyArrivesClimbsAndPlaysThroughProductionLifecycle
+  8s 500ms PendingGuestStaysOffsiteThenWalksFromGateAndCountsOnlyAfterAdmissionAcrossRestore
+  8s 463ms TheRadioIsTheFirstPersonPlayersOnly
+  8s 368ms CuttingAStageTakesOffOnlyItsRigSoItLightensTheOverload
+  8s 341ms MaintenanceMendsABrokenTapProperly
+  8s 297ms StaleRejoinCannotDisplaceActiveOwnerAndValidLateAdmissionAppends
+  8s 267ms ACutTrailerStageOnAPooledSupplyCanBeRestoredAndTheMusicComesBack
+  8s 231ms ReleasedHeadlinePersistsBlocksOpeningAndCanBeRefilledWithoutReselling
+  8s 152ms BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut
+  8s 082ms HotGuestsHeadingForRestEachGetASpotAndRestPromptly
+  7s 949ms ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut
+  7s 800ms ADeathFailsTheFestivalThroughTheHearingAndTheRetryIsStillHandsOn
+  7s 753ms OnlyFrontOwnsServiceAndRepeatedTicksCannotRepeatCompletion
+  7s 750ms TheMedicGoesThroughTheManagersDispatchAndIsRefusedWhenThereIsNobodyToSend
+  7s 491ms TheCrewAreSentByNameThroughTheManagersPathsAndRefusedWhenBusyOrWrong
+  7s 421ms ACallControlHasntPutOutAndOutOfSightIsRefused
+  7s 330ms RealLiveActsAreIndependentExactAndRemainIdentifiedOnPause
+  7s 239ms ARushSharesBothLoosEvenly
+  7s 107ms PizzaPaysMoreToPitchButServesSlowlyAndLongQueuesWearOnPeople
+  6s 988ms GuidingAFreeCupQueuerToATapGivesUpTheirBarPlace
+  6s 942ms RetryPreservesCarryAndLearnedStateAndFreshRestartDoesNotRetainEdits
+  6s 833ms PhysicalWaterTripCanDelayPerformerAndOnlyNormalDrinkingReleasesEntry
+  6s 649ms ASaveWithImpossibleWearIsRejected
+  6s 620ms SavingMidQueueReplaysIdentically
+  6s 548ms AProRigOverloadsUntilTheBarIsSwitchedOff
+  6s 536ms ABinIsEmptiedAndLitterPickedUp
+  6s 394ms SameTickOneXFourXAndRepeatAreAuthoritativelyEquivalent
+  6s 384ms AdvanceRunsTheOwedTicksAndSavesAFailureAtOnce
+  6s 368ms EveryoneComesInThroughTheGateNotTheHedge
+  6s 274ms ADeathFailsTheShiftWithAReportAndTheSaveLoads
+  6s 069ms ActualReciprocalFightReadIsReadonlyAndHandlingRequiresPhysicalAttempt
+  6s 024ms ASaveCantClaimMoreHungerSatedThanTheFoodEatenSoFarCouldSate
+  6s 024ms EachTraderSellsTheirOwnFoodAndItIsThatFoodPeopleHoldAndDrop
+  5s 993ms ActualMedicalDelayWarnsGraduallyThenRelievesWhenMusicReallyBeginsAndRestoresExactly
+  5s 836ms IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement
+  5s 814ms ASaveRestoresWithAMarqueeAndGuestsShelteringUnderIt
+  5s 737ms ArgumentsHistoryUnavailableAndBrokenPairsNeverBecomeFightPresentation
+  5s 634ms StewardOpponentIsNotMistakenForThirdPartyHandling
+  5s 616ms FrozenShelterExceptionRequiresTheActualFatalAttemptAndValidUniqueShelterPlaces
+  5s 537ms BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper
+  5s 531ms GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False)
+  5s 526ms DavComesForTwentyFivePoundsEmptiesAFullLooAndDrivesOffAgainAcrossASave
+  5s 441ms TheCopyTriesMainsBeforeExtrasAndMatchesPlacingOneAtATime
+  5s 367ms ReleasedStewardRetryRestoresAndReopensWithTheSameBehavior (2)
+  5s 360ms ACupCoolsOnlyInProportionToTheThirstItRelieves
+  5s 348ms SecurityDispatchTravelsAndEitherCalmsOrHonestlyEscalates
+  5s 208ms ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable
+  5s 206ms CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt
+  5s 203ms PostSaleReleaseRefillCancellationAndZeroSalesSettlementCanSave
+  5s 193ms AMidDaySaveRestoresWithThePlayerStewardAndReplaysTheSame
+  5s 150ms DavParksOnTheNearSideOfEachLooWithHisHoseOnIt (False)
+  4s 987ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (Showery)
+  4s 938ms AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload
+  4s 924ms ABarSwitchedOffSellsNothingButFreeWater
+  4s 881ms AStewardSpreadsABaleOnTheMud
+  4s 844ms GuestPhysicallyReachesAdditionalFirstAidAndCoolsThere
+  4s 828ms GraceUsesSimulationTicksAndPauseCannotConsumeIt
+  4s 808ms ADeathEndsTheShiftAndItsSaveStillLoads
+  4s 792ms HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering
+  4s 783ms ConcedingEndsTheCampaignWithoutSpendingFavour
+  4s 770ms DavParksOnTheNearSideOfEachLooWithHisHoseOnIt (True)
+  4s 758ms EmptyNowWaitsForTheFirstStewardToComeFreeAndSurvivesASave
+  4s 746ms ALightweightGetsDrunkTwiceAsFastOnTheSameBeer
+  4s 720ms TheGateGivesWayAndAFewCowsAmbleAboutTheSiteAndSurviveASave
+  4s 715ms QueuesBalanceOnAlmostEveryDay
+  4s 673ms FavourRetryKeepsTheHiredRigInThePlanButNotTheRental
+  4s 609ms NinePerformerMedicalProfilesRemainProtectedAndSaved
+  4s 594ms AnAllergicGuestStungByAWaspCollapsesAndNeedsTheMedic
+  4s 586ms FeetWearTheFieldOnlyOnceTheFestivalIsOn
+  4s 582ms EqualCostRouteAndFinalStateAreStableAcrossTickBatching
+  4s 484ms SharedAuthoritativeGridReroutesGuestStaffAndPerformerAndRestoresExactly
+  4s 416ms ATardyStewardSetsOffOnlyAfterTheirDelay
+  4s 385ms ASaleAtTheFirstBarIsRefusedOnRestoreWhenOnlyTheSecondBarStands
+  4s 379ms SpendingFavourRetriesTheSameTierWithAFreshDraft
+  4s 370ms PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes
+  4s 346ms TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity
+  4s 257ms StaleEventsDoNotFireAfterFastForward
+  4s 220ms MedicalCollapseDuringFightHandlingInterruptsWithoutSkillRollOrFreshAttempt
+  4s 203ms PerformerCollapseCriticalDeathAreAuthoritativeAcrossRestore
+  4s 174ms ExtremeSightlinePrefersCentralBehindFrontPeopleButCrowdedCenterStillLoses
+  4s 140ms RoleDispatchAutosaveFailurePreservesSourceSessionAtomically
+  4s 139ms UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically
+  4s 114ms MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel
+  4s 068ms ActualMovingStageApproachSuppressesRemarksAfterGraceButSavedStallDoesNot
+  4s 066ms MusicAheadFollowsTheTimetableAndSurvivesRestore
+  4s 038ms GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True)
+  4s 027ms EscortWalksBothPeopleToGateBeforeOnlyAffectedPersonDepartsAndReloadMatches
+  4s 025ms FavourRetryRebuildsEveryPlacedToiletFresh
+  3s 978ms ARetriedWeekendStartsOnFreshGrass
+  3s 949ms EmptyNowSendsAStewardToEmptyABinWhateverItsLevel
+  3s 937ms EmptyNowOnAWaitingBinBetweenLitterSecondsServesTheOrderAndStillSaves
+  3s 933ms SameSeedAndPlanReplayToTheSameState
+  3s 925ms SomeoneStuckInALooIsFreed
+  3s 900ms ActualStartCoordinatorIsFailureSafeAndExactlyOnceAcrossLoad
+  3s 856ms AFullMarqueeSendsTheNextHotGuestToFirstAid (True)
+  3s 820ms IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse
+  3s 816ms AFullMarqueeSendsTheNextHotGuestToFirstAid (False)
+  3s 805ms DeathFreezesTheEditionAndOpensOneHearing
+  3s 788ms CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock
+  3s 744ms CharismaLiftsNearbyGuestsAndAbrasionWearsThemDown
+  3s 720ms CatalogueHasOnlyPlacedVansAndOneNextCandidateAndDuplicateCuisineIsValidInClassic
+  3s 699ms StewardPhysicallyReachesAnIndoorFightThroughTheOpenLongSide
+  3s 697ms DirectOrderPullsAWorkerOffTheirWayToTheToilet
+  3s 689ms RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak
+  3s 681ms ClosingWaterBeforePhysicalArrivalDoesNotGiveStewardRemoteRestOrQueueEffect
+  3s 678ms StrawIsSpreadOnTheMudFromTheStore
+  3s 676ms NamesNeverRepeatAndDontDependOnOrderOrNumbering
+  3s 662ms RestoreRejectsAShiftThatCouldNotHappen
+  3s 604ms CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment
+  3s 583ms RoleSelectionSkipsNearestUnreachableMedicForLegalFartherRoute
+  3s 558ms FailedReplacementPreservesEarlierSaveAndDismissalUntilRecovery
+  3s 545ms NewCriticalPatientDoesNotPreemptPhysicallyActiveMedicTreatment
+  3s 457ms ASneakyAlcoholicGetsServedAndDrinkDullsTheirWork
+  3s 415ms AStewardInHeatDistressLeavesANearFightToAnotherWorker
+  3s 414ms ADistressedGuestCanStillGetAFreeCup
+  3s 405ms RoleSelectionSkipsNearestBusyMedicForAvailableFartherWorker
+  3s 389ms PeopleQueuingMoveToALooThatFreesUpAndTheQueuesBalance
+  3s 345ms DavKeepsToTheFarmTrackUntilHeHasToTurnOffForTheLoo
+  3s 332ms CollapsedBodiesDoNotBlockExactMovementButMedicalStateAndDeadlineRemain
+  3s 325ms WhoeverIsNearestTheEndOfTheLineTakesTheNextPlace
+  3s 316ms NobodyHeatsUpInTheShade
+  3s 280ms AFreshPuddleSlowsWalkersBeforeAnyMudFormsAnywhere
+  3s 278ms NoWarningClosureWrongRoleAndCollapsedGuidanceAreRejectedWithoutMutation
+  3s 259ms AStrandedResterDoesNotCountAgainstAFullMarqueeOnRestore
+  3s 224ms EatingPleasesByTheHungerItSatesAndNotAtAllWhenFull
+  3s 223ms ReleasedRetryValidationStillRejectsActiveOrMalformedShiftState
+  3s 212ms ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical
+  3s 197ms ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness
+  3s 195ms AnyPhysicallyPresentRoleCountsEvenBeforeTheBandPlays
+  3s 175ms WithoutAMaintenanceWorkerAChewedCableStaysCut
+  3s 161ms AClassicCampaignIsUnchanged
+  3s 119ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (FoodVan,3)
+  3s 117ms OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted
+  3s 068ms ActualRainWetnessSpareTheIndoorGuestButSoaksTheOutsideApron
+  3s 060ms AllUnavailableMedicsExplainEachWorkerWithoutCreatingClaims
+  3s 040ms ReleasedStewardRetryRestoresAndReopensWithTheSameBehavior (1)
+  2s 987ms PerformerNeedsDoNotPreventInitialSetFromStarting
+  2s 985ms ALooseCowIsDrivenHomeWithThePlayerBehindIt
+  2s 955ms CloseExistingPairIsNotPushedAndServiceQueueIsNotClaimedForCloserPoses
+  2s 952ms EachCustomServiceMoveRestoresWithItsPhysicalMirror
+  2s 860ms AToiletQueueGrowsFromItsDoorstepAsPeopleArriveAndSurvivesASave
+  2s 842ms AStrawJobEndsWhenADeathFreezesTheDay
+  2s 835ms AGoodyTwoShoesOnlyFetchesWhatTheyWillBinEvenWithAFarBin
+  2s 824ms AJammedLooGoesToTheNamedStewardAsTheFaultRuleWouldSend
+  2s 807ms SafeMusicResetRemovesCutoffGrievanceWithoutRestartingOverload
+  2s 641ms OccupiedListeningPlacesLeaveBothDoorsUsableForOpposingRealWalkers
+  2s 632ms GuestWaterReliefDoesNotCancelAnotherPatientsMedicResponse
+  2s 623ms FreshSeedsProduceVariedBoundedNeedsAndGuestOnlyReleaseBeforeFirstBand
+  2s 587ms DepartureSevereBoundarySaveFailureNeverPublishesCollapse
+  2s 428ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (HeavyRain)
+  2s 421ms ADrunkBandMemberDragsTheBandDown
+  2s 417ms TierTwoHasAFreeSecondMedicSlotAndDoesNotDealDoctorsOrders
+  2s 403ms FailureRetryKeepsEditableLayoutAndOtherPlanChoicesWithoutDoubleCharging
+  2s 335ms DavStopsForSomeoneInFrontOfTheCabAndEdgesOnIfTheyWontMove
+  2s 330ms ALostGuestIsPointedTheRightWay
+  2s 299ms AdditionalPostsHaveSolidFootprintsAndUsableRestGroundWithoutCreatingStaff
+  2s 243ms HotThirstyGuestsFeelItInTheirMoodHeatLessSo
+  2s 222ms TheStandaloneShiftStillWorks
+  2s 192ms SaveRejectsMissingConsequencesInventedReputationAndDeadNavigation
+  2s 156ms ForecastMatchesLiveRainAndExistingHeatAndWetResponses (Heatwave)
+  2s 104ms ADrunkStewardWhoCollapsesDropsTheirJobAndStillSaves
+  2s 079ms AManualSweepStartedMidSecondEndsOnALitterSecondAndAlwaysSaves
+  2s 062ms ASaveWithTamperedShowersIsRefused
+  2s 046ms OpenLeafAndSeparatePostsBlockWalkingButLeaveEntranceAndEndpointsConnected
+  1s 967ms MovementIsHeldUntilChangedAndTheSameInputsGiveTheSameDay
+  1s 966ms AddingAndRemovingASecondBarRecomputesTheCurrentDisplayNames
+  1s 965ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (4,0)
+  1s 947ms BlockedApproachFallsBackWithoutHoldingTheFightClock
+  1s 943ms ExistingExtraMedicContractUsesTheSecondPostWithoutExtraFreeWorkers
+  1s 920ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (3,2)
+  1s 911ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (1)
+  1s 895ms OpenGroundApproachIsShortPhysicalAndKeepsAuthorityAndDeadline (3,0)
+  1s 880ms MalformedVersionHandCapacityRngAndEffectsAreRejected
+  1s 863ms StewardAndRecordedTierTwoUseDeclaredRevisionBeforeOpening
+  1s 857ms FreeWaterIsOnlyForTheDayCostsTwentyPoundsEachTimeAndHasNoRefund
+  1s 820ms DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore
+  1s 715ms BinDraftChargeAndCurrentVersionRestoreAreExact
+  1s 714ms QueuedGuestForfeitsLongToiletLineButUsingOwnerStaysAndChoicePersists
+  1s 702ms RecordedAndCanonicalTierTwoBothUseBarnWithNoPondProgrammeAndNoNewMoney
+  1s 630ms LegacyCaptureAndCompactProductionPresenterRemainEquivalent
+  1s 618ms SeparateRoleTrainingDerivesActualAbilitiesAndSavedWalkingSpeeds
+  1s 616ms BuildLimitsGoUpByOneTapToiletBarAndVanAtTierTwo
+  1s 591ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (1)
+  1s 545ms SharedResolverAssignsMovesSwapsReplacesRemovesAndRejectsStaleOrInvalid
+  1s 524ms SaveDuringPhysicalDisposalAndPickupReplaysAndRejectsMalformedRoutes
+  1s 523ms QueuesMayGrowOntoEmptyAudienceGroundButNeverBesideAListener
+  1s 515ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (2)
+  1s 507ms PerformanceObservationsDoNotChangeGameplayOrSavedHashes
+  1s 495ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (3)
+  1s 472ms EitherPlacementOrderAllowsCanopyBinAndKeepsPolesOtherObjectsAndAccess (0)
+  1s 462ms CarriedFavourAndTheSpentWaterShareComeForward
+  1s 422ms RapidAlternatingHiresPublishInOrderWithoutPaymentOrLostEdit
+  1s 418ms ActuallyDrinkingBeerAddsNeedOnlyDuringConsumptionNotPurchaseOrHolding
+  1s 397ms PopularityThatTheEarlierSetsDontGiveIsRefusedOnRestore
+  1s 383ms AnIdleGoodyTwoShoesFetchesNearbyLitterAndBinsIt
+  1s 372ms GuestApproachesFixedStewardOnShortLegalDiagonalWithoutTakingItsNavigation
+  1s 359ms WholeTyresAndBallastPlusBodyClearanceAreBlockedWithoutClosingEitherDoor
+  1s 309ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (1)
+  1s 308ms OutsideGeneratorFullAssetBoundsAreUncoveredReservedAndDoNotBlockDoorOrBandRoutes
+  1s 308ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (4)
+  1s 307ms NobodyNewPicksAToiletWhoseQueueHasNoRoomToGrow
+  1s 303ms HenryIsTheManagersTankerCallAndOneLooAtATime
+  1s 296ms ACarryEditedConsistentlyStillCannotEraseDebtOrInventCashFavourOrKit
+  1s 289ms RejectedCommandRollbackAndSaveFailureKeepCurrentGeometry
+  1s 251ms EachCardHasItsOwnWeightAndTheDraftComesOutNearSixtyThirtyTen
+  1s 250ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (FirstAid,2)
+  1s 212ms RepresentativeWindowBeginsOnlyAfterEveryWaveAndAgentIsActive
+  1s 190ms AMissedFirstSetIsRecordedAndItsRecordCannotBeDropped
+  1s 188ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (WaterTap,4)
+  1s 181ms SomeoneQueuingAtAPizzaVanWeighsStayingAtPizzasPaceNotAPhantomChipsQueue
+  1s 159ms AStewardSentByThePlayerDrivesACowBackThroughTheGate
+  1s 136ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (5)
+  1s 131ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (2)
+  1s 118ms InvalidEquipmentOwnershipAndCausalStagesAreRejected
+  1s 108ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (6)
+  1s 101ms CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (True)
+  1s 093ms NobodyIsOfferedFoodUntilTheyArePeckish
+  1s 089ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (3)
+  1s 079ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (6)
+  1s 078ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (5)
+  1s 075ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (4)
+  1s 071ms StaffPurchasesReturnToMovedAssignedPostsAndConsumeOnlyOnArrivalAcrossRestore
+  1s 058ms RelationshipsThatTheEarlierSetsDontGiveAreRefusedOnRestore
+  1s 056ms TheShiftPlansItselfAndHandsThePlayerTheSecondSteward
+  1s 055ms EveryOptionalStageSelectionSavesExactlyAndConvertsOnlyTheActualBarn (2)
+  1s 045ms AChewedBarCableShutsTheBarUntilMaintenanceSplicesIt
+  1s 040ms LooseVendorSlotsGrowOnlyAsNeededKeepPrefixAndPersistExactReplay
+  1s 034ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Toilet,5)
+  1s 021ms OverBudgetDraftSavesButCannotOpenAndMalformedPlanRejects
+  1s 021ms QueuedGuestReroutesFromFullToiletButNeverOverridesMedicalRoute
+  1s 010ms SameBenchmarkConfigurationIsAuthoritativelyRepeatable
+  1s 008ms ReachFindsWhoIsInFrontBestActionFirst
+  1s 006ms BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare
+  1s 001ms BeerPartialGuestCompletionAndPerformerExclusionAreExact
+  999ms CurvedLegalRouteStillReachesThePen
+  996ms CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (False)
+  980ms TheDrumKitIsSolidToThePlayer
+  966ms MalformedHistoricalLayoutsFailWithoutThrowing
+  951ms SaveResumeImmediatelyAfterRetargetPreservesSegmentOrigin
+  948ms TheRelationshipFeeIsWhatTheBookingThePlanThePaymentAndTheSaveAllUse
+  939ms RestoreRefusesSomeoneOffSiteWhoIsStillDown
+  932ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (False,True)
+  924ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (3)
+  918ms EveryNonemptyStageSubsetHasOnlyItsRealBandsAndGeneratorsAndRestores (7)
+  904ms HandsOnPlayerClimbsThePhysicalBarnStairAndCannotStepOffItsTread
+  896ms FasterStewardStaysCloseAheadWithoutPositionJumpsAndCompletes
+  895ms ValidBuildToiletAtFormerPostSiteAutosavesAndRestoresWithoutLosingPriorSlot
+  892ms CompletedPackagingDropsAtomicallyAtPhysicalExitAndSaveStillLoads
+  878ms DrinkCareCountsFromTheMedicsArrivalNotFromAnInterruptedTreatment
+  873ms SameSeedRetryRebuildsTheGuestScheduleAndOpeningNeeds
+  869ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (True,True)
+  848ms TheStandaloneShiftsPlanIsSavedToo
+  832ms AMedicReachingADrinkCollapsePastTheCriticalMarkStillSavesThem
+  828ms TwoToiletsHaveDistinctSavedFacilityStateAndRoutes
+  823ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (True,False)
+  819ms NineSlotRebookingRefundsOnlyTheHighestImpactWithoutRepeatingGrants
+  787ms AHandsOnCampaignHasThePlayersStewardOnDayOneOnTopOfTheCrewForNothing
+  786ms SafetyRetainedFoodCollapseAndDepartureStowWithoutWaitingForCleanupCadence
+  785ms ExplicitDefaultsOpenAllThreeStagesAndKeepOrdinaryCosts (False,False)
+  783ms IndexedPathfinderMatchesSeededRandomAndInterleavedCalls
+  761ms PausedAndRestoredReturnReplaysExactlyAndReassignmentRemovesPacing
+  758ms TheShortLabelSurvivesPreparationToLiveAndRestoringBothPhases
+  757ms RealManualInputStopsAtTractorButCrossesTheRemainingBarnFloor
+  739ms FailedSaveRollsBackDependentClicksAndPreservesLastDurableSlot
+  728ms ClassicCanBuildBeyondEverySurvivalQuantityAndRestore (Bar,3)
+  726ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,Chips)
+  719ms SameTickSalesProjectFestivalCashNotBuyerDebitOrCostAndLoadResetsHistory
+  718ms TierTwoHasNormalUnlocksRainRevealAndAffordableTwoStagePreparation
+  709ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,Chips)
+  702ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,SoftDrink)
+  700ms MultipleBarsKeepTheirDistinctNamesWhenStartingAndRestoringLive
+  697ms IndependentClothingHairChoicesAreStablePureAndCoverAllPairs
+  696ms IdentityUsesStableSeedAndIdWithoutChangingAuthoritativeState
+  695ms SemanticTamperRejectsBudgetsStockHeldOrdersAndMalformedCollections
+  689ms PaidItemPartialConsumptionResumeAndPauseAreExact
+  688ms TimetableShowsBothOwningTabsThenOnlyUnresolvedTabAndClearsWhenReady
+  684ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Staff,Chips)
+  675ms AFullBinFarFromTheStewardPostStillGetsEmptied
+  673ms RecordedClearIsEligibleAndMenuStartEqualsTheOrdinaryTransition
+  671ms QueuedGuestForfeitsPlaceForWorthwhileAlternativeButOwnerAndNearFrontStay
+  650ms MixedBatchPublicationIsExactForVariableSpeedRetargetFixtureAndObservationsAreDetached
+  638ms SameBuildTickBatchingProducesIdenticalQueueState
+  637ms ExplicitRevisionPreservesLegacySaveAndOnlyChangesDeclaredGeometry
+  625ms RuntimeMastersMatchApprovedManifestAndNativeCatalogue
+  622ms CashReconcilesWithoutAddingTierOneTicketsOrStartFundsTwice
+  622ms CompactObservationPreservesEveryPersonQueueOwnershipAndPresentationIdentityWithoutHashing
+  620ms AllCurrentControlsUseSurvivalWithExplicitRolesAndCapabilities
+  620ms FetchUsesOrdinaryPaceThenJoinsTheShortLead
+  619ms PopularityCarriesIntoTheNextFestivalAndThroughARetry
+  610ms LastFestivalsLayoutIsCopiedWhereItStillFitsAndSaysHowManyDidnt
+  603ms EveryGuestHasAUniqueNameThatNoStaffOrPerformerShares
+  597ms TierOneBarnHasOrdinaryFloorAndNoRaisedStageOrSecondProgramme
+  590ms SaveFailureRetainsHandCursorMoneyAndIdsAndSuccessfulChoiceReloadsExactly
+  580ms FightMetricUsesOneActualEncounterIncludingGuestAndExcludesPerformerPair
+  576ms MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft
+  576ms MovingTentOverBinAndMovingBinUnderTentUseTheSameRule
+  564ms QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt
+  563ms CoverIsWalkedOnNotBuiltOn
+  562ms ALooseCowBlocksTheWay
+  557ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Staff,SoftDrink)
+  551ms ActualKnowledgeRelationshipsAndStandingCarryWhileBookingsCrewPerksAndStockReset
+  551ms LockedActsAreRefusedAndStretchFeesReachThePlan
+  548ms ManualSaveLoadsBackAndANewCampaignStartsClean
+  547ms TwoVansSellDifferentFoodAndCurryWaitsForTierTwo
+  537ms CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (False)
+  535ms BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded
+  533ms UnsupportedOrMissingIdentityAndImpossibleCapabilityFailRestore
+  532ms ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit
+  530ms InteriorOnlyCoverInitializesWithoutPlacementsAndSurvivesNormalSave
+  528ms ChangedStateIsWrittenInTheBackgroundOnceTheCadenceIsDue
+  527ms FileHostPreservesDraftConfirmationCancellationManualLoadAndFreshReset
+  526ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,Beer)
+  508ms ServiceExitOwnershipProtectsDestinationUntilArrivalThenAcceptedIntentRoundTrips
+  502ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Guest,Beer)
+  500ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Distress)
+  499ms MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing
+  494ms RolePriceIsChargedOnceAndLedgerStockWalletRestoreAgree (Performer,SoftDrink)
+  486ms StewardWaitsWhenAnotherCowHoldsTheReturnThenResumes
+  478ms AStallCantOverlapTheCornerOfTheBigWaterMain
+  476ms MarqueeKeepsOffAudiencesStageReservesTheRestAreaAndOtherServices
+  476ms MissingRoleSlotRejectsHireWithoutChangingDraftOrIds
+  475ms AttendeesCountPhysicalGuestPresenceIncludingCollapseWithoutChangingSafetyRoster
+  452ms FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip
+  448ms RealSavedPickupReconstructsTheSamePhaseAndTargetWithoutCosmeticFields
+  447ms TwoUrgentGuestsChooseDifferentNearbyToilets
+  441ms PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice
+  436ms EntireDuckBodiesClearDeliveredShorePadsAndEachOtherDuringTwentyMinutes
+  436ms FatalRetryKeepsBinsAndClearsAllWasteAndSweepClaims
+  435ms TierTwoAllowsOneMoreBarAndVanThanTierOne
+  435ms LabelledBuildFixtureReassessesBothPhysicalServicesAndKeepsOwners
+  423ms ACarriedLayoutTheFestivalBeforeCouldntHavePlacedIsRejectedOnRestore
+  420ms NothingIsKeptClearForRestUntilFirstAidIsPlaced
+  419ms ASecondTapNeedsTheAnotherRoundPerk
+  417ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Critical)
+  412ms CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (True)
+  409ms BladdersFillFasterOrSlower
+  408ms IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline
+  408ms HiredCandidatesNameTheirSlotAndSetTheirAbilities
+  404ms TapsNeedMuchTheSameRoomWhicheverWayTheyAreSpaced
+  388ms TwoCowsDrivenToTheGateFromEitherSideBothGetHome
+  379ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (True,True)
+  378ms ClassicStewardPostsStopAtTheStewardsItCanHire
+  367ms CommunitySharingCapsFastDrinkersAndCannotBeCommittedTwice
+  354ms DepartureHeatUsesPersonClocksForBoundaryAndDeath (Collapsed)
+  354ms PersistentCampaignViewReusesHoldingsWithoutOwningFestivalSetupOrMutatingAuthority
+  353ms ListenersKeepClearOfEveryQueueNotJustWater
+  352ms AnEmptyLooNeedsNoCallAndDavWantsPayingUpFront
+  352ms TheCopyIsWorkedOutOnceAndPricedAsItLands
+  346ms CurrentSaveRejectsRemovedOrWalkableFootprintBeforeHashValidation
+  342ms MalformedSetupAndCollectionsRejectWithoutThrowing
+  338ms AChewedGeneratorLeadCutsTheStageAndBothStalls
+  334ms OrdinaryCampaignsCarryNoShift
+  333ms TheAudienceAreaInFrontOfTheStageStaysClearOfServicesButNotBins
+  328ms BeerCostsHalfAgainAndNobodyIsTeetotal
+  324ms MedicalInterruptionReleasesExclusiveOwnerButKeepsDoorOpenUntilInteriorClears
+  319ms AHerdThatRunsFarTooLongGivesUpAndFreesTheSteward
+  316ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (True,False)
+  310ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (False,False)
+  310ms AClassicCampaignHasNoPlayerStewardAndWritesNoMode
+  310ms NewDefaultVendorsStandInARowAlongTheLaneWithAlignedEntrances
+  309ms DiagnosticGuaranteeAndOneTimeCashGrantReplayIndependently (False,True)
+  305ms AToiletOnlyNeedsRoomForItselfAndItsDoorstepNotAWholeQueue
+  304ms OpeningPaysOnlyRemainingSiteAndStockCharges
+  302ms OneMarqueeAtTierOneTwoAtTierTwoAndItIsNeverRequired
+  296ms TierTwosDefaultLayoutPutsItsSecondTapByThePondAndStandsWithOrWithoutThePond
+  286ms SituationQueryRequiresPhysicalDisposalAndMovingPastLitter
+  285ms FailedConfirmationSaveKeepsAcceptedSalesAndEarlierValidDraft
+  285ms FixtureUsesOneWorldWithRealPeopleWalletsAndThreeQueues (100,Congested)
+  283ms DisposalRequiresArrivalAndActionAndOverflowStillAccepts
+  276ms BuildChecklistKeepsEveryRequirementVisibleAcrossCompletionRemovalAndReload
+  273ms AcknowledgementPreservesDraftRngCashAndTickAndRoundTrips
+  269ms NeighbourIndexAndPaletteAssignmentAreStable
+  265ms APickForAVanNotYetPlacedIsNeverSwitchedLater
+  260ms GroundAndWaspsGiveBoundedLossAndSafeAvoidancePauseFreezes
+  255ms SlowLeaderAndFasterFollowerBothComplete
+  248ms MaintenanceAndOptionalEquipmentDoNotHideTheActualStaffBlocker
+  247ms FreshBuildSeedsStayDeterministicAndRerolledHandSurvivesDiskLoad
+  240ms EmptyingThresholdIsExactly90PercentEvenManualAndClearsOverflowWasps
+  236ms TwoStewardsCannotClaimTheSameWaste
+  235ms CleanupInterruptedForSafetyPreservesWasteAndCannotDuplicateTarget
+  235ms ActualCompletionCreatesOnePieceForEveryConsumingRoleAndPartialCreatesNone
+  233ms FootprintTurnsWithTheTentAndOnlyThePolesAndPegsBlock
+  232ms IndexedPathfinderExactlyMatchesFrozenReferenceCases
+  231ms TheDevelopmentRouteOpensTierTwoOnACarriedState
+  229ms ControlledBarnHasDistinctProgrammeAndPowerWithoutChangingNormalAllocation
+  224ms EveryHundredAttendeeOriginHasAWalkableRouteToTheGate
+  220ms NoBinAndUrgentDropKeepActualPositionAndReleaseClaim
+  218ms SensitiveGuestsOverheatFasterInProportion
+  213ms RecordedRatesBuildFeesStockAndCapitalReconcileWithoutDoubleCounting
+  210ms MalformedPreparationRejectsMissingRosterAndUnpaidProperty
+  210ms BeerRefusalAbstentionStaffAndOnstagePendingPhysiology
+  209ms SweepsStayBoundedAtCurrentPostAndReturnAfterTargetBudget
+  207ms DiagnosticProbeDoesNotChangeAuthoritativeState
+  203ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("tier-2")
+  202ms StaggeredWaterSlotsHaveClearanceAndWalkableRoutes
+  198ms IbsAndSlowDrinkingShowInTheirNumbers
+  195ms SharedConsumptionEligibilityUsesCounterDistanceOwnershipAndOperationState
+  193ms RejectedCommandLeavesTheSessionExactlyAsItWas
+  193ms LabelsMarkTheExtremesAndMostGuestsShowFewOrNone
+  191ms AGoodyTwoShoesLeavesLitterWhenTheBinCannotBeReached
+  184ms R004OldLayoutSaveIsRejectedWithoutChangingTheFile
+  176ms DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated
+  176ms DiscountedAffordabilityUsesActualPriceAndStaffBeerRefusalIsUnchanged
+  170ms PhaseComesOnlyFromAuthoritativeTicksAndDoesNotConsumeWaste
+  169ms NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange
+  168ms FullBinRemarkTakesPriorityOverGroundAndPresentationDoesNotChangeState
+  168ms MalformedMultiQueueCollectionsAndGlobalDuplicatesRejectWithoutThrowing
+  166ms CongestedLayoutAddsARealNarrowFenceOpening
+  156ms CoexistingInjuryKeepsOriginalDeadlineWhenAlcoholCrossesCollapseDuration
+  155ms CustomEastFieldTapRemainsSaveable
+  154ms BothFittedArmsRetainTheirLengthsForNearFootTargetsThroughoutPickup ("female")
+  154ms RigsAreHiredNotBoughtAndAProRigCostsMore
+  153ms DraftPlacementRemovalAndCancelAccountingAreUnpaid
+  151ms CandidatesAreFixedForASeedAndVaryBetweenSeeds
+  149ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("out-of-stock")
+  149ms FoodHalvesNewAbsorptionAndWaterDoesNotSober
+  148ms EveryStallsCableRunsBehindItAndMovesWithIt
+  147ms UpgradeRejectsAnAlreadyStartedLegacySessionWithoutMutatingVersion
+  144ms PerpendicularAndDiagonalCrossingsDischarge (False)
+  141ms BuildingKeepsOffThePondStageAndItsCrowdOnlyWhenItRuns
+  137ms DiagnosticProvenanceCannotBeRemovedOrAttachedToOrdinaryCampaigns
+  137ms OpeningNeedsASoundEngineerAMedicAndASteward
+  132ms HalfTravelPersistenceResumesToIdenticalArrival
+  130ms NoRouteCannotLeaveStaleLogicalOrPhysicalReservation
+  129ms TamperedCarriedStateIsRejectedOnRestore
+  126ms EveryPerkRemovalRestoresItsBoundedEffectAndOwnedExclusion
+  125ms MilestoneThatCannotBeSavedStillStartsAndAdvancesAfterDismissal
+  124ms WaitingAndInsideClaimsContinueIdenticallyAfterRestore
+  123ms GateRoutesToActualServicesPostsStageAndBothBarnFrontApronsRemainViable
+  120ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("insufficient-wallet")
+  119ms FailedAuthoritativeOrderNeverOffersChargesOrCreatesReceipt ("beer-refusal")
+  118ms FiftyProtectedPeopleStayWithinRoutineBudgetDuringRepeatedObservation
+  115ms EachWeatherTypeHasAnExactIndependentSavedForecast (HeavyRain)
+  111ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("pond-trial")
+  111ms FixtureUsesOneWorldWithRealPeopleWalletsAndThreeQueues (50,Representative)
+  110ms MovingABarRenamesItAndTheOthers
+  110ms BookingStartsWithoutTicketCreditAndConfirmationResizesActualGuests
+  110ms WithoutAnItemisedOrderTheStockTableLeavesBoughtBlank
+  106ms EachRoleOffersSixNamedCandidatesWithAStandardOne
+  105ms NobodySaysTheyLoveThisSongWhenNoBandIsPlaying
+  105ms ApproachEquipsAndBinEmptyUsesItsExistingThreeSecondClock
+  105ms WithoutTheTrialTheFestivalIsTheTrailerStageAsBefore
+  103ms PondStageGroundIsClearAndItsBandCanClimbToEveryMark
+  102ms CancellationRefundsActualMoneyAndRestoresSameCandidateIdentities
+  100ms ComedyBurstsHaveRapidJabsAndLongerIrregularPausesWithoutSimultaneousSwings
+  99ms RetargetCapacityRequiresPairedSlotsAndExitsAndRoundTripsUnequalSafeShape
+  98ms UnsoldStockIsWrittenOffInTheOperatingResult
+  96ms NobodyStartsOrIsPostedOnTheGateOrHedgeEnds ("tier-1")
+  93ms PaidSaveRejectsForgedHeadersQuotesAndPhasesAndCaptureArraysAreIsolated
+  92ms FullTankRejectsNewVisitsAndSmellPenaltyIsLocalAndCapped
+  91ms FixtureUsesOneWorldThreePhysicalDestinationsAndExplicitRetargets
+  90ms ATrialBooksThreeActsAndAnEngineerForEachStage
+  89ms TheDefaultLayoutsNameTheirBarsInRelationToEachOtherAndTheirVansByTrader
+  88ms EachWeatherTypeHasAnExactIndependentSavedForecast (Cloudy)
+  88ms InterruptedVisitorWaitingJustOutsideDoesNotKeepTheToiletShut
+  86ms PerpendicularAndDiagonalCrossingsDischarge (True)
+  80ms ThePlanShowsTheEveningPeakAgainstTheFarmDiesel
+  80ms OfferIsSeededCoversEveryGenreAndShowsFiveNearMisses
+  79ms EachWeatherTypeHasAnExactIndependentSavedForecast (Mild)
+  76ms EachWeatherTypeHasAnExactIndependentSavedForecast (Showery)
+  76ms EachStageHasItsOwnSoundEngineer
+  75ms EachWeatherTypeHasAnExactIndependentSavedForecast (Heatwave)
+  75ms ACandidateCannotFillBothTheMainAndTheExtraSlot
+  74ms RoutineChoicesAreTransitionTriggeredGloballySpacedAndNotRepeatedPerTick
+  73ms EachWeatherTypeHasAnExactIndependentSavedForecast (Pleasant)
+  70ms ATierOneMarketTopsOutOneGradeAboveStandard
+  68ms RestoreRejectsInsidePersonMissingFromRegionOccupants
+  68ms WithEveryGeneratorInThePoolGoneTheStallsStopServing
+  64ms TheTwoGeneratorsPoolAndTierTwosDefaultFitsOnTheBasicPa
+  63ms TicketPriceSetsExpectationsThatShapeEnjoyment
+  62ms InjectedFailurePreservesPriorGoodSlotAndSuccessfulReplaceKeepsBackup
+  59ms SameTargetRetargetKeepsContinuousForwardMovement
+  58ms RestoreRejectsDuplicateFutureExitAssignmentsBeforeAnyDeparture
+  57ms EveryWaitingGuestStartsOnTheMapAndCanReachTheGate
+  56ms RetryResetsOnlyAttemptAcknowledgementAndFixedAssignment
+  54ms AFightDeathGetsTheFightLesson
+  53ms MarketIsStableWhilePriceAndPopularityChangeMonotonically
+  52ms RearFieldNorthToSouthRouteStructurallyDetoursAroundLargeBarn
+  52ms TwoFrontOpeningsConnectTheInteriorButWallsAndDeckRimStaySolid
+  45ms OnlyGroundThatHasTheBarnGetsItsWalls
+  45ms SampledStarterMarketsOfferABasicRecoveryFromTheExistingLowestCarry
+  45ms FiftyPeopleBoundOrdinaryTextWhileActualPairsRemainVisible
+  45ms ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded
+  43ms UnreachableTargetIsBoundedNoRouteAndDoesNotTeleport
+  42ms ReadsDoNotChangeSessionRandomnessAndOrdinalGetsItsOwnMarket
+  42ms OnePlacedBarUsesTheShortDisplayLabelWithoutChangingRecordedNamesOrState
+  42ms EssentialSetupShortfallWarnsBeforeOverdraftAndStillPermitsConfirmation
+  42ms ValidFixtureLoadsTwiceWithSameHashAndResolvedReferences
+  41ms ClassicHasSeededWeatherDefinitionAndStrictIndependentIdentity
+  41ms ExactCashSucceedsWhileInsufficientCashAndEmptyStockAreAtomicRejections
+  41ms PurchaseTransfersCashConsumesStockAndBooksBalancedEntries
+  40ms TheOpeningToiletStandsClearOfBothCrowds
+  39ms DelayedBandQuestionsBecomeAngryWithExistingThrottlesAndNeverReplayAfterLoad
+  39ms RestoreRejectsDuplicateActiveExitOwnershipWithFreshAuthoritativeHash
+  38ms FreeTicketsUseActualCapacityAndCannotCreateRefundCash
+  36ms BothFittedArmsRetainTheirLengthsForNearFootTargetsThroughoutPickup ("male")
+  34ms BadHugeIdsAreRejectedWithoutEnumeratingTheNumberAndSurvivalStillHasItsLimits
+  34ms FreezePreservesBothPosesPhaseAndPendingTurnWithoutCatchup
+  34ms SaveFactsReplayAndRejectIllegalPhasePriceOrContractTampering
+  33ms ASingleStageKeepsTheFarmDieselAlone
+  33ms CorruptionTruncationUnknownSchemaAndContentMismatchAreActionable
+  33ms SaveResumeContinuationMatchesUninterruptedHashTransactionsIdsAndRandom
+  32ms DifferentTargetRetargetStartsAtCurrentAuthoritativePosition
+  32ms FightMarksBothRecordedParticipantsAndMedicalUrgencyWinsAfterRestore
+  31ms TheNamesFollowTheStagesThatAreOpen
+  31ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("head-on pair")
+  30ms CumulativeTransfersReconcileAcrossMultiplePurchases
+  30ms LastItemGoesToFirstBuyerInSubmissionOrder
+  30ms InvalidAmountsAndMissingIdentitiesRejectWithoutMutation
+  30ms AcceptedCommandAndTransactionIdentitiesAreBothIdempotent
+  30ms RoundedHedgeEndsBlockFoliageCrossingsWithoutTrappingArrivalRows
+  29ms TransactionIdentityAndLedgerAreAuthoritativeHashInputs
+  29ms EachUseHasTheCalibratedSmallChance
+  29ms ThePressLineGoesToTheBiggestMomentOfTheShift
+  28ms TierOneStaysTheHeatwave
+  28ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("diagonal four")
+  28ms AcceptedPurchaseCannotReplayAfterLoading
+  28ms TheListKeepsTheMostTellingCallsInTheOrderTheyCameIn
+  27ms R004RearBarnAndSeparatedResponseFacilitiesHaveWalkableApproaches
+  26ms SixteenDesignerCombinationsPreserveProtectedBytesAlphaAndOriginal
+  25ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("six-way knot")
+  25ms FixedAssignmentDoesNotInventWeatherOrConsumeRandomStreams
+  25ms AnyoneNotInABandHasNoStage
+  24ms PairAlternatesSingleSwingOwnersWithDelayedCounterpartReactions
+  24ms DelayedFrontGuestCannotBeServedRemotely
+  24ms ClosureAndAbandonmentReleaseAllReservationsAndReopenClean
+  24ms ProvisionalDistributionIsMostlyOrdinaryAndEachFestivalHasAKeyedDraw
+  23ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("perpendicular four")
+  22ms BarnFrontsAlignAndApprovedAssetsAndLargeTransformRemainExact
+  22ms SixtyMetresTakesTwentyFiveRealSecondsAtOneX
+  22ms ComplaintShoutsAreTransitionTriggeredThrottledAndNotReplayedOnLoad
+  22ms PrissinessScalesUnpleasantLossesBetweenHalfAndHalfAgain
+  21ms SeparateEncountersAreRepeatableButHaveDifferentBoundedCadences
+  21ms ExactStarBoundaries (0,1)
+  21ms WritesWalkOuts
+  18ms ResolvedStewardResponseDoesNotRePairLaterUnrelatedArgumentOrInspector
+  18ms BuildMismatchIsWarningAndSlotNamesCannotEscapeDirectory
+  17ms ApplauseStrengthAndClipChoiceScaleWithActualAudienceAndEarnedEnjoyment
+  17ms SameAuthorityInputSeeksExactlyAndHandGripsFollowProps
+  17ms HeadwearFollowsTheRules
+  17ms SideBySidePeckishGuestsTakeChipsAndHungryOnesPizza
+  17ms OfferHasOnlyCurrentEligibleProductAndSaleHidesItImmediately
+  17ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("five-way knot")
+  16ms TwoWalkersSentToTheSameSpotBothSettleWithoutAKnot
+  16ms NullCollectionsAndEntriesReturnDiagnosticsThroughJsonAdapter
+  16ms DelayedBandQuestionYieldsToUrgentMedicalAndEndsWithResolvedGrievance
+  16ms PausedCommandSavesImmediatelyAndRemainsAppliedOnce
+  15ms RotatedReservationBlocksWholeSmallBarnAndReleasesPriorLongRearStrip
+  15ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("performance.listen")
+  14ms PeopleRouteRoundASwampAndWadeSlowlyThroughOne
+  14ms GuidanceEnclosesPrivateMarketOutcomesAndCapacityIsHard
+  14ms DeliveredManifestFilesAndAllProductAnchorsRemainExact ("attendee_poses_v6_manifest.json",25)
+  14ms DeliveredManifestFilesAndAllProductAnchorsRemainExact ("attendee_poses_v2_manifest.json",0)
+  13ms AlertsDeduplicatePrioritizeBoundFadeAndDoNotRefreshOnRepeatedObservation
+  13ms LowerWitteringFarmHasStableUniqueIdsAndBoundedPositions
+  12ms SparseResetIsFrozenAndImmediatelyInterruptibleByNextService
+  12ms ALoneBarIsJustBarUnlessItsByAStage
+  11ms ABandMemberAboutToPlayALongSetDrinksFirstRatherThanCollapseOnStage
+  11ms MildNeedsKeepWatchingAndUrgentNeedsLeave
+  11ms BetterMusicHoldsPeopleLonger
+  11ms GoesBeforeAFavouriteSetRatherThanDuringIt
+  11ms TheToiletGoesFirstWhenItWillBeMoreUrgentByTheBar
+  11ms ReliefThatLandsLateStillCounts
+  11ms AToiletOnTheWayToTheBarIsWorthTheStop
+  11ms NoTierOneBudgetIsMoreThanTheCarryBoundAllows
+  11ms TiesKeepTheCallersOrder
+  11ms HeldQueuePlaceOutscoresStartingOver
+  11ms AFartherTapWinsWhenItIsOnTheWayToTheNextStop
+  10ms CrossingWalkersInOpenGroundAllGetThroughPromptly ("offset head-on three")
+  10ms AWalkerNeedingTheExactCellWaitsBesideTheStanderThenStepsOnWhenTheyLeave
+  10ms DisposalComplainsOnceOnlyWhenActualFullBinArrivalIsObserved
+  9ms AboutHalfTheMarketHasAQuirkAndOppositesNeverPair
+  9ms InvalidDimensionsIndicesAndProtectedSlotEditsAreRejected
+  9ms TierOneHasNoCarryAndCannotSkipAhead
+  8ms GroundRemarksNeedFourPiecesAndRespectSpacingCooldownAndSafety
+  8ms CameraKeyboardPanIsScreenRelativeAtEveryRotation
+  8ms TheGradeScale
+  7ms ReputationZeroBooksLocalsFreelyStretchesToFiftyAndRefusesTheRest
+  7ms SceneCredibilityHelpsItsOwnGenreAndHurtsClashingOnes
+  7ms ShorterLineCanBeatNearerServiceButLongTravelCanReverseIt
+  7ms EveryHeaderUsesRawFieldDirectionAndDeterministicNameIdTies
+  7ms TheSlightlyHungryPickChipsAndTheVeryHungryTheFillingFood
+  7ms ReputationAndBookedScenesMoveTowardTheResult
+  7ms ACrowdThatDriftsOffMovesTheRelationshipLessThanOneThatStays
+  6ms HeldExitDeniesEntryThenReleasedExitPermitsDischarge
+  6ms RoleAssetsV2MatchTheirBuildReports
+  6ms WaterRelievesThirstAndSomeHeat
+  6ms ExactlyTwoObstructedWaitingSlotsMoveToUniqueClearCells
+  6ms CatalogueHasUniqueActsInEveryGenreWithLocalsInEach
+  6ms IndividuallyRoundedLowCostEdgesRetainOptimalElevenCostRoute
+  6ms TheShowersComeFromTheSeedAndTierAndAreSaved
+  6ms TheOpeningBudgetIsExactlyTierOneTicketsPlusTheStarterLoan
+  6ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("litter.goody-pickup")
+  6ms ThePondStagesCrowdIsAsBigAsTheTrailers
+  6ms CheapTerrainDetourRemainsOptimal
+  6ms AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling ("medical.return")
+  5ms FestivalDefinitionsResolveTheExistingTierParameters
+  5ms BearingsThatClashGoToEightPointsThenNumbers
+  5ms OnlyPunkFansWearMohawks
+  5ms RequeuedBoundaryTicksRemainScheduledAfterAsynchronousWait
+  5ms TraitsMoveTheWageByAPercentageThatMatchesTheirSign
+  5ms CheckedInPreviousIdentitySchemaRequiresExplicitMigration
+  4ms BandsWhoLikedPlayingForYouAreAlwaysOfferedButBandsYouUpsetAreNot
+  4ms CurryIsSlowToServeVeryFillingAndTheBestValueForMoney
+  4ms FactualThirstyCopyKeepsExistingLayoutContentIdentity
+  4ms TheGradeLosesAPointPerTenSecondsOnStageUpToFive
+  4ms ABigPortionIsWorthItsSizeOnlyToSomeoneHungryEnoughToFinishIt
+  3ms LingeringPaceAndStopsAreKeyedAndBounded
+  3ms HalfStarMidpointsRoundUpIncludingZeroAndMaximum
+  3ms SameSeedAndCommandsProduceIdenticalIntermediateAndFinalHashes
+  3ms ABarBesideThePondStageBarIsNamedFromIt
+  3ms FolkFansFavourFlowerCrownsAndBeardsAndTheChoiceIsStable
+  3ms FullAndUnreachableAlternativesAreExcludedButExistingPhysicalPlaceCounts
+  3ms InvalidJsonReturnsContextWithoutThrowing
+  3ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (0)
+  3ms DuplicateOrStaleAcknowledgementIsRejectedWithoutMutation
+  3ms ReleasedSlotsRefundPaidFeesAndCannotOpenUntilRefilled
+  3ms FastForwardAndRebuildRetainOnlyNewestStableTransaction
+  2ms PauseTerminalAndHiddenTimeDoNotEnterTheCosmeticClock
+  2ms EntityIdsAllocateMonotonicallyAndAllocationStateIsHashed
+  2ms FacingIsWholeDegreesEveryPlatformAgreesOn
+  2ms OpposingPeopleUseFiniteBatchPassageWithSafeSweptMotion
+  2ms NewcomersWonOverRaisePopularityWithinTheCap
+  2ms ReorderingUnorderedRecordsDoesNotChangeHash
+  2ms DrawDiscountsOverlapAndDoesNotDependOnOrderGenreOrTalent
+  2ms ASingleStageDayIsUnchangedAndThePondsFullThirdSetLengthensTheDay
+  2ms CosmeticAndUnrelatedStreamsDoNotPerturbBehaviourStream
+  2ms TheNamePoolsCoverTheWholeMarket
+  2ms ALateSurgeAfterAnEmptySetScoresPoorly
+  2ms TheLabelReadsTheSetAsTheScoreDoes
+  1ms FourHundredTicksAreIndependentOfBatchSizes
+  1ms ConfirmCreatesActualSalesAndBalancedBandChargesExactlyOnce
+  1ms RadioedCallsCountHalfSoAnsweringOneAndRadioingTheRestIsNotFullMarks
+  1ms WriteControlledNativeFixturesWhenRequested
+  1ms StuckPeopleShoutMoreDesperatelyAndABrokenTapGetsOneGrumble
+  1ms CurrencyFormattingOmitsOnlyRoundPoundDecimals
+  1ms EqualTickCommandsUseSubmissionOrderAndAcceptedIdsAreIdempotent
+  1ms ZeroCommandIdRejectsWithoutMutationAndCannotEnterSaveState
+  1ms CapacityUsesProductionEightyTickPerSecondClockUnits
+  1ms BlockedExitPreventsEntryEvenWhenOneStepCrossesWholeCore
+  1ms ActualHandlingCancelsPunchAndInterruptedHandlingReturnsToGuardWithoutBacklog
+  1ms GenreFilteringOnlyProjectsRowsAndNeverMutatesCatalog
+  1ms TalentLooselyFollowsFameWithRealSurprises
+  1ms AGoodGigRaisesTheRelationshipAndABadOneLowersItBelowZero
+  1ms InheritedBuildingsAreImmovableAndGateStartsVisuallyOpen
+  1ms DrinkingPaceVariesDeterministicallyByPerson
+  1ms SharedTimestampMappingPreservesElapsedOutputAndSeparatesDurations
+  1ms NegativeBookingBudgetHasFullCancellationRecoveryWithoutNewDebt
+  1ms RequestedSpeedIsNonAuthoritativeAndDoesNotAdvanceTime
+  1ms WritesDayLogsForComparison
+  1ms RequiredInvalidCategoriesAreActionableAndProduceNoCatalogue
+  1ms FailureCancellationAndPonchoNeverLeaveAnOfferedItem
+  1ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("medical-death:1:1","heat illness")
+  1ms ExactSupercoverRejectsBlockedCrossingsBoundariesAndDiagonalCorners
+  1ms SeveralBarsByOneStageTakeBearingsFromEachOther
+  1ms RebookingReleasesOnlyActualPaidFeesAndRefundsOnlyTheIncrement
+  0ms TheFeeHalvesAtBestAndDoublesAtWorstToTheNearestPound
+  0ms PathAvoidsBlockedCellsAndCannotCutDiagonalCorners
+  0ms SimulationAssemblyHasNoGodotDependency
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (Chips,"food_hold","eating")
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (Beer,"drink_hold","drinking")
+  0ms CadenceUsesSavedConsumptionAndHandsPrecedeLift (SoftDrink,"drink_hold","drinking")
+  0ms PauseStopsTicksAndExpiryButAllowsValidCommands
+  0ms SomeoneSwapsQueuesOnlyToBeServedClearlySooner
+  0ms StallIdsKeepTheFirstOfEachKindAsBefore
+  0ms ConservativeBudgetAllowsHonestNegativeProjectionWithoutBookingAllowance
+  0ms ReviewCooldownMeaningfulGainAndStableTieAvoidOscillation
+  0ms ActualRemainingOwnerAndCurrentPositionControlComparison
+  0ms TerrainCostPreservesFractionalMovementRemainder
+  0ms EarlierApproachersAddExpectedDemandWithoutTakingPhysicalPlaces
+  0ms HowLongFoodTakesAndHowMuchItPleasesFollowWhatItIsNotTheVanPitchedToday
+  0ms ADodgyKneeCountsAgainstPace
+  0ms FreeEntryAndZeroSalesNeverInventRefundMoney (0)
+  0ms ReorderIsFreeButEveryChangedNameHasAtLeastComparableDisappointment
+  0ms WritesTierTwoCrowds
+  0ms BearingsPointNorthUpTheSiteMap
+  0ms WrongPhaseAndUnknownTargetRejectWithoutMutation
+  0ms PersonalityConvenienceDetourUrgencyAndRolesProduceDifferentDecisions
+  0ms InspectingScenarioObjectsCannotMutatePausedAuthoritativeState
+  0ms EachHiccupLowersTheScore
+  0ms FrozenPhasesPropsAndTimersResumeWithoutHiddenTimeOrEventReplay
+  0ms CancellationAfterRebookingRefundsRemainingHoldersWithoutPayingTwice
+  0ms TwoBarsByNoStageAreNamedEastAndWestOfEachOther
+  0ms ExactStarBoundaries (1999,1)
+  0ms BlockedSpawnAndRequiredTargetAreReported
+  0ms OutOfBoundsSpawnAndRequiredTargetAreReported
+  0ms WritesGigRecords
+  0ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("equipment-death:1:1","generator incident")
+  0ms ShortActualDensityRetreatBackstepsButSideForwardAndStoppedStepsDoNot
+  0ms SmokeResultIsFixed
+  0ms RestoredOrUnsafePairsDoNotReplayEntryOrScheduleSwings
+  0ms MeaningfulTuningChangeChangesHash
+  0ms RefundTargetsRoundUpAndRepeatedChangesCannotResetOrCompoundThem
+  0ms AlreadyReachedWaypointCompletesWithoutMovement
+  0ms OrdinaryLossIsLessSevereThanLostHeadlinerOrLargePopularityLoss
+  0ms NormalRouteImmediatelyResetsHeadingAndStageRelativeGeometryWorksOffCentre
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (1)
+  0ms TierTwoSellsFiftyTicketsAtFifteenPounds
+  0ms FreeEntryAndZeroSalesNeverInventRefundMoney (10000)
+  0ms ComparableAndSubstantialBoundariesAreExplicit
+  0ms ContinuousStairClearanceRejectsRailAndTreadEdgeCrossings
+  0ms TheBestAndWorstGigsAreHeldToTheirRange
+  0ms MultipleNewActsAreMatchedToMissingActsEvenWhenTheirSlotsCross
+  0ms ADrinkDeathIsNotBlamedOnTheHeat
+  0ms NoGuestsIsUnratedAndRoundingCannotChangeBoundary
+  0ms IdentityComesFromCasualtyAndNotConceptExample
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (2)
+  0ms FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge (3)
+  0ms HearingUsesHumaneChainSpecificCopyWithoutRawEvidence ("disorder-death:1:1","fatal injury")
+  0ms ExactStarBoundaries (2000,2)
+  0ms ExactStarBoundaries (4000,3)
+  0ms ExactStarBoundaries (3999,2)
+  0ms ExactStarBoundaries (10000,5)
+  0ms ExactStarBoundaries (5999,3)
+  0ms ExactStarBoundaries (6000,4)
+  0ms ExactStarBoundaries (8000,5)
+  0ms ExactStarBoundaries (7999,4)
