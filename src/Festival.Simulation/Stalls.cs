@@ -56,66 +56,99 @@ public static class Stalls
 
 /// <summary>
 /// The names the player sees for bars and vans, worked out from the layout alone, so nothing about them is saved.
-/// Each stall has a list of names it would like, best first:
+/// Bars are named in relation to each other (the user: "they should be named in relation to each other"):
 /// <list type="bullet">
-/// <item>A van, its trader's name ("Korma Chameleon").</item>
-/// <item>A stall within <see cref="NearStageCells"/> of a stage's audience ground or its deck and steps, that stage's
-/// name: "Trailer Stage Bar", "Pond Stage Bar" (the nearer stage if two are close, the first stage on a tie); then the
-/// same with its bearing from the middle of that stage's crowd, on four points and then eight: "North Pond Stage Bar",
-/// "North-West Pond Stage Bar".</item>
-/// <item>Any other stall, its bearing from the middle of the festival ground on four points and then eight: "East Bar",
-/// "South-East Bar". North is up the site map (-Z), east is +X.</item>
-/// <item>Last, the last of those with a number: "South-East Bar 2".</item>
+/// <item>A van goes by its trader's name ("Korma Chameleon"). A van with no trader is named as a bar is, among the
+/// other trader-less vans ("Van", "East Van").</item>
+/// <item>A bar within <see cref="NearStageCells"/> of a stage's audience ground or its deck and steps is that stage's
+/// bar (the nearer stage if two are close, the first stage on a tie). The only one by its stage is "Pond Stage Bar";
+/// several by one stage each take a bearing from the middle of those bars: "West Pond Stage Bar", "East Pond Stage Bar".</item>
+/// <item>Any other bar, if it's the only bar on the field, is just "Bar". Otherwise it takes its bearing from the middle
+/// of all the bars on the field, stage bars included: with a Pond Stage Bar and one other bar to its west, "West Bar".</item>
 /// </list>
-/// Names go out in stall order (bars, then vans, each by number), every stall taking the first name on its list that no
-/// stall before it has. So a stall's name depends only on where it and the stalls numbered before it stand, whatever
-/// order they're listed in: a newly placed bar, which takes the next number, never renames one already standing, and
-/// it's the newcomer that gets the finer name ("East Bar" stays; the new one is "South-East Bar", and a second bar by
-/// the Pond Stage is "North Pond Stage Bar" beside the plain "Pond Stage Bar"). Moving or removing a stall can rename
-/// only stalls numbered after it, when it takes or frees a name they wanted; and as a new stall takes the lowest free
-/// number, one placed after a removal can slot in before others and do the same.
+/// Within each group (one stage's bars, or the bars by no stage) bearings are on four points; any that two bars share
+/// go to eight points for just those bars; any still shared are numbered west to east, then north to south ("North
+/// Bar 1", "North Bar 2"). A bar exactly at the middle is "Central Bar". North is up the site map (-Z), east is +X.
+/// Middles are integer means compared without rounding (count × cell against the sum of cells).
+/// The names come from the set of stalls alone, whatever order they're listed or numbered in, and no two stalls ever
+/// share one. Because they're relative, placing, moving or removing a bar can rename the others: a lone "Bar" becomes
+/// "East Bar" once a second bar goes in to its west.
 /// </summary>
 public static class StallNames
 {
     /// <summary>How close, in cells (half a metre each), a stall must stand to a stage's crowd or stage to be named after it.</summary>
     public const int NearStageCells = 10;
-    /// <summary>The middle of the festival ground Build places on (x 68–190, z 108–190), on the farm track.</summary>
-    public static readonly GridCell FieldCentre = new(129, 149);
 
     /// <summary>Every stall's name by id. <paramref name="traderName"/> names a van; null leaves vans to the bar rule.</summary>
     public static SortedDictionary<string, string> For(IEnumerable<(string Id, GridCell Cell)> stalls, IReadOnlyList<FestivalStage> stages,
         Func<string, string?>? traderName = null)
     {
-        // In stall order; an id listed twice counts once, at the first of its cells (west, then north, first).
+        // An id listed twice counts once, at the first of its cells (west, then north, first).
         var all = stalls.Where(stall => Stalls.Number(stall.Id) > 0)
-            .OrderBy(stall => Stalls.IsVan(stall.Id)).ThenBy(stall => Stalls.Number(stall.Id)).ThenBy(stall => stall.Cell.X).ThenBy(stall => stall.Cell.Z)
+            .OrderBy(stall => stall.Id, StringComparer.Ordinal).ThenBy(stall => stall.Cell.X).ThenBy(stall => stall.Cell.Z)
             .DistinctBy(stall => stall.Id).ToArray();
         var names = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        var taken = new HashSet<string>(StringComparer.Ordinal);
+        var placeNamed = new List<(string Id, GridCell Cell)>();
         foreach (var stall in all)
         {
             var trader = Stalls.IsVan(stall.Id) ? traderName?.Invoke(stall.Id) : null;
-            var wanted = (string.IsNullOrWhiteSpace(trader) ? [] : new[] { trader })
-                .Concat(ByPlace(stall.Cell, Stalls.IsVan(stall.Id) ? "Van" : "Bar", stages)).ToArray();
-            var name = wanted.FirstOrDefault(candidate => !taken.Contains(candidate));
-            // Never two the same, whatever the layout: a number on the last name it wanted.
-            for (var number = 2; name is null; number++)
-                if (!taken.Contains($"{wanted[^1]} {number}")) name = $"{wanted[^1]} {number}";
-            taken.Add(name);
-            names[stall.Id] = name;
+            if (string.IsNullOrWhiteSpace(trader)) placeNamed.Add(stall);
+            else names[stall.Id] = trader;
+        }
+        NameByPlace(placeNamed.Where(stall => Stalls.IsBar(stall.Id)).ToArray(), "Bar", stages, names);
+        NameByPlace(placeNamed.Where(stall => Stalls.IsVan(stall.Id)).ToArray(), "Van", stages, names);
+
+        // Never two the same, whatever the layout (two vans with one trader, say): west to east, then north to south,
+        // the first keeps the name and the rest take the lowest free number.
+        var cells = all.ToDictionary(stall => stall.Id, stall => stall.Cell, StringComparer.Ordinal);
+        var taken = names.Values.ToHashSet(StringComparer.Ordinal);
+        foreach (var clash in names.GroupBy(pair => pair.Value, StringComparer.Ordinal).Where(group => group.Count() > 1)
+                     .OrderBy(group => group.Key, StringComparer.Ordinal).ToArray())
+        {
+            foreach (var pair in clash.OrderBy(pair => cells[pair.Key].X).ThenBy(pair => cells[pair.Key].Z).ThenBy(pair => pair.Key, StringComparer.Ordinal).Skip(1))
+            {
+                var number = 2;
+                while (taken.Contains($"{clash.Key} {number}")) number++;
+                names[pair.Key] = $"{clash.Key} {number}";
+                taken.Add(names[pair.Key]);
+            }
         }
         return names;
     }
 
-    /// <summary>The names a stall's place gives it, best first: by a stage, or by its bearing from the field's middle.</summary>
-    private static IEnumerable<string> ByPlace(GridCell cell, string noun, IReadOnlyList<FestivalStage> stages)
+    /// <summary>One kind's stalls named by where they stand: by a stage, or by bearing from the middle of them all.</summary>
+    private static void NameByPlace((string Id, GridCell Cell)[] stalls, string noun, IReadOnlyList<FestivalStage> stages, IDictionary<string, string> names)
     {
-        var stage = StageNear(cell, stages);
-        var rest = stage is null ? noun : $"{stage.ShortName} {noun}";
-        var from = stage?.AudienceCentre ?? FieldCentre;
-        if (stage is not null) yield return rest;
-        yield return $"{Bearing(cell, from, eight: false)} {rest}";
-        yield return $"{Bearing(cell, from, eight: true)} {rest}";
+        if (stalls.Length == 0) return;
+        var byStage = stalls.Select(stall => (Stall: stall, Stage: StageNear(stall.Cell, stages))).ToArray();
+        foreach (var stage in stages)
+        {
+            var near = byStage.Where(item => ReferenceEquals(item.Stage, stage)).Select(item => item.Stall).ToArray();
+            if (near.Length == 1) names[near[0].Id] = $"{stage.ShortName} {noun}";
+            else if (near.Length > 1) NameGroup(near, near, $"{stage.ShortName} {noun}", names);
+        }
+        var elsewhere = byStage.Where(item => item.Stage is null).Select(item => item.Stall).ToArray();
+        if (stalls.Length == 1 && elsewhere.Length == 1) names[elsewhere[0].Id] = noun;
+        else if (elsewhere.Length > 0) NameGroup(elsewhere, stalls, noun, names);
+    }
+
+    /// <summary>
+    /// A group named by bearing from the middle of <paramref name="around"/>: four points, eight for any that share,
+    /// then a number, west to east and north to south, for any that still do.
+    /// </summary>
+    private static void NameGroup((string Id, GridCell Cell)[] group, (string Id, GridCell Cell)[] around, string rest, IDictionary<string, string> names)
+    {
+        long count = around.Length, sumX = around.Sum(stall => (long)stall.Cell.X), sumZ = around.Sum(stall => (long)stall.Cell.Z);
+        string BearingOf(GridCell cell, bool eight) => Bearing(count * cell.X - sumX, count * cell.Z - sumZ, eight);
+        var four = group.ToDictionary(stall => stall.Id, stall => BearingOf(stall.Cell, eight: false), StringComparer.Ordinal);
+        var bearings = group.ToDictionary(stall => stall.Id,
+            stall => four.Values.Count(value => value == four[stall.Id]) > 1 ? BearingOf(stall.Cell, eight: true) : four[stall.Id], StringComparer.Ordinal);
+        foreach (var same in group.GroupBy(stall => bearings[stall.Id], StringComparer.Ordinal))
+        {
+            var ordered = same.OrderBy(stall => stall.Cell.X).ThenBy(stall => stall.Cell.Z).ThenBy(stall => stall.Id, StringComparer.Ordinal).ToArray();
+            for (var index = 0; index < ordered.Length; index++)
+                names[ordered[index].Id] = ordered.Length == 1 ? $"{same.Key} {rest}" : $"{same.Key} {rest} {index + 1}";
+        }
     }
 
     /// <summary>The stage a stall stands by, if any: the nearest within range of its crowd or the stage itself.</summary>
@@ -151,9 +184,11 @@ public static class StallNames
     /// "North", "East", ..., from one cell to another, north being -Z. On four points the larger axis wins and an exact
     /// diagonal is named as one; on eight, a diagonal is anything within about 27° of one (neither axis twice the other).
     /// </summary>
-    public static string Bearing(GridCell cell, GridCell from, bool eight)
+    public static string Bearing(GridCell cell, GridCell from, bool eight) => Bearing(cell.X - from.X, cell.Z - from.Z, eight);
+
+    /// <summary>The same from an offset, which may be scaled (count × cell − sum of cells) to keep a middle exact.</summary>
+    public static string Bearing(long dx, long dz, bool eight)
     {
-        var (dx, dz) = (cell.X - from.X, cell.Z - from.Z);
         var (ax, az) = (Math.Abs(dx), Math.Abs(dz));
         if (ax == 0 && az == 0) return "Central";
         var ns = dz < 0 ? "North" : "South";
@@ -185,19 +220,12 @@ public sealed partial class GameSession
         return _stallNames.Names;
     }
 
-    /// <summary>A bar's or van's name, "East Bar" or "Korma Chameleon"; the fallback label for one not on the field.</summary>
+    /// <summary>A bar's or van's name, "East Bar", "Bar" or "Korma Chameleon"; the fallback label for one not on the field.</summary>
     public string StallName(string id) => StallNamesNow().TryGetValue(id, out var name) ? name : Stalls.Label(id);
 
-    // Keep recorded evidence and accounts on the established names; only current UI labels use this shorthand.
-    private string? SingleBarForDisplay()
-    {
-        var bars = StallNamesNow().Keys.Where(Stalls.IsBar).Take(2).ToArray();
-        return bars.Length == 1 ? bars[0] : null;
-    }
+    /// <summary>The name the UI shows: now just <see cref="StallName"/>, as a lone bar by no stage is already "Bar".</summary>
+    public string StallDisplayName(string id) => StallName(id);
 
-    /// <summary>A lone placed bar is simply "Bar"; multiple stalls retain their existing distinct names.</summary>
-    public string StallDisplayName(string id) => id == SingleBarForDisplay() ? "Bar" : StallName(id);
-
-    /// <summary>Present an exact current landmark/target label without rewriting saved narrative text.</summary>
-    public string StallDisplayLabel(string label) => SingleBarForDisplay() is { } bar && label == StallName(bar) ? "Bar" : label;
+    /// <summary>A recorded landmark or target label, shown as recorded (saved narrative text is never rewritten).</summary>
+    public string StallDisplayLabel(string label) => label;
 }
