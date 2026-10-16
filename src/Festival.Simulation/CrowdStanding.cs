@@ -14,6 +14,8 @@ public static class CrowdStanding
     public const int DwellTicks = 800;
     /// <summary>A settled listener may take a step or two forward into a gap this long after they last moved.</summary>
     public const int ShuffleDwellTicks = 320;
+    /// <summary>A listener sent aside who found nowhere free to go tries again this long after (a second).</summary>
+    public const int AsideRetryTicks = 80;
     /// <summary>How far a placed listener looks when they re-weigh: two metres.</summary>
     public const int RedecideRadiusSquared = 16;
     /// <summary>A move must beat staying put by this much, so a settled crowd doesn't chase small changes.</summary>

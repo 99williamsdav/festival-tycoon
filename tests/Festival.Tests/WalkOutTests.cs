@@ -233,13 +233,13 @@ public sealed class WalkOutTests
     [TestMethod]
     public void AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame()
     {
-        var s = Started("management-only", 20260922);
+        var s = Started("management-only", 20260923);
         // Dav empties the loos before the headliner (a default day fills both, and a full loo takes nobody).
         s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
         foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
         var close = RunToClose(s);
-        // Partway out, with someone in a loo line and someone at a tap on the way, both at once (on this seed they are, for
-        // 544 ticks of the walk-out, 14 Oct).
+        // Partway out, with someone in a loo line and someone at a tap on the way, both at once (on this seed they are; it moved
+        // from 20260922 when crowds began stepping aside, 16 Oct).
         GameSession? saved = null;
         while (s.PreparedStatus == PreparationStatus.Departing && saved is null)
         {
@@ -392,7 +392,8 @@ public sealed class WalkOutTests
     [TestMethod]
     public void AQuickDrinkOnTheWayOutIsABoundaryOnTheTickItEnds()
     {
-        var s = Started("management-only", 20260922);
+        // No taps breaking: a bodged tap runs every other tick and keeps its own (later) end.
+        var s = BuildSession.WithoutFaults(Started("management-only", 20260922));
         var close = RunToClose(s);
         var checkedDrinks = 0;
         while (s.PreparedStatus == PreparationStatus.Departing && checkedDrinks < 2)
