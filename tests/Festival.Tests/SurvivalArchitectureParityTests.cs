@@ -38,15 +38,13 @@ public sealed class SurvivalArchitectureParityTests
         return session;
     }
     private static string Digest(JsonNode? node)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(node?.ToJsonString()??"null")));
-    private static JsonObject Observe(GameSession session,string name,bool knownStandaloneRetryGap=false)
+    private static JsonObject Observe(GameSession session,string name)
     {
         var snapshot=session.CapturePersistenceSnapshot();
         var state=JsonSerializer.SerializeToNode(snapshot)!.AsObject();
         state.Remove("AuthoritativeHash");state.Remove("Mode");state.Remove("Identity");
         var restored=GameSession.Restore(snapshot);
-        if(knownStandaloneRetryGap&&Environment.GetEnvironmentVariable("FESTIVAL_RECORD_ARCHITECTURE_EVENTS")=="4b404379f04154240c59543daeea5d3d49fea2a3")
-        {Assert.IsFalse(restored.IsSuccess,"The known pre-refactor save limitation must be explicit.");Assert.AreEqual("A steward shift needs a festival with stewards.",restored.Error);RestoreFailures.Add(new JsonObject{["name"]=name,["error"]=restored.Error});}
-        else {Assert.IsTrue(restored.IsSuccess,restored.Error);Assert.AreEqual(snapshot.AuthoritativeHash,restored.Session!.CapturePersistenceSnapshot().AuthoritativeHash);}
+        Assert.IsTrue(restored.IsSuccess,restored.Error);Assert.AreEqual(snapshot.AuthoritativeHash,restored.Session!.CapturePersistenceSnapshot().AuthoritativeHash);
         EventObservations.Add(new JsonObject{["name"]=name,["events"]=JsonSerializer.SerializeToNode(Events.GetValueOrDefault(session)??[])});
         return new JsonObject{["name"]=name,["tick"]=session.CurrentTick,["behaviorDigest"]=Digest(state),
             ["fields"]=new JsonObject(state.Select(pair=>KeyValuePair.Create(pair.Key,(JsonNode?)JsonValue.Create(Digest(pair.Value))))),
@@ -95,7 +93,7 @@ public sealed class SurvivalArchitectureParityTests
             RunTo(session,8000);observations.Add(Observe(session,$"steward-{tier}-live"));
             Send(session,new SetPausedCommand(true));Step(session,80);ExtraObservations.Add(Observe(session,$"steward-{tier}-paused"));Send(session,new SetPausedCommand(false));
             RunToEnd(session);ExtraObservations.Add(Observe(session,$"steward-{tier}-closed"));Assert.IsFalse(session.CanStartNextFestival);
-            var fatal=GameSession.CreateStewardShift(Seed,tier);Fatal(fatal);ExtraObservations.Add(Observe(fatal,$"steward-{tier}-death-hearing"));Send(fatal,new SpendCouncilFavourCommand());ExtraObservations.Add(Observe(fatal,$"steward-{tier}-retry",knownStandaloneRetryGap:true));
+            var fatal=GameSession.CreateStewardShift(Seed,tier);Fatal(fatal);ExtraObservations.Add(Observe(fatal,$"steward-{tier}-death-hearing"));Send(fatal,new SpendCouncilFavourCommand());ExtraObservations.Add(Observe(fatal,$"steward-{tier}-retry"));
         }
         foreach(var handsOn in new[]{false,true})
         {
