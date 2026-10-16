@@ -35,6 +35,26 @@ public sealed class FarmGateTraversalTests
     }
 
     [TestMethod]
+    public void EveryWaitingGuestStartsOnTheMapAndCanReachTheGate()
+    {
+        var start = (Func<int, GridCell>)typeof(GameSession).GetMethod("GuestWaitingStart",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.CreateDelegate(typeof(Func<int, GridCell>));
+        // Today's rows are unchanged, so existing days and saves start everyone where they did.
+        for (var i = 0; i < 198; i++) Assert.AreEqual(FarmGateGeometry.GuestWaitingCell(new(122 + i % 6 * 2, 190 + i / 6 * 2)), start(i), $"guest {i}");
+        // Past them (the 199th guest used to start off the bottom of the map), the odd columns take over.
+        var grid = new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());
+        var inside = TraversalGrid.WorldToCell(0, 25_000);
+        var cells = Enumerable.Range(0, 358).Select(start).ToArray();
+        Assert.AreEqual(cells.Length, cells.Distinct().Count(), "No two of the first 358 share a start.");
+        foreach (var cell in cells)
+        {
+            Assert.IsTrue(grid.Contains(cell) && grid.Get(cell).IsWalkable, $"{cell}");
+            Assert.IsTrue(DeterministicPathfinder.FindPath(grid, cell, inside).Found, $"{cell} reaches the gate");
+        }
+        Assert.AreEqual(start(0), start(358), "A crowd beyond the lane's room reuses start cells rather than leaving the map.");
+    }
+
+    [TestMethod]
     [DataRow(0)] [DataRow(1)] [DataRow(2)] [DataRow(3)]
     public void FootprintUsesGateTranslationAndParentYawAsWellAsLeafHinge(int turns)
     {

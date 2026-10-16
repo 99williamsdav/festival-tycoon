@@ -419,9 +419,18 @@ public sealed partial class GameSession
         {
             ProtectedPersonRole.Performer => BandStage(roster[index].Id).ArrivalStart(BandOrdinal(roster[index].Id)),
             ProtectedPersonRole.Staff => Backstage.DoorStart(ordinal),
-            _ => FarmGateGeometry.GuestWaitingCell(new(122 + index % 6 * 2, 190 + index / 6 * 2)),
+            _ => GuestWaitingStart(index),
         };
     }
+
+    // The lane outside the gate holds 198 in its six even columns before the map's edge (Z 255). Past that, the odd
+    // columns between them on the odd rows below the hedge ends (Z 193 on) take over, so a big crowd still starts on the
+    // map and can reach the gate. Anyone past even those shares a start cell; they're released at different times, and
+    // wait hidden until then.
+    private static readonly GridCell[] GuestWaitingCells =
+        Enumerable.Range(0, 33 * 6).Select(i => FarmGateGeometry.GuestWaitingCell(new(122 + i % 6 * 2, 190 + i / 6 * 2)))
+            .Concat(Enumerable.Range(0, 32 * 5).Select(i => new GridCell(123 + i % 5 * 2, 193 + i / 5 * 2))).ToArray();
+    internal static GridCell GuestWaitingStart(int index) => GuestWaitingCells[index % GuestWaitingCells.Length];
     // Physical presence includes collapsed guests until their recorded departure.
     public int OnSiteAttendeeCount => PeopleIn(PersonView.Roster).Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed);
     private static GridCell LegacyPreparedPlace(int index)=>new(122+index%6*2,156+index/6*2);
