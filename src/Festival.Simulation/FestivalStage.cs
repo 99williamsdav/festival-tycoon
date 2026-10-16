@@ -33,8 +33,6 @@ public sealed class FestivalStage
     /// <summary>Where the stage's band members wait, and where they step off the lane, by their order in the stage's band list.</summary>
     public required Func<int, GridCell> BackstagePlace { get; init; }
     public required Func<int, GridCell> ArrivalStart { get; init; }
-    /// <summary>Every place a listener can stand, in the order they're considered.</summary>
-    public required IReadOnlyList<GridCell> ListeningPlaces { get; init; }
     /// <summary>The way the crowd faces away from the stage, one grid step: (1, 0) for a crowd out along +X.</summary>
     public required (int X, int Z) Facing { get; init; }
     /// <summary>The crowd's front row, along the facing axis, and the line straight out from the stage's middle across it.</summary>
@@ -42,10 +40,10 @@ public sealed class FestivalStage
     public required int Sightline { get; init; }
     /// <summary>Close to the stage, where a listener walks at their own pace rather than the crowd's.</summary>
     public required (int MinX, int MaxX, int MinZ, int MaxZ) NearGround { get; init; }
-    /// <summary>The widest a saved listener's place may be.</summary>
-    public required (int MinX, int MaxX, int MinZ, int MaxZ) PlaceLimits { get; init; }
-
-    /// <summary>The audience's ground: every listening place, as one rectangle.</summary>
+    /// <summary>
+    /// The audience's ground, as one rectangle: a listener may stand on any walkable cell of it, one to a cell, wherever
+    /// suits them (CrowdStanding.cs). Nothing is built here and queues only grow into it where nobody's watching from.
+    /// </summary>
     public required (int MinX, int MaxX, int MinZ, int MaxZ) AudienceBounds { get; init; }
     /// <summary>Where this stage's own sound engineer mixes; null where the engineer keeps the prepared place.</summary>
     public GridCell? MixingPlace { get; init; }
@@ -54,6 +52,14 @@ public sealed class FestivalStage
 
     public static (int MinX, int MaxX, int MinZ, int MaxZ) BoundsOf(IReadOnlyList<GridCell> places) =>
         (places.Min(c => c.X), places.Max(c => c.X), places.Min(c => c.Z), places.Max(c => c.Z));
+
+    /// <summary>Every cell of the audience's ground, row by row; which of them a listener can stand on depends on the day's ground.</summary>
+    public IEnumerable<GridCell> AudienceCells()
+    {
+        for (var z = AudienceBounds.MinZ; z <= AudienceBounds.MaxZ; z++)
+        for (var x = AudienceBounds.MinX; x <= AudienceBounds.MaxX; x++)
+            yield return new GridCell(x, z);
+    }
 
     public bool InAudienceArea(GridCell cell) =>
         cell.X >= AudienceBounds.MinX && cell.X <= AudienceBounds.MaxX && cell.Z >= AudienceBounds.MinZ && cell.Z <= AudienceBounds.MaxZ;
@@ -79,9 +85,6 @@ public static class FestivalStages
     public const string PondId = "stage.pond";
     public const string BarnId = "stage.barn";
 
-    private static readonly GridCell[] TrailerPlaces = TrailerListeningPlaces().ToArray();
-    private static readonly GridCell[] PondPlaces = PondListeningPlaces().ToArray();
-
     /// <summary>The trailer stage by the farmhouse: the festival's first stage.</summary>
     public static readonly FestivalStage Main = new()
     {
@@ -102,13 +105,13 @@ public static class FestivalStages
         Access = Backstage.StageAccess,
         BackstagePlace = Backstage.Place,
         ArrivalStart = Backstage.LaneStart,
-        ListeningPlaces = TrailerPlaces,
-        AudienceBounds = FestivalStage.BoundsOf(TrailerPlaces),
+        // The apron between the trailer's front edge and the vehicle track; the visible south-end stairs and the
+        // generator's footprint are left to the ground's own blocking.
+        AudienceBounds = (103, 121, 135, 165),
         Facing = (1, 0),
         Front = 103,
         Sightline = 150,
         NearGround = (103, 126, 131, 169),
-        PlaceLimits = (103, 122, 135, 165),
         // The farm scene's trailer; its presentation keeps its own fixed contract (Main.LivePerformance.cs).
         Placement = new(LowerWitteringFarmScenario.TrailerStageXMillimetres, LowerWitteringFarmScenario.TrailerStageZMillimetres, 90, 1_190),
     };
@@ -140,13 +143,13 @@ public static class FestivalStages
         Access = PondRiser.Access,
         BackstagePlace = PondRiser.Place,
         ArrivalStart = PondRiser.LaneStart,
-        ListeningPlaces = PondPlaces,
-        AudienceBounds = FestivalStage.BoundsOf(PondPlaces),
+        // The trailer's apron turned to face -Z, as big: on the open grass between the riser and the barns (the pond is
+        // behind the riser, the east hedge past the last lane, the farm track beyond the first).
+        AudienceBounds = (153, 183, 136, 154),
         Facing = (0, -1),
         Front = 154,
         Sightline = 168,
         NearGround = (150, 187, 132, 157),
-        PlaceLimits = (152, 184, 135, 155),
         MixingPlace = new(162, 133),
         Placement = new(PondRiser.OriginXMillimetres, PondRiser.OriginZMillimetres, 180, PondRiser.DeckHeightMillimetres),
     };
@@ -178,34 +181,6 @@ public static class FestivalStages
         foreach (var stage in stages)
             if (stage.Reserve(cell)) return true;
         return false;
-    }
-
-    private static IEnumerable<GridCell> TrailerListeningPlaces()
-    {
-        // The rotated trailer faces increasing X. This irregular apron sits between
-        // the front edge and vehicle track, leaving the visible south-end stairs
-        // and generator footprint to terrain/route exclusions.
-        for (var band = 0; band < 9; band++)
-        for (var lane = -7; lane <= 7; lane++)
-        {
-            var x = 103 + band * 2 + Math.Abs((lane * 7 + band * 11) % 3);
-            var z = 150 + lane * 2 + Math.Abs((band * 5 + lane * 3) % 3) - 1;
-            yield return new GridCell(x, z);
-        }
-    }
-
-    private static IEnumerable<GridCell> PondListeningPlaces()
-    {
-        // The trailer's apron turned to face -Z: nine rows of fifteen out from the riser's front edge, the same 135
-        // places with the same stagger, on the open grass between the riser and the barns (the pond is behind the
-        // riser, the east hedge 8 cells past the last lane, the farm track 21 cells past the first).
-        for (var band = 0; band < 9; band++)
-        for (var lane = -7; lane <= 7; lane++)
-        {
-            var z = 154 - band * 2 - Math.Abs((lane * 7 + band * 11) % 3);
-            var x = 168 + lane * 2 + Math.Abs((band * 5 + lane * 3) % 3) - 1;
-            yield return new GridCell(x, z);
-        }
     }
 }
 

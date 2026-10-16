@@ -35,11 +35,14 @@ public sealed class PondStageTests
         // The default layout and the trailer's crowd keep well away.
         foreach (var item in GameSession.StandardBuildLayout())
             Assert.IsFalse(GameSession.BuildFootprint(item).Any(cell => Pond.Reserve(cell) || Pond.InAudienceArea(cell)), item.Id);
-        Assert.IsFalse(Pond.ListeningPlaces.Any(FestivalStages.Main.InAudienceArea) || Pond.ListeningPlaces.Any(Pond.Reserve));
-        // As big a crowd as the trailer's, on ground every guest can reach from the main gate.
-        Assert.AreEqual(135, Pond.ListeningPlaces.Count);
-        Assert.AreEqual(FestivalStages.Main.ListeningPlaces.Count, Pond.ListeningPlaces.Count);
-        foreach (var place in Pond.ListeningPlaces)
+        Assert.IsFalse(Pond.AudienceCells().Any(FestivalStages.Main.InAudienceArea) || Pond.AudienceCells().Any(Pond.Reserve));
+        // As big a crowd as the trailer's, on open ground every guest can reach from the main gate: every cell of it can
+        // be stood on, so reaching its corners reaches all of it.
+        Assert.AreEqual(31 * 19, Pond.AudienceCells().Count());
+        Assert.AreEqual(FestivalStages.Main.AudienceCells().Count(), Pond.AudienceCells().Count());
+        foreach (var place in Pond.AudienceCells()) Assert.IsTrue(grid.Get(place).IsWalkable, $"{place} can't be stood on.");
+        var (minX, maxX, minZ, maxZ) = Pond.AudienceBounds;
+        foreach (var place in new GridCell[] { new(minX, minZ), new(maxX, minZ), new(minX, maxZ), new(maxX, maxZ) })
             Assert.IsTrue(DeterministicPathfinder.FindPath(grid, new(128, 189), place).Found, $"{place} can't be reached from the gate.");
         for (var role = 0; role < 3; role++)
         {

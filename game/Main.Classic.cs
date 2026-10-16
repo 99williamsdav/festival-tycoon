@@ -13,7 +13,7 @@ public partial class Main
     private SessionHost? _classicDevelopmentHost;
     // Classic keeps its own identity so its header moves with its folder; Survival's r0-build-vN doesn't.
     // Bump both together whenever Classic's saved content or its derived rules change.
-    private const string ClassicSaveIdentity = "r0-classic-v102";
+    private const string ClassicSaveIdentity = "r0-classic-v103";
     private SaveCompatibility _classicSaveCompatibility =>
         new("0.0.1-" + ClassicSaveIdentity, LowerWitteringFarmScenario.ContentCompatibilityHash, ClassicSaveIdentity);
     private string ClassicSaveDirectory=>_architectureEvidenceOutput is not null

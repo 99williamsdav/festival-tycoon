@@ -21,12 +21,15 @@ public sealed class BarnStageTests
     public void TwoFrontOpeningsConnectTheInteriorButWallsAndDeckRimStaySolid()
     {
         var grid=new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());
-        foreach(var place in BarnLayout.Stage.ListeningPlaces)
+        // Every cell of the audience's floor can be stood on, under cover and off the circulation; reaching its corners reaches all of it.
+        foreach(var place in BarnLayout.Stage.AudienceCells())
         {
-            Assert.IsTrue(grid.Get(place).IsWalkable);
+            Assert.IsTrue(grid.Get(place).IsWalkable,$"Guest place {place}");
             Assert.IsTrue(BarnLayout.Covered(place)); Assert.IsFalse(BarnLayout.Circulation(place));
-            Assert.IsTrue(DeterministicPathfinder.FindPath(grid,new(128,189),place).Found,$"Guest place {place}");
         }
+        var (minX,maxX,minZ,maxZ)=BarnLayout.Stage.AudienceBounds;
+        foreach(var place in new GridCell[]{new(minX,minZ),new(maxX,minZ),new(minX,maxZ),new(maxX,maxZ)})
+            Assert.IsTrue(DeterministicPathfinder.FindPath(grid,new(128,189),place).Found,$"Guest place {place}");
         foreach(var x in new[]{0,-7_650}) Assert.IsTrue(DeterministicPathfinder.FindPath(grid,BarnLayout.Cell(x,7_750),BarnLayout.Cell(x,4_750)).Found);
         foreach(var cell in new[]{BarnLayout.Cell(-10_000,0),BarnLayout.Cell(10_000,0),BarnLayout.Cell(0,-6_250),BarnLayout.Cell(5_000,6_250),BarnLayout.Cell(4_250,-1_250)})
             Assert.IsFalse(grid.Get(cell).IsWalkable,$"Wall/rim {cell}");
@@ -140,7 +143,8 @@ public sealed class BarnStageTests
     public void OccupiedListeningPlacesLeaveBothDoorsUsableForOpposingRealWalkers()
     {
         // Explicit starting positions only. From here all movement, yielding and goal reservations are production navigation.
-        var listening=BarnLayout.Stage.ListeningPlaces.ToArray();
+        // A metre-spaced crowd across the audience floor, as the barn's first fixed places stood.
+        var listening=(from x in Enumerable.Range(0,10) from z in Enumerable.Range(0,6) select BarnLayout.Cell(2_250-x*1_000,-3_250+z*1_000)).ToArray();
         var walks=listening.SkipLast(2).Select(c=>(From:c,To:c)).Concat(new (GridCell From,GridCell To)[]{
             (BarnLayout.Cell(-7_750,3_250),BarnLayout.Cell(-9_250,10_250)),
             (BarnLayout.Cell(0,3_250),BarnLayout.Cell(2_250,10_250)),

@@ -59,8 +59,10 @@ public sealed class PerformanceApplauseTests
         Assert.AreEqual("set-finished-applause", ended.LastReaction);
         Assert.AreEqual(before.ReactionSequence + 1, ended.ReactionSequence);
         Assert.IsTrue(ended.SetEndAudienceCount > 0);
-        CollectionAssert.AreEqual(ended.Listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0)
+        // Everyone at their spot who heard some of it claps it out, and so may someone a step from it, shuffling to a new one.
+        CollectionAssert.IsSubsetOf(ended.Listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0)
             .Select(listener => listener.AgentId).ToArray(), ended.SetEndAudienceIds);
+        Assert.IsTrue(ended.SetEndAudienceIds.All(id => ended.Listeners.Single(listener => listener.AgentId == id) is { ListenedTicks: > 0, Place: not null }));
         Assert.AreEqual(ended.Listeners.Where(listener => ended.SetEndAudienceIds.Contains(listener.AgentId)).Sum(listener => listener.EnjoymentEarned), ended.SetEndEnjoymentTotal);
         Console.WriteLine($"actual end {ended.EndedTick}; audience {ended.SetEndAudienceCount}; enjoyment {ended.SetEndEnjoymentTotal}; strength {PerformanceApplauseMath.Strength(ended.SetEndAudienceCount, ended.SetEndEnjoymentTotal):F4}; enthusiastic {PerformanceApplauseMath.IsEnthusiastic(ended.SetEndAudienceCount, ended.SetEndEnjoymentTotal)}");
         var originalIds = ended.SetEndAudienceIds.ToArray();

@@ -365,16 +365,14 @@ public sealed class StallNamesTests
     {
         var pond = FestivalStages.Pond;
         var trailer = FestivalStages.Main;
-        Assert.AreEqual(trailer.ListeningPlaces.Count, pond.ListeningPlaces.Count);
-        Assert.AreEqual(135, pond.ListeningPlaces.Count);
-        Assert.AreEqual(trailer.ListeningPlaces.Distinct().Count(), pond.ListeningPlaces.Distinct().Count());
+        Assert.AreEqual(trailer.AudienceCells().Count(), pond.AudienceCells().Count());
+        Assert.AreEqual(589, pond.AudienceCells().Distinct().Count());
         static int Area((int MinX, int MaxX, int MinZ, int MaxZ) b) => (b.MaxX - b.MinX + 1) * (b.MaxZ - b.MinZ + 1);
         Assert.AreEqual(Area(trailer.AudienceBounds), Area(pond.AudienceBounds));
         Assert.AreEqual((153, 183, 136, 154), pond.AudienceBounds);
         // Nothing in Tier 2's default stands in it, bins aside, and the pond's engineer mixes behind it.
         foreach (var item in GameSession.StandardBuildLayout(2).Where(item => item.Kind != BuildServiceKind.Bin))
             Assert.IsFalse(GameSession.BuildFootprint(item).Any(pond.InAudienceArea), item.Id);
-        Assert.IsFalse(GameSession.StandardBuildLayout(2).Any(item => GameSession.BuildFootprint(item).Any(pond.ListeningPlaces.Contains)));
         Assert.IsTrue(pond.MixingPlace is { } mixing && !pond.InAudienceArea(mixing) && mixing.Z < pond.AudienceBounds.MinZ);
     }
 

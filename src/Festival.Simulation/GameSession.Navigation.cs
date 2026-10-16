@@ -86,7 +86,7 @@ public sealed partial class GameSession
         var searchStart = Stopwatch.GetTimestamp();
         // Wet and muddy ground costs more, so people go round a swamp if there is a reasonable way.
         var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination,
-            avoidanceReplan ? CowDetourCost(agent) ?? _groundRouteCost : _groundRouteCost);
+            avoidanceReplan ? CowDetourCost(agent) ?? _groundRouteCost : _crowdRouteCost ?? _groundRouteCost);
         ScaleDiagnosticProbe?.AddRouteSearch(Stopwatch.GetTimestamp() - searchStart, search.ExpandedNodes, avoidanceReplan);
         agent.Destination = command.Destination;
         agent.Route = search.Path.ToList();
@@ -125,8 +125,16 @@ public sealed partial class GameSession
             return new NavigationAgentSnapshot(agent.Id, prior.X, prior.Z, prior.Action, null, [], 0,
                 prior.X, prior.Z, 0, 0, 0, null, agent.WalkingSpeedPermille);
         }));
+        // A crowd stands a person to a half-metre cell, closer than walkers keep apart, so anyone may squeeze past a listener
+        // standing in an audience; only one standing on the walker's own goal still holds them up.
+        _crowdStanders.Clear();
         foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id) && MovementOccupant(item.Id.Value)))
+        {
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
+            if (agent.Action == AgentNavigationAction.Arrived && agent.IntentId?.StartsWith("performance.listen", StringComparison.Ordinal) == true &&
+                TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres) is var standing && InStagesAudience(standing))
+                _crowdStanders[agent.Id] = standing;
+        }
         AddCowOccupancy(occupied);
         AddLavSuckerOccupancy(occupied);
         // Walkers sharing a goal: the one nearest it (then lowest ID) has it; the others treat it as held.
@@ -145,7 +153,7 @@ public sealed partial class GameSession
             var passing = PlayerPassedBy(agent);
             var proposalConflicts = !BarnSweepClear(backups[agent.Id].X,backups[agent.Id].Z,agent.XMillimetres,agent.ZMillimetres) ||
                 !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
-                (passing is { } through ? HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres, through) : HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres)) ||
+                HasConflictPastCrowd(occupied, agent.XMillimetres, agent.ZMillimetres, passing, agent.Destination) ||
                 HasConflict(priorMovingOccupancy, agent.XMillimetres, agent.ZMillimetres, agent.Id);
             // An arrival must be at its exact authoritative destination. Lateral yielding is
             // valid only in transit; otherwise service could begin from an offset position.
@@ -291,8 +299,16 @@ public sealed partial class GameSession
         return false;
     }
 
-    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>
-        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Count > 0;
+    // Listeners standing in an audience this tick, by the cell they stand on; walkers may squeeze past them.
+    private readonly Dictionary<EntityId, GridCell> _crowdStanders = [];
+
+    /// <summary>Whether anyone but <paramref name="except"/> is too close, a listener standing in a crowd only if on <paramref name="goal"/>.</summary>
+    private bool HasConflictPastCrowd(SpatialNeighbourIndex occupied, int x, int z, EntityId? except, GridCell? goal)
+    {
+        foreach (var id in occupied.Query(x, z, SeparationRadiusMillimetres - 1))
+            if (id != except && !(_crowdStanders.TryGetValue(id, out var standing) && standing != goal)) return true;
+        return false;
+    }
 
     private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z, EntityId except) =>
         occupied.Query(x, z, SeparationRadiusMillimetres - 1).Any(id => id != except);
@@ -313,7 +329,7 @@ public sealed partial class GameSession
             var cell = TraversalGrid.WorldToCell(x, z);
             if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) ||
                 !BarnSweepClear(backup.X,backup.Z,x,z) ||
-                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
+                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflictPastCrowd(occupied, x, z, null, agent.Destination)) continue;
             if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;
             return true;

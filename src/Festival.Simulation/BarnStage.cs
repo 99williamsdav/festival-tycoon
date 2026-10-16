@@ -93,14 +93,12 @@ public static class BarnLayout
         Reserve = Reserved, ReserveBounds = (108,148,70,104), Access = cell => Deck(cell)||Stairs(cell)||Circulation(cell),
         BackstagePlace = i => Cell(3_250,-4_750+i*1_000),
         ArrivalStart = i => new(52+i%2*2,112+i*3),
-        ListeningPlaces = Listening(), AudienceBounds = FestivalStage.BoundsOf(Listening()),
+        // The covered floor in front of the deck, ten metres back and five across, clear of the stair and the doors.
+        AudienceBounds = FestivalStage.BoundsOf([Cell(2_250,-3_250),Cell(-6_750,1_750)]),
         Facing = (-1,0), Front = Cell(2_250,0).X, Sightline = Cell(0,-1_000).Z,
-        NearGround = (112,135,74,89), PlaceLimits = FestivalStage.BoundsOf(Listening()),
+        NearGround = (112,135,74,89),
         MixingPlace = Cell(-7_750,-1_250), Placement = new(6_200,-24_500,-90,900)
     };
-    private static GridCell[] Listening() =>
-        (from x in Enumerable.Range(0,10) from z in Enumerable.Range(0,6)
-         select Cell(2_250-x*1_000,-3_250+z*1_000)).ToArray();
 }
 
 public sealed partial class GameSession

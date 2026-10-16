@@ -19,7 +19,7 @@ public partial class Main
     public const string HandsOnStrapline = "Run it, and steward it yourself until you can afford the help.";
 
     private string HandsOnSaveDirectory => _architectureEvidenceOutput is not null
-        ? System.IO.Path.Combine(_architectureEvidenceOutput, "hands-on-saves") : ProjectSettings.GlobalizePath("user://saves/r0-build-v100-front-of-house");
+        ? System.IO.Path.Combine(_architectureEvidenceOutput, "hands-on-saves") : ProjectSettings.GlobalizePath("user://saves/r0-build-v103-front-of-house");
 
     private bool HandsOnFirstPerson => _shiftActive && _session.IsHandsOn;
 

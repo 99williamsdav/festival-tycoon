@@ -61,6 +61,8 @@ public sealed partial class GameSession
     public const int LiveSetArrivalDelayTicks = 2_400;
     public const int LiveSetStageEntryLeadTicks = 640;
     public const int SustainedBooDelayTicks = 320;
+    /// <summary>The most a listener can enjoy of a set in one second (80 ticks) of it.</summary>
+    public const int MaxEnjoymentPerSecond = 30;
     // Version 3 names its stage.
     public const int LivePerformanceVersion = 3;
     // One live set per stage, in stage order; empty until the festival opens. Sized when the programme is set up.
@@ -225,55 +227,54 @@ public sealed partial class GameSession
         }
         var listeners = live.Listeners.ToArray();
         var departed = PeopleIn(PersonView.Roster).Where(item => item.Departed).Select(item => item.Id).ToHashSet();
+        // One listener to a cell: the places held by listeners still on site.
         var reserved = listeners.Where(item => item.Place is not null && !departed.Contains(item.AgentId)).Select(item => item.Place!.Value).ToHashSet();
-        _listenerIndex.Clear();
-        for (var i = 0; i < listeners.Length; i++) _listenerIndex.TryAdd(listeners[i].AgentId, i);
-        // Places held by listeners still on site, for the one-cell spacing rule below.
-        var occupied = new Dictionary<GridCell, int>();
         HashSet<GridCell>? queueGround = null;
-        foreach (var item in listeners)
-            if (item.Place is { } held && !departed.Contains(item.AgentId)) occupied[held] = occupied.GetValueOrDefault(held) + 1;
-        // Four identity cohorts spread bounded decisions. Dwell and a material improvement
-        // threshold prevent a settled crowd from continuously chasing tiny score changes.
+        CrowdGround? ground = null;
+        bool[]? standable = null;
+        // Four identity cohorts spread bounded decisions. A full re-weigh waits out the dwell, a step forward into a gap a
+        // shorter one, and either must beat staying put by a clear margin, so a settled crowd doesn't chase small changes.
         foreach (var index in (periodic && live.Stage != LiveSetStage.Finished ? Enumerable.Range(0, listeners.Length)
                      .Where(i => (CurrentTick / 80) % 4 == (long)(listeners[i].AgentId % 4)).OrderBy(i => listeners[i].AgentId)
                      : Enumerable.Empty<int>()))
         {
             var listener = listeners[index];
             if (AudienceNavigationOwned(listener.AgentId) ||
-                CurrentTick - listener.LastDecisionTick < 800 ||
                 PersonIn(PersonView.Roster, listener.AgentId) is not { Admitted: true, Departed: false }) continue;
-            listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
+            var since = CurrentTick - listener.LastDecisionTick;
+            var full = since >= CrowdStanding.DwellTicks;
+            if (!full && (since < CrowdStanding.ShuffleDwellTicks || listener.Place is null)) continue;
+            if (full) listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
             if (listener.Place is not null && (start.Action != AgentNavigationAction.Arrived || start.Destination != listener.Place)) continue;
-            var currentScore = listener.Place is { } current ? PlaceScore(def, listener, current, startCell, listeners) : int.MaxValue;
-            var options = def.ListeningPlaces.Distinct().Where(cell => !reserved.Contains(cell) &&
-                (listener.Place is null || AudienceDistanceSquared(cell, startCell) <= 16) &&
-                _traversalGrid!.Get(cell).IsWalkable &&
-                !NearQueue(cell, queueGround ??= AllQueueGround()))
-                .Where(cell => !PlaceCrowded(cell, listener, departed, occupied))
-                .Select(cell => (Cell: cell, Score: PlaceScore(def, listener, cell, startCell, listeners)))
-                .Where(item => listener.Place is null || item.Score + 6 <= currentScore)
-                .OrderBy(item => item.Score).ThenBy(item => item.Cell).Take(8);
+            ground ??= CrowdGroundOf(stage, listeners, departed);
+            standable ??= CrowdStandable(ground, ref queueGround);
+            var personalSpace = PersonalSpaceOf(listener);
+            ground.LeaveOut(listener.Place);
+            var currentCost = listener.Place is { } current ? CrowdSpotCost(ground, listener, personalSpace, current, startCell) : int.MaxValue;
+            var options = CrowdCandidates(ground, listener.Place, startCell, full)
+                .Where(cell => standable[(cell.Z - ground.MinZ) * ground.Width + cell.X - ground.MinX] && !reserved.Contains(cell))
+                .Select(cell => (Cell: cell, Cost: CrowdSpotCost(ground, listener, personalSpace, cell, startCell)))
+                .Where(item => listener.Place is null || item.Cost + CrowdStanding.ImprovementThreshold <= currentCost)
+                .OrderBy(item => item.Cost).ThenBy(item => item.Cell).Take(8).ToArray();
+            var crowdingHere = listener.Place is null ? 0 : ground.CrowdingAt(startCell);
+            ground.LeaveOut(null);
             foreach (var option in options)
             {
                 var route = DeterministicPathfinder.FindPath(_traversalGrid!, startCell, option.Cell);
                 if (!route.Found) continue;
-                if (listener.Place is { } old) reserved.Remove(old);
+                if (listener.Place is { } old) { reserved.Remove(old); ground.Set(old, false); }
                 reserved.Add(option.Cell);
-                if (!departed.Contains(listener.AgentId))
-                {
-                    if (listener.Place is { } previous && --occupied[previous] == 0) occupied.Remove(previous);
-                    occupied[option.Cell] = occupied.GetValueOrDefault(option.Cell) + 1;
-                }
-                listeners[index] = listener with { Place = option.Cell, AtPlace = false };
+                ground.Set(option.Cell, true);
+                listeners[index] = listener with { Place = option.Cell, AtPlace = false, LastDecisionTick = CurrentTick };
                 var near = def.NearGround;
                 var local = startCell.X >= near.MinX && startCell.X <= near.MaxX && startCell.Z >= near.MinZ && startCell.Z <= near.MaxZ;
-                var densityRetreat = local && listener.Place is not null && def.Depth(option.Cell) > def.Depth(startCell) &&
-                    AudienceDensity(listener, startCell, listeners) > AudienceComfortTolerance(listener);
+                var densityRetreat = local && listener.Place is not null && def.Depth(option.Cell) > def.Depth(startCell) && crowdingHere > personalSpace;
+                _crowdRouteCost = CrowdRouteCost(ground);
                 ApplyAgentDestination(new(listener.AgentId), new(option.Cell,
                     densityRetreat ? "performance.listen-local-retreat" : local ? "performance.listen-local" : "performance.listen"));
+                _crowdRouteCost = null;
                 break;
             }
         }
@@ -308,6 +309,10 @@ public sealed partial class GameSession
                         gain = (basis + rigBonus + SoundMixingBonus()) * quality / 100;
                     }
                     if (playing is not null) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
+                    // Where they stand: a fan near the front gets more from it, anyone squeezed past their personal space less.
+                    ground ??= CrowdGroundOf(stage, listeners, departed);
+                    var crowded = gain * CrowdEnjoymentPermille(ground, listener, listener.Place!.Value) / 1000;
+                    gain = crowded > gain ? Math.Min(crowded, Math.Max(gain, MaxEnjoymentPerSecond)) : crowded;
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
                     var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
                     var person = rewardedPeople[personIndex];
@@ -501,10 +506,6 @@ public sealed partial class GameSession
     public static (GridCell Min, GridCell Max) AudienceAreaOf(FestivalStage stage) =>
         (new(stage.AudienceBounds.MinX, stage.AudienceBounds.MinZ), new(stage.AudienceBounds.MaxX, stage.AudienceBounds.MaxZ));
 
-    private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
-
-    /// <summary>Prototype weighted-neighbour comfort, not a real-world people-per-area measurement.</summary>
-    public static int AudienceComfortTolerance(LiveListener listener) => 900 + listener.Enthusiasm * 12 + ((int)(listener.AgentId % 7) - 3) * 50;
     public static int AudiencePacePermille(int enthusiasm) => 800 + Math.Clamp(enthusiasm, 0, 100) * 4;
     public int GetAudienceWalkingPacePermille(EntityId id) => _navigationAgents.TryGetValue(id, out var agent) ? AudienceWalkingPace(agent) : 1000;
 
@@ -524,51 +525,6 @@ public sealed partial class GameSession
     private int AudienceWalkingPace(NavigationAgentState agent) => agent.IntentId is "performance.listen-local" or "performance.listen-local-retreat" &&
         !AudienceNavigationOwned(agent.Id.Value) && LiveListenerOf(agent.Id.Value) is { } listener
             ? AudiencePacePermille(listener.Enthusiasm) : 1000;
-
-    private int PlaceScore(FestivalStage stage, LiveListener listener, GridCell cell, GridCell start, LiveListener[] listeners)
-    {
-        var travel = Math.Abs(cell.X - start.X) + Math.Abs(cell.Z - start.Z);
-        var sightline = stage.Lateral(cell);
-        var stableOffset = (int)((listener.AgentId * 17 + (ulong)(cell.X * 13 + cell.Z * 7)) % 5);
-        return stage.Depth(cell) * 6 + sightline + Math.Max(0, sightline - 10) * 2 + travel + stableOffset +
-            Math.Max(0, AudienceDensity(listener, cell, listeners) - AudienceComfortTolerance(listener)) / 20;
-    }
-
-    // Listener position by agent id for the pass in progress; entries index the live listeners array.
-    private readonly Dictionary<ulong, int> _listenerIndex = [];
-
-    /// <summary>
-    /// Whether another on-site listener holds a place within one orthogonal step of <paramref name="cell"/>
-    /// (squared distance below 2), ignoring the deciding listener's own place.
-    /// </summary>
-    private static bool PlaceCrowded(GridCell cell, LiveListener listener, HashSet<ulong> departed, Dictionary<GridCell, int> occupied)
-    {
-        foreach (var near in new[] { cell, new GridCell(cell.X + 1, cell.Z), new GridCell(cell.X - 1, cell.Z), new GridCell(cell.X, cell.Z + 1), new GridCell(cell.X, cell.Z - 1) })
-        {
-            var count = occupied.GetValueOrDefault(near);
-            if (listener.Place == near && !departed.Contains(listener.AgentId)) count--;
-            if (count > 0) return true;
-        }
-        return false;
-    }
-
-    private int AudienceDensity(LiveListener listener, GridCell cell, LiveListener[] listeners)
-    {
-        var density = 0;
-        foreach (var person in PeopleIn(PersonView.Roster).Where(item => item.Admitted && !item.Departed && item.Id != listener.AgentId && MovementOccupant(item.Id)))
-        {
-            var agent = _navigationAgents[new(person.Id)];
-            var actual = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
-            var weight = Math.Max(0, 25 - AudienceDistanceSquared(actual, cell)) * 40;
-            var other = _listenerIndex.TryGetValue(person.Id, out var at) ? listeners[at] : null;
-            // An absent water/rest/escort owner retains a unique return place, but does not
-            // invent a second physical body at that place in the comfort calculation.
-            if (other?.Place is { } place && !AudienceNavigationOwned(person.Id))
-                weight = Math.Max(weight, Math.Max(0, 25 - AudienceDistanceSquared(place, cell)) * 40);
-            density += weight;
-        }
-        return density;
-    }
 
     /// <summary>
     /// Every stage's saved set: none before opening, or one entry a stage, in stage order, null for a stage with no set
@@ -619,7 +575,7 @@ public sealed partial class GameSession
     {
         var def = stages[stage];
         var programme = snapshot.Programme?.Stages[stage];
-        var limits = def.PlaceLimits;
+        var limits = def.AudienceBounds;
         var band = def.PerformerMarks.Count;
         if (snapshot.Preparation is not { } preparation || live.Version != LivePerformanceVersion || live.StageId != def.Id || !Enum.IsDefined(live.Stage) ||
             live.Performers is null || live.Listeners is null || live.Performers.Length != band ||
@@ -635,10 +591,16 @@ public sealed partial class GameSession
             live.Performers.Select(item => item.AgentId).Distinct().Count() != band ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||
             live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
-                item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * 30 ||
+                item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * MaxEnjoymentPerSecond ||
                 item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
                 item.Place is { } place && (place.X < limits.MinX || place.X > limits.MaxX || place.Z < limits.MinZ || place.Z > limits.MaxZ)))
             return "Live performance state invalid.";
+        // One listener still on site to a cell, and every place on ground that can be stood on.
+        var departed = preparation.People.Where(person => person.Departed).Select(person => person.AgentId).ToHashSet();
+        var held = live.Listeners.Where(item => item.Place is not null && !departed.Contains(item.AgentId)).Select(item => item.Place!.Value).ToArray();
+        var blocked = snapshot.TraversalGrid?.Cells.Where(cell => !cell.IsWalkable).Select(cell => new GridCell(cell.X, cell.Z)).ToHashSet();
+        if (held.Distinct().Count() != held.Length || blocked is not null && live.Listeners.Any(item => item.Place is { } place && blocked.Contains(place)))
+            return "Live performance listener places overlap or stand on blocked ground.";
         if (programme is not null &&
             (live.PlannedTick != preparation.StartedTick + def.SlotStarts[programme.CurrentSlot] ||
              live.StartedTick != -1 && (live.StartedTick < live.PlannedTick || live.StartedTick >= programme.SlotEndTick) ||
