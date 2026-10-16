@@ -1,0 +1,1 @@
+Interrupted superseded initial stress run by coordinator instruction after source-reviewed diagnostic isolation repair b767f7e1. No completed stress pass claimed. Reviewer-owned PID 28448 only.

@@ -1,0 +1,17 @@
+{
+  "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\diagnostic-saves\\manual-preparation.ftsave",
+  "sha256": "CB3F24D4817BF1C6C85BAD195C3BE7CB468AA1E53059BD89B5D302EAA4D002C6",
+  "geometry": 1,
+  "identity": {
+    "ruleset": 0,
+    "controlRole": 0,
+    "managementCapability": true
+  },
+  "tick": 0,
+  "status": 0,
+  "people": 72,
+  "admitted": 0,
+  "departed": 0,
+  "performanceRecordCount": 0,
+  "noRoute": 0
+}

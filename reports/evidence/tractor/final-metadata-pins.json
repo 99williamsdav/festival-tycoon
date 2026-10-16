@@ -1,0 +1,830 @@
+[
+  {
+    "path": "C:/Projects/festival-tycoon/assets/source/DESIGN_INDEX.md",
+    "sha256": "108265EDF61D4BF34983B7553B12ED56415431389262D24E1E4824335CD548C0"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/briefs/results/tractor-exe-independent-review.md",
+    "sha256": "89D56F32096D87BA507A3F2ECEB0BE9EB83EFF27DD9C01C98437EA1784E9A049"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/briefs/results/tractor-integration-handoff.md",
+    "sha256": "B7304C19DBA25440CBE889D1606347102CFC7C55DD378F46101321659788C06F"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/briefs/results/tractor-integration-independent-review.md",
+    "sha256": "6CC3180D540FCDFC9522E0EC75C0F07CD5F37365B4A82C02CF2825499475F692"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/tests/Festival.Tests/BarnTractorTests.cs",
+    "sha256": "446BF86AC5656B16018FDC9B4B5F1CDA45CB107A2C3D3C9469F59E3A9DC04941"
+  },
+  {
+    "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/CURRENT-TASK.txt",
+    "sha256": "6E6C152624C91CDA28E62139B801B24D7E6D23F4D28D419BEEDEFA2B946D7C1C"
+  },
+  {
+    "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-tractor-b-2026-10-16/README.txt",
+    "sha256": "7BED992DACA40B778B80F888916106DA41D3881C17EF437D0C97C509A7486FFE"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\APPROVAL.txt",
+    "sha256": "A7AAD2BA0EB04E816A7DDD01D8D1C1980FCDC8228CDF837735BE03CF658750A5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\build.log",
+    "sha256": "BADE441721786D36CE67815B6926D9F588064ED5B5689A4358B7A108DAD550CA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\build.py",
+    "sha256": "467FDD3908CC010147F871C01D7A06C7FD178ED763A908238DE7FDB1573DF48E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\finalize.py",
+    "sha256": "5DDBBB429D83264B8272EA6D8B7F604F29EFAE08ECD99AC1B2B3953C9F754E95"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\HANDOFF.txt",
+    "sha256": "FB3F186B6629203599551715DBC2E14D4BECFB8D672DDF2965CFE52276B9A8EA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\INTEGRATION.md",
+    "sha256": "E79D82A196A61A0741C41714C1824805827106E35EA7ACF7DB9A05947FC707A7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\manifest.json",
+    "sha256": "06DCDF4A98D71120A2F67A88553372A28BA9C3FA3CBD42FEEDD66D1444CD0A6E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\placement.json",
+    "sha256": "28640C3EE70554B8B6AACEAD13FE81BD0C9936A5DEC9CD3F6315B27F420715E1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\approved-B-prompt.txt",
+    "sha256": "832F306E4A076BE69733A8CBC0FC7582465EF5976EC76315F8FCF2A7442B2069"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\approved-B.png",
+    "sha256": "52DAC8F1F83A7EA749C8A8449B84A3A3BE516C7D7F7924E715A3C795E814B105"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\barn-anchors.json",
+    "sha256": "E2D3AA11BD9B4F2FF45C83FCCB7F4D830C63154733E894822895A31169489338"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\CameraRig.cs",
+    "sha256": "46CF912F6205C0F5B5CDC4700BABDC6639ECE958B9ACD4DD441A6873716D41D9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\lwf_barn_stage_v1.glb",
+    "sha256": "8D690770EDD4A2FF4D039D5B43D50F3C0B0726AFE847E96A001628535E8B82B1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\references\\Main.BarnStage.cs",
+    "sha256": "ED88A608FF9A23719B96340C7E5A7CFE7AFA87AABA24BE61C797047E6F5D5A86"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review.html",
+    "sha256": "60E33B551E904375059263A2980974538274A806FD72463F4C387DAA09873FAA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review.log",
+    "sha256": "3BBD5766500059BDFF87EB3BA72D1D2C0F46CCC8B4C18FAB283D4CB095ABB462"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review.py",
+    "sha256": "D5B9E35F50DB4D073FB173E5BE82A56948D9E2852E1581D6A0DDCEFD5111348D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-default62-faded.png",
+    "sha256": "2D8B546FB16DCF856689E58507783C8A239C99CC94F01DF1D3BA6EDE2B4A6DA4"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-faded-0.png",
+    "sha256": "24384E2567BF8C0FA2ABE7EE5517A4E8DDB53781282C148134A6D8DFC9DA05D3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-faded-1.png",
+    "sha256": "E9DAF38040CAD933E2E9ADD2B263D46F0972454CD2A61F3B104DBFE337AF5EE4"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-faded-2.png",
+    "sha256": "51CA427BB701F7BE6716D7F338E6C912378185DE33D76084C1A470C542AC596D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-faded-3.png",
+    "sha256": "4C8E11DB172D68E7E7AA900ABB21CB0C7158FEF3E82595AEB03A95C5D2A35839"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-solid-0.png",
+    "sha256": "6D03BDF183840E188DABE522E97145DED866941004D98AE21C458B767309AB26"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-solid-1.png",
+    "sha256": "34E01020BB114C7410D68DE80AA664A393C87DC7CEBCCCFA885BA20F2B282222"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-solid-2.png",
+    "sha256": "CC72B4C6CD6C9A381C0B86D3CE67FF64E3CEBA766723E3E2FA4E3533A092781A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\barn-solid-3.png",
+    "sha256": "FAF53047213BA6D8BC9ED6082F78310793BB854CB14BE82476CA6D9CEAFAA0BA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\isolated-0.png",
+    "sha256": "5A619EB8A083C9D80810E34CB965948D58AA2A388F19901367E9F2B03F202F1B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\isolated-1.png",
+    "sha256": "198CE44F682A762531EC5366F5D653A5CEE0249DE885F7172FC71B12E4EB73E2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\isolated-2.png",
+    "sha256": "21206A9A2FF0A992E69C8C445BE9555993130B5D5ACAB75FC117CCD143E453E6"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\review\\isolated-3.png",
+    "sha256": "9B45EF0F13171694E087046DBAD81648D54D1D9BDAAFC0845E9392609E7D768D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\runtime\\blue_tractor_B_v1.glb",
+    "sha256": "2C501B42D2B440F8F5623281F4F3426FDD6261E3F1FA04E56DB74A0B557A187D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\source\\blue_tractor_B_v1.blend",
+    "sha256": "6148A780ED6C79E7B5D9408B43F870337D3B0FE3C468832D1618FEC9613F86EC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\source\\materials-linear-rgba.json",
+    "sha256": "AAB525E18CD900B4CC1514CE798D7852299DF918BEBB7A74BDDBE1E3907450C8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\source\\review-barn.blend",
+    "sha256": "5A8307A674206F24D60CF7B7C35DCE00B6562D389343A3B0EEE37347E54404B1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\verification\\glb-reimport.json",
+    "sha256": "CCF22C05882E3EB1835D2A86CB5CCC8460B70EE5C92092B3D716769AC79E1581"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\environment\\blue-tractor-asset-v1\\verification\\review-settings.json",
+    "sha256": "BA11A62E91BC66EC8639462A13851DCAA566DF8EEA11CD72B3804E27E6F9B793"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\checks.json",
+    "sha256": "9FDAE0D8BD9A9AAE99B84228B51CAFFD54343D48CA3D4A35CE9E60BE34CA8882"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\converted-faded-0.png",
+    "sha256": "A54F6EB6522FC8374BE08313BEA36F1C36582D4CDFD4EC25D38C2CC1B40F6D6C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\converted-faded-1.png",
+    "sha256": "16B9EEAC6796CF38E8DEA2BA692A2ECB7CB9BC749AA2B3BADAD57F18296B6980"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\converted-faded-2.png",
+    "sha256": "E39ED7BD5190694532B122AAF592FC3B458BD6B9B39DBC79E7AE3A0A3A0D1BCD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\converted-faded-3.png",
+    "sha256": "584FB1B180277ACB8A96C38E559794487EFFC277B11BEEBD700DBAC214C192C0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\current-optional-barn-inactive.png",
+    "sha256": "6AAC51B390767EB03E3FB2B298D459FCB5244C2873C6A2EF14981CF286A46283"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\current-three-stage-133-live.png",
+    "sha256": "E15145E4C7A61003DDDBEC1957BAB67BEC7F283C7B87E3C9EEE8B0E0991780C0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\import.json",
+    "sha256": "C0ACD434993742F73D9DF0005230F3F933DBDA39648AE01A2DD5D08309B14D97"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-default62-faded.png",
+    "sha256": "1F1665DE2C6B21238CD11EE86BCC1815959AF8AB096A30812B2C8026514E33F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-default62-solid.png",
+    "sha256": "3BAF83EE9F801E02B2967E9D501E91D60E25F327A02491384892605A6B2D2660"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-faded-0.png",
+    "sha256": "DFCA3722124D39004E084082665F9E2854C786BBE2CE0B4BB0F6D0F7EE0BF6E1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-faded-1.png",
+    "sha256": "F3C8BAEF281337C889757112AA6265B855FCDAF670EE7FA7B8CDE0213CCABCBC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-faded-2.png",
+    "sha256": "5FA4DF7D031A0BAA60BAD0E23725458133F2C1BA28487E7152AE9EC35C43AC5C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-faded-3.png",
+    "sha256": "A0CF37F0003A85EA2E279D62D9D217BAA962185BD0DD8BBCE121D2777F0ADC20"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-solid-0.png",
+    "sha256": "84264E7268B9D25D35BD868E1E99AA016E98181DC23B3CCE6788CFF2A2796DB8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-solid-1.png",
+    "sha256": "6B1E2D6C589DBBAD8838E1CB2432B90ADCE8683474F0CD3750B4BEF5BC322CAD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-solid-2.png",
+    "sha256": "FE165FBBB1E0577C113AAFE9F353C21CB6B5D78F483CC12708F78674AA6C48EF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\builder-native\\ordinary-solid-3.png",
+    "sha256": "5DEB7ED05452166663D020E6C7FDEE8EFEB09CB298824DD3F85691F8B63F15BD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\export-checkpoint.json",
+    "sha256": "9859539181330E475F01E1C69835EA603D38398BDDB5A56AADB14A5AA72BE811"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\default-profile-after-all.json",
+    "sha256": "B60709636AD23DB95FD7EBD490E1F6AE610DFE4023277A1D1866036D7F32B377"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\default-profile-after-tractor.json",
+    "sha256": "44E57A1655D27C21D988492B118AB340D68885CF2DB7384A08B4F714B867DE31"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\inspect-saves.ps1",
+    "sha256": "A78B28629F068281F6C6EC7805AB4A403FFB9B38B8651C9E87C138E77CB2E5FD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\pins-after.json",
+    "sha256": "DFF28E263572A7A3BA047C8B128C8F71B67933EDFCE5223DD5C4CE4EB47402C2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\pins-before.json",
+    "sha256": "DFF28E263572A7A3BA047C8B128C8F71B67933EDFCE5223DD5C4CE4EB47402C2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\01-development-menu.png",
+    "sha256": "AF5C50C74B7794626A004ABBFF7C239148B4B674105D2552BB79C7F5CF0E6FBD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\02-development-default-options.png",
+    "sha256": "1DF1BF96CB5844B42F9E4861B47300BF56360495FD7BF9386E1D0D1C1FED4665"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\03-explicit-diagnostic-options.png",
+    "sha256": "B5AC6DA355E50500B03892BEE7C1BE3AD17CE38A3DE6AE4C83EFF17962A0491D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\04-three-stage-forecast.png",
+    "sha256": "5EB49D96E72FB07A790C184B88A975E5D59F16CEC917DC82D7FCF3F4830C4A96"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\05-three-engineer-staff.png",
+    "sha256": "13022DEBFAF31621D1DDC6BE95DEC16CF36D82A1DC7E4D571CC9D25F1B5F91A3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\06-trailer-bookings.png",
+    "sha256": "35284AE927BBE50BE53E26C9E2A0C8BC606528CC5F265D8C5F3C23EC835FA148"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\07-barn-bookings.png",
+    "sha256": "B8C26F394A859B45A707A1F25D62A9DAB5F2EBF6A4090D60084CA8F78DA2E581"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\08-pond-bookings.png",
+    "sha256": "5663EE5C0FE487D13834B54A3F9BF9A2165B33C69434E74048C8AA259A9FE217"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\09-hundred-attendee-results.png",
+    "sha256": "DDDC5269E5C1785E9DFD1C47FB91106E7E7814264F13068D55AAB3D177E2E34A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\10-next-test-festival.png",
+    "sha256": "57368C80B260455F936B5F98A883FDA5020BD397D67CD4E1F053E357C587607F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\11-pond-headliner-contract-preview.png",
+    "sha256": "D3F9E65945E3115931F680DC608016DA520FCC529AB0FAEE07E81B4FB2DEB752"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\12-pond-empty-headliner.png",
+    "sha256": "D2D27C4A9B680488319DC0831FF1F77583C63C7D472D91B5794F23A4C70C56A0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\13-barn-only-own-generator-cut.png",
+    "sha256": "BA6F8D30802DE92A875AF8BA46283893CBD48B2BEECF10A971515E746BF13C91"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\14-pond-only-own-generator-cut.png",
+    "sha256": "6CE55D7B722B1BF49A44EC1BE375239F5B7CD46EBE39C8B7C50C48EFC7824FD9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\15-food-traders-page-one.png",
+    "sha256": "95D79942E78CF866EEDBE7EE1DBC99B452FE26C5811582A900D8DF016E44088A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\16-food-traders-page-two.png",
+    "sha256": "E611ECDB2FE637836E72A71DB3D569AE0F7084C10C1A39407A3BE914CB9C9C33"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\17-placed-bins-page-one.png",
+    "sha256": "AF7C92561D6436A549AEE2A4F86ACE9F6B0EAD2EF5C75DFAFCE0B7D74FFC26AF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\18-placed-bins-page-two.png",
+    "sha256": "C194901643290734ECDADAFA75EB11211D324387F1CBD224AA987BD740EDC0BC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\19-additional-buildings-world.png",
+    "sha256": "B8EDADBB7564A2B066EB5BDF649F9903E9A52D3321A2D05B93DA95BF14C1AAF4"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\checks.json",
+    "sha256": "024215E9C90710AA03242BD166751A789A1E255652AFC8246980DC89DB858D31"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\clip-counts.json",
+    "sha256": "9675D5CDC20E819C2D1380E301D64341EE19436F302E7418D10FE06BB5094B95"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\exit-code.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\saved-state-inspection.json",
+    "sha256": "51B3F34E53F0D7FD21C57505B2040A65A76B2F50BDE358B58FAE6568AE76B8C1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\stdout.log",
+    "sha256": "52B0578CE7E7B73A8434D7EFD5FC1A4CC42B6628C9A4AC2900A1F284F45FE7BA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\01-existing-control-menu.png",
+    "sha256": "891B15AC28E4B9488E3FA4E97494A355E3A995FF4681A96249FA1BC7948A31C7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\02-existing-rain-challenge.png",
+    "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\03-management-tier-two-live.png",
+    "sha256": "936DA5E16AF381DE558A2490DCAE1B210885F5FC1FA22CFFE8A67EBCA5882768"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\04-all-rounder-management.png",
+    "sha256": "86A45E4BBFE73ECF17853BF6A93E7D124E464FFD4BCDBC2A50DD128E1B2D0E2F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\05-all-rounder-first-person.png",
+    "sha256": "76BED6C6F0F32DAF7EDDECD1333A270FFAF1BECB397DA3CBAB1A14DFA67022DF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\06-steward-only-tier-one.png",
+    "sha256": "AC51E88E58EA70FBC59807A4614DD4E2EF58813E5D2B4B3A4762F30EFC1B13E5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\07-steward-only-tier-two.png",
+    "sha256": "D3E8A483F33A5144AB840B80E643D4707FAFD5E8E2D222DC9090BFB55E42DE69"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\08-resumed-management.png",
+    "sha256": "C74A3F2DE06C58A5BDA8C45DF17E1B94404B8C726C14F67A203DEE932262F04F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\architecture-evidence.json",
+    "sha256": "CA1AD673783D5CFA87CA767985B3D3332F377E097794D0D5CF304976C0EFFEA2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\exit-code.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\saved-state-inspection.json",
+    "sha256": "C53B54B22BB18D7E1B14B2C45DAE36A3667F71D2A406A2686ED6A0F2B20B5FCD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\stdout.log",
+    "sha256": "F6BE65BEDE589BA84F77D5454EC147A9821A35D723695D7B81527A3A83224E54"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\01-menu.png",
+    "sha256": "9609897D027F7FE957C6DB1886F7C8ECADA72CF79B98696BC061F56B93D72419"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\02-development-picker.png",
+    "sha256": "AF5C50C74B7794626A004ABBFF7C239148B4B674105D2552BB79C7F5CF0E6FBD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\03-steward-picker.png",
+    "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\04-heavy-rain-reveal.png",
+    "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\05-preparation-draft.png",
+    "sha256": "671E1C42C00676206E72A879A7684594DB52D498D676EF251FE3219DC4F992FF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\06-tier-two-box-office.png",
+    "sha256": "842C79E88C82C5DA0CE9973424DE7AA90CC796F0B3F5BC16B3429ECE5D272459"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\07-two-stage-plan.png",
+    "sha256": "112F4998C5BCEC99645AAA2DEB0B7CC096C3F1FE835F0730BA8A66C44DECB139"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\08-fresh-tier-one-reveal.png",
+    "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\development-tier-evidence.json",
+    "sha256": "03D75CC015FB7F5020F4BB08A440D85FE447D35798E135E59CA56918FA050FB9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\exit-code.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\saved-state-inspection.json",
+    "sha256": "A4319E0F9D03306ECFE0D991FCB57D9AA93E1EF78A9D73CA68EE8D5896F8992C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tiers\\stdout.log",
+    "sha256": "DFACABA6001EAF3462F6695E5319B20D6F8056ADC61B6742E5B0A4A14C863667"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\checks.json",
+    "sha256": "B1B0F6E7046A23B217F183F06D81A101C8E6DDC120B85E132CE7F972CD64FBB9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\converted-faded-0.png",
+    "sha256": "3C1EA20291577F48A54C3F2B3EE8C6534E516F6355483BF455880492C73D33F9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\converted-faded-1.png",
+    "sha256": "B3438AEFD1FA18E689C3524B5EAB38DAEF701A38414F81AF55B022357BE77B05"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\converted-faded-2.png",
+    "sha256": "83F263CEBD85BEA63A7376E0C26E1C1AEA8B23ED66EE5A8428B86CF34F66392C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\converted-faded-3.png",
+    "sha256": "9BA58ECDE134FA5018CE1F6676F81F4EA76143257BD6BE8C94BFC9D186610B28"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\current-optional-barn-inactive.png",
+    "sha256": "40B3C0612DAFCC7BE38B8B12C03E5A80C25D32592FF22C26FC4DA680758A792F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\current-three-stage-133-live.png",
+    "sha256": "D11A9C283565C5C85DA2124A12CE451B671DB916837F330109F096787BDAE57F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\exit-code.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\import.json",
+    "sha256": "C0ACD434993742F73D9DF0005230F3F933DBDA39648AE01A2DD5D08309B14D97"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-default62-faded.png",
+    "sha256": "F2E93A6DEC259CC35007CF644F2E56405AAA250CB79D9864AE1CD795B38024FA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-default62-solid.png",
+    "sha256": "71BE7E7C136631B8BFF53E3469AC9AED6B4098C25C5C7F7750B1AA468EA8320D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-faded-0.png",
+    "sha256": "8425E7DE2E8A1389C9AB5237BBC745C85390FDA9A6B2AE7B03F5285FD3DFEFD1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-faded-1.png",
+    "sha256": "B478EAFCE240B1A12C90598174394A6D92C75509DBCFAECBF4462318C4F9BECA"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-faded-2.png",
+    "sha256": "B2663DE4043F4DF6C0880678117B190D1F5709D1EE664AEF3BF9303542A8AC1E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-faded-3.png",
+    "sha256": "ADA93B74306D987F3F95384F8819871697BD02A535C1A754488884F73E5BC8FD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-solid-0.png",
+    "sha256": "7DDCD73CBF677A323FA4C2A90EF8F10FC50F1627054487338E36EE13FB689560"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-solid-1.png",
+    "sha256": "0E350F88D46B76603E501A988117386713873AC50F584BDF45ED57D8D6E8CB9E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-solid-2.png",
+    "sha256": "71EC0C4F89AED12C5FD75EDAD4D701E83DC75EAB5CB28471EC7A38DB3EDE7221"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\ordinary-solid-3.png",
+    "sha256": "1631A0638767144608C079336F8B2BED21716024718E34D4DAB3F5EEAB883A41"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\saved-state-inspection.json",
+    "sha256": "AC1275B188AB6E73FDC9A72F182186CE1AE00925110CC89653E5D4A863E0A026"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\stdout.log",
+    "sha256": "0809CCBB4EF04A9B09174288CE50D48EF4070AFF78F788F13F1446BED6023B60"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\pins-after-initial.json",
+    "sha256": "447EFBAE4E88CB846669DEC5A54C89AF34276089B948872899B7B02ABB6072A5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\pins-before.json",
+    "sha256": "71823F9505A81B2FFDCD4295A21EF3E292D27FAF0A221CDE705C98AD771D6234"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\01-development-menu.png",
+    "sha256": "AF5C50C74B7794626A004ABBFF7C239148B4B674105D2552BB79C7F5CF0E6FBD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\02-development-default-options.png",
+    "sha256": "1DF1BF96CB5844B42F9E4861B47300BF56360495FD7BF9386E1D0D1C1FED4665"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\03-explicit-diagnostic-options.png",
+    "sha256": "B5AC6DA355E50500B03892BEE7C1BE3AD17CE38A3DE6AE4C83EFF17962A0491D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\04-three-stage-forecast.png",
+    "sha256": "5EB49D96E72FB07A790C184B88A975E5D59F16CEC917DC82D7FCF3F4830C4A96"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\05-three-engineer-staff.png",
+    "sha256": "9F5EC08F9C103E551A50CEAEFBACF2E69D4858AE0031312449CE241C22C4E564"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\06-trailer-bookings.png",
+    "sha256": "35284AE927BBE50BE53E26C9E2A0C8BC606528CC5F265D8C5F3C23EC835FA148"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\07-barn-bookings.png",
+    "sha256": "B8C26F394A859B45A707A1F25D62A9DAB5F2EBF6A4090D60084CA8F78DA2E581"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\08-pond-bookings.png",
+    "sha256": "5663EE5C0FE487D13834B54A3F9BF9A2165B33C69434E74048C8AA259A9FE217"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\11-pond-headliner-contract-preview.png",
+    "sha256": "D3F9E65945E3115931F680DC608016DA520FCC529AB0FAEE07E81B4FB2DEB752"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\12-pond-empty-headliner.png",
+    "sha256": "D2D27C4A9B680488319DC0831FF1F77583C63C7D472D91B5794F23A4C70C56A0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\13-barn-only-own-generator-cut.png",
+    "sha256": "F01340E10371AEA92F3E69C250A42AEB9EC7102404DFA64609267266EF4FFAE5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\14-pond-only-own-generator-cut.png",
+    "sha256": "298FF31811784DB370142278977431932477FF53B418AC83F0FAE9ED42BAF21E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\15-food-traders-page-one.png",
+    "sha256": "AB97311A8C68490C8AB141BC4AA01F6CC379F88E127B0FE3F9FAD3E5B61BE6DC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\16-food-traders-page-two.png",
+    "sha256": "3393967C918D26200E6393BA2B297F386CD8B99A7144CC77335A927284C70247"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\17-placed-bins-page-one.png",
+    "sha256": "0A5805DF76F091D2EA13EE799F002604CC00779EDEF6D2350D8FC81E14EB82AE"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\18-placed-bins-page-two.png",
+    "sha256": "4B20F5FB85E988A1A0FE8E52E51564F61BF832FF8F47E09E96AD2ED945097C3D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\19-additional-buildings-world.png",
+    "sha256": "71C0AAE85EE6F1613D336A2B3802497B7ADDEC47BA47C94E6081BD07D31CE739"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\exit-code.txt",
+    "sha256": "186A919B8C7CB84AEBF4E53C70CD1CC028A93A1D183EE29DD6E10CD18A714577"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\interrupted.txt",
+    "sha256": "75788D61BCE75B3A431FBFA68192901D88DDCADF38A4C3BCEB13C365013D3252"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\stress\\stdout.log",
+    "sha256": "87083133411786101C8922F0F2AD279E87D399132A3594519BB9B5E6DFE9A77A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\checks.json",
+    "sha256": "7688B3AE61125D683E7EF373F018E490DB09E8276AA27747DA4C2EB59A057DA3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\converted-faded-0.png",
+    "sha256": "16C40AE7C4FD60DE77B54DA39A2DFC86F2E117419DE44B3035C00F5F594935CB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\converted-faded-1.png",
+    "sha256": "AE0ECA9AE185F236DA9096F459E202B47BE9B5B5F96DA303F8B80BB123D70D27"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\converted-faded-2.png",
+    "sha256": "217D6221BECFFC0350070424D236ADC7B4053EB1CD883935103B0E0F37890245"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\converted-faded-3.png",
+    "sha256": "1B8A9EE73752ACE4A95603567A47231E1345B18FFA0A134CC00CD8C0F9B5B28F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\current-optional-barn-inactive.png",
+    "sha256": "13CEF2FD273C095471BB8C4AF9073D5F22EA38760525EC0577B131DF8162BD30"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\current-three-stage-133-live.png",
+    "sha256": "CD5974FEA90584B62AEBAD03C15F6E5ABB5144E006A10D9F89246C56386D0244"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\development-folder-after.json",
+    "sha256": "65615BEFEC67A97A24D48C11AAAB1EE8C922079EBBC412E1892DAF499DC7C06A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\exit-code.txt",
+    "sha256": "13BF7B3039C63BF5A50491FA3CFD8EB4E699D1BA1436315AEF9CBE5711530354"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\import.json",
+    "sha256": "C0ACD434993742F73D9DF0005230F3F933DBDA39648AE01A2DD5D08309B14D97"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-default62-faded.png",
+    "sha256": "16F034BD7F92F2B46BE8C0A85E019D358269878DCEC07487B0BB21CB8F338687"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-default62-solid.png",
+    "sha256": "B6160D3F48E5DBA851E0EBE5364670FBB9D5A2FA103B3D8E9358626747D4BF89"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-faded-0.png",
+    "sha256": "0908AA78F57361049A9E9680F6F6A3E9E33AAD2CFF061D8928924B537533D51B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-faded-1.png",
+    "sha256": "3D015C37F9A89624D1EFC45C3DAD96E604C07494D902E6187F2DF3F2B2DF0D64"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-faded-2.png",
+    "sha256": "B67E1387D94E1DD6C4070EF04B71891B1A0DDB8558D56370E5BFEBE311328F94"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-faded-3.png",
+    "sha256": "A67021E18BA044773CF2B52A8220E534A989225A927F3F7E098B476CEDC4A618"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-solid-0.png",
+    "sha256": "4F6BACDA7585D5DE673D11B7239D63A12FA9F9CB5D67D781DA9836726E83B30D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-solid-1.png",
+    "sha256": "E5299664EB536A7C28672D350B66185093E0EE09FDA259487BA0FC9652661098"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-solid-2.png",
+    "sha256": "716C4ACBAD7C26B239856658727E2661EC2740458A0F8AF709576C3E23E3C705"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\ordinary-solid-3.png",
+    "sha256": "A017CFE3D44A48BF3A16E167BED5ABEF863C9E1D7596BD7BE66C0B766B218031"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\saved-state-inspection.json",
+    "sha256": "8B53563B1464B24C6D431BC6493745D96104D1A6631C97DEA58DDE39DF66F392"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\stderr.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe\\tractor\\stdout.log",
+    "sha256": "0809CCBB4EF04A9B09174288CE50D48EF4070AFF78F788F13F1446BED6023B60"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\development-profile-before-repair-pins.json",
+    "sha256": "CF7A53006A77AD6D97FF622106B72AA8036557B13696825288DF5F91F24CE546"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\incomplete-copy-checkpoint.json",
+    "sha256": "01A0DB72E303C85A1CE5F1139A53BCAE5CDEAD9DFB0321B7F5B65A344D956ABB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\initial-export-checkpoint.json",
+    "sha256": "5A24E60F57E7DFECA40275ACF5D93E1DF35686DD407A0512E4E3CA8F8F1664BF"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\original-inputs.json",
+    "sha256": "27E27941DBAF3D08850F089018F6A092F364DC109795016159885C4526D0BD48"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-first-build.txt",
+    "sha256": "CA4DDB3257AB5C22F4A8B696B60649C34D3BC037C578CFB6ED57383F0E7ABBB1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-import-stderr.txt",
+    "sha256": "76AFC3A67B992266BD218A1BC722A9FD9346BCAF614BFCBFB6D3A7AF4FF73A90"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-import-stdout.txt",
+    "sha256": "6A9FA4C33944B094D8DC00316B4B946141BF654B811D230EBC366FEC6361FC56"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-native-build-final.txt",
+    "sha256": "38B545FA9B13626741DDE6087FC4538F40DC26FA6732E518FA080569746B1AD5"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-native-build.txt",
+    "sha256": "1ADBF688DEB5E2E3701970860D848AC344D0EAB57C2ED9E7D6D907CBCC8489EB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-native-stderr.txt",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-native-stdout.txt",
+    "sha256": "0809CCBB4EF04A9B09174288CE50D48EF4070AFF78F788F13F1446BED6023B60"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-regression-tests.txt",
+    "sha256": "858F0F53D01C5A772A567B9C160F2A771899433D1790BA4798EC1E9325846D2E"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-reviewer-targeted-final.txt",
+    "sha256": "AA4077634BF7A0D8331FCE569092677A18DECEBEBDE9217F8A54DE1AB392FA4F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-reviewer-targeted-tests.txt",
+    "sha256": "B06127FBE63E11483B20323B71547684C49FF6724D2CDA33CD1120877AE5AC06"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-tests-expanded-details.txt",
+    "sha256": "B9F1EBD33DEE5C683558407DA3476C4CEF22AFA8DFC910A0E530AE8AEA5CD61F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-tests-expanded.txt",
+    "sha256": "E80B3A2B441D5DDC671244CD6E0C06E31E2830469DC28D40A865258F39E83B97"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-tests-final.txt",
+    "sha256": "145174A0EAABF48BACB55DF3C12C0130B4D91FA204A414E7559F6AF3D06763E8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-tests-first.txt",
+    "sha256": "B747C367D03A7AA5F7CD1D4BF245A1FDE92E014542B28572BB184D4CFB370FAD"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\tractor-tests-with-manual.txt",
+    "sha256": "1BF3311C9F4D5DB20887E82257509A37535F916A9EC4CD91931296228909A7FC"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\windows-export-final.log",
+    "sha256": "D20EE3FF508D506E533064CD009A9F2B0C4442296A003D6E1393784AA365A102"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\validation\\windows-export.log",
+    "sha256": "FB31B78C1729FA9D335F7CA9D4364360157E9DF2155D52BC6CE24B57BEF5E813"
+  }
+]

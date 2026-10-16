@@ -1,0 +1,240 @@
+[
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\classic-saves\\autosave-0.ftsave",
+    "sha256": "288093252055FBCE4CA959CE070482A0FE9BD69D340681740D22CC7166A772F1",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 37,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\classic-saves\\current-classic-preparation.ftsave",
+    "sha256": "EE5B61A62E6991B6045A8D4C6EF97EE2388F818B1B9E53F63EEF7D3961657764",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 37,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\autosave-0.ftsave",
+    "sha256": "65C1EEE1F57E09B1A1051744EE949A071E90A1F97E0BB925F870ADBEBCCBFE00",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\autosave-1.ftsave",
+    "sha256": "65820119EB4977DE6D553A806EC873B67A4FB9F218168B4F2191EF46E00640E5",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 1,
+    "people": 133,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\autosave-2.ftsave",
+    "sha256": "657253F82D8BB54105B2E886E35CF6328387C6D16499DFF8FBAE618E5926C7F4",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\current-next-festival.ftsave",
+    "sha256": "17CFE54C8535D7DEFFDA5598FFAEE8EFDA38EB078E1B05C3FF57BE06ACC4902C",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\current-optional-barn-inactive.ftsave",
+    "sha256": "B5D5DCD71F240067D13089E0711FDD5A36501A9CE6FED76E4BCD87C6031937B0",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 122,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\current-three-stage-finished.ftsave",
+    "sha256": "FAA4EFD5DDEFE708BAD78AD415248A863F08C8577DEA914834156C9B369F61BC",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 46517,
+    "status": 3,
+    "people": 133,
+    "admitted": 133,
+    "departed": 133,
+    "performanceRecordCount": 9,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\development-saves\\current-three-stage-live.ftsave",
+    "sha256": "110263CD1C4C9A087B790396F1718A183F981A46D81DB14CB99130E11051CBA4",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 11000,
+    "status": 1,
+    "people": 133,
+    "admitted": 133,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\hands-on-saves\\current-hands-on-preparation.ftsave",
+    "sha256": "B00BF4CB27C9E331B9D04C1455D8E3318D38604B8858CDA78AB1FCE1F4607E3C",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 38,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\management-saves\\current-converted-preparation.ftsave",
+    "sha256": "20A25BF7E552C20DE27E595EFACA47F972D84AA553DF8C4AF89F1B4D482FC839",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 72,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\management-saves\\current-ordinary-live.ftsave",
+    "sha256": "888B095D896B2737949C3694EC9E0913E4E6CABAB78AE4DF8156AED3FCBE997B",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 8000,
+    "status": 1,
+    "people": 37,
+    "admitted": 37,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\management-saves\\current-ordinary-preparation.ftsave",
+    "sha256": "BF0998E1C849891814A07CB2A64A74CA451683BE133CAE7F969F4288C2982D0E",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 37,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\tractor\\steward-saves\\current-steward-live.ftsave",
+    "sha256": "9019CE3613542EC683F49397BB6D8511C6230BA6B734E67C194565E40EBA0F8A",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": false
+    },
+    "tick": 0,
+    "status": 1,
+    "people": 39,
+    "admitted": 1,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  }
+]

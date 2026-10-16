@@ -1,0 +1,121 @@
+[
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\hands-on-saves\\all-rounder-manual.ftsave",
+    "sha256": "7F5416278454D93F5A38F1334F7AB145215F4120E6D4EF10BEA75BFFD7C92810",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": true
+    },
+    "tick": 8080,
+    "status": 1,
+    "people": 38,
+    "admitted": 38,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\management-saves\\management-tier-two.ftsave",
+    "sha256": "90B536E6CD23AA436D076EC3B3AF862A274E7FAF0B7A98786AA3062A02D242F6",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 8000,
+    "status": 1,
+    "people": 72,
+    "admitted": 72,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\management-saves\\resumed-management.ftsave",
+    "sha256": "A6196B44FB05BCBD335D87527368B599D452284C269BEC3B5D2363CB31D43D2F",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 8000,
+    "status": 1,
+    "people": 72,
+    "admitted": 72,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\steward-saves\\autosave-0.ftsave",
+    "sha256": "FEC026A242BEBA4CC08044A5CF5FCE4AD30679C5CB163D0F91AD58A1EADF70CD",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": false
+    },
+    "tick": 80,
+    "status": 1,
+    "people": 39,
+    "admitted": 1,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\steward-saves\\autosave-1.ftsave",
+    "sha256": "06A7E1CC9A5CCD700CAFFD5981AAA2A385D126C27B38240E9F8FEB31C700407A",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": false
+    },
+    "tick": 80,
+    "status": 1,
+    "people": 74,
+    "admitted": 1,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\steward-saves\\steward-tier-one.ftsave",
+    "sha256": "E82A071B0182BE57F2E35A1973D8EAD07B24B23EB85A117A1443797C6A39CD06",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": false
+    },
+    "tick": 80,
+    "status": 1,
+    "people": 39,
+    "admitted": 1,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\survival\\steward-saves\\steward-tier-two.ftsave",
+    "sha256": "EFBB7D71B5711EE817333CDBDE0C6ED035991128672F06B6E8301DE1857D0EAC",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 0,
+      "controlRole": 1,
+      "managementCapability": false
+    },
+    "tick": 80,
+    "status": 1,
+    "people": 74,
+    "admitted": 1,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  }
+]

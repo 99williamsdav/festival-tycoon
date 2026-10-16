@@ -1,0 +1,1 @@
+  Run tests: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]

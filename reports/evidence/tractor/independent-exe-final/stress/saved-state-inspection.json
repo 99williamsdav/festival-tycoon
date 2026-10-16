@@ -1,0 +1,223 @@
+[
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\classic-saves\\autosave-0.ftsave",
+    "sha256": "67D348D86C97B7E887B2A69D46784D20883F717FB941A0248F795F624FDB3FD0",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 37,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\autosave-0.ftsave",
+    "sha256": "1FCE787C957C48E02B6E7081ABF2DDA3592EB4FA1A38DEB7859C78A9DF3585BD",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 46517,
+    "status": 3,
+    "people": 133,
+    "admitted": 133,
+    "departed": 133,
+    "performanceRecordCount": 9,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\autosave-1.ftsave",
+    "sha256": "6AC7C7B80CC1D2153407B8E38B53F40E2E9F0248C601F97FB2FFA104C28B321A",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\autosave-2.ftsave",
+    "sha256": "FB3159527AB55AA23BEB506016A37A8A85E026FFDB27B239758B0970DB413C47",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 1,
+    "people": 133,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\development-cancelled.ftsave",
+    "sha256": "224372CEC51DD2E112E0C4AD9DE559F22D311C9E316E84518C2A6EC9B4703F7C",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\development-finished.ftsave",
+    "sha256": "2A7B3CAC8E03A4984EA7ED8BE81850F1C53C1A97E91A63BD7F140E5F0FED69C6",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 46517,
+    "status": 3,
+    "people": 133,
+    "admitted": 133,
+    "departed": 133,
+    "performanceRecordCount": 9,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\development-live.ftsave",
+    "sha256": "A77E92A6093BAA18F428DFF80BAF280E6C45B0193EAF34EBED473C420AEF6E3A",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 11000,
+    "status": 1,
+    "people": 133,
+    "admitted": 133,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\development-next.ftsave",
+    "sha256": "D42ABCB11C5CC19409B4B61344DDC91C4A76EF4ED382842A095E3199A3078BA6",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\development-preparation.ftsave",
+    "sha256": "A1858511ADD09496D481AABE8B55A396E6A3CAB809DD50EB4A6CF12B35343073",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\large-construction-layout.ftsave",
+    "sha256": "F4F22B80C7E95155D461287C14BC8E74B373C82545DF1DBAB3A2679DE5BEF99F",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\pond-contract-refund.ftsave",
+    "sha256": "3F66F4487FE546A0442D98B17423DC91AF9A5EA538849B6364D303F2DA233C57",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 92,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\stage-barn-only-live-cut.ftsave",
+    "sha256": "7964AC3D47555E9E0C88FCF6909C82828C243B0E7B10E27ED5C7DF651CF86D75",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 11000,
+    "status": 1,
+    "people": 112,
+    "admitted": 112,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  },
+  {
+    "file": "C:\\Projects\\festival-tycoon\\reports\\evidence\\tractor\\independent-exe-final\\stress\\development-saves\\stage-pond-only-live-cut.ftsave",
+    "sha256": "7873B542F06D2C85DB7E6466F8710EB603711802CD691DA3F7DB5ED87B8A0477",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 11000,
+    "status": 1,
+    "people": 112,
+    "admitted": 112,
+    "departed": 0,
+    "performanceRecordCount": 0,
+    "noRoute": 0
+  }
+]

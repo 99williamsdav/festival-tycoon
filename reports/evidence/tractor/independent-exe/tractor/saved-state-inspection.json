@@ -1,0 +1,88 @@
+[
+  {
+    "file": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-live.ftsave",
+    "sha256": "02CE59616CA4E4B8F3F85087B886821B39911E5B97B1E3AA88211FDCE4E6F233",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 11000,
+    "status": 1,
+    "people": 133,
+    "admitted": 133,
+    "departed": 0,
+    "performanceRecords": 1,
+    "navigationActions": [
+      {
+        "Name": "1",
+        "Count": 39
+      },
+      {
+        "Name": "2",
+        "Count": 94
+      }
+    ]
+  },
+  {
+    "file": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-three-stage-finished.ftsave",
+    "sha256": "F14B7E2D46EE2891D44A9775BA4363B27B5B3D5EDAEB83D47991507D98469EAC",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 46517,
+    "status": 3,
+    "people": 133,
+    "admitted": 133,
+    "departed": 133,
+    "performanceRecords": 9,
+    "navigationActions": [
+      {
+        "Name": "1",
+        "Count": 2
+      },
+      {
+        "Name": "2",
+        "Count": 131
+      }
+    ]
+  },
+  {
+    "file": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-next-festival.ftsave",
+    "sha256": "E21234C999766A64D1A7FEB8CC1402CB87613AC086F88F89D8164656E1AE2624",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 132,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecords": 1,
+    "navigationActions": []
+  },
+  {
+    "file": "C:\\Users\\99wil\\AppData\\Roaming\\Godot\\app_userdata\\Festival Tycoon\\saves\\r0-classic-development-v1\\current-optional-barn-inactive.ftsave",
+    "sha256": "8540ABE14C9E069EE08BF06F001F22E6DB7FE246BA3CE6760A012DFEA76AB51F",
+    "geometry": 1,
+    "identity": {
+      "ruleset": 1,
+      "controlRole": 0,
+      "managementCapability": true
+    },
+    "tick": 0,
+    "status": 0,
+    "people": 122,
+    "admitted": 0,
+    "departed": 0,
+    "performanceRecords": 1,
+    "navigationActions": []
+  }
+]

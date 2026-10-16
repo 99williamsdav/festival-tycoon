@@ -1,0 +1,413 @@
+{
+  "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64.exe",
+  "checks": [
+    {
+      "name": "current-ordinary-preparation-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-unchanged-import-geometry",
+      "passed": true
+    },
+    {
+      "name": "tractor-grounded-world-placement",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-0-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-0-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-1-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-1-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-2-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-2-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-3-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-solid-3-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-actual-roof-faded",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-0-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-0-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-actual-roof-faded",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-1-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-1-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-actual-roof-faded",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-2-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-2-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-actual-roof-faded",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-3-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-faded-3-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-default62-faded-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-default62-faded-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "tractor-actual-roof-solid",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-default62-solid-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-ordinary-default62-solid-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-grid-and-mesh-agree",
+      "passed": true
+    },
+    {
+      "name": "current-ordinary-live-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "current-hands-on-preparation-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-grid-and-mesh-agree",
+      "passed": true
+    },
+    {
+      "name": "current-steward-live-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-parked-host-keeps-exact-state",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "current-converted-preparation-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "current-classic-preparation-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-grid-and-mesh-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-paid-hundred-attendee-three-live-stages",
+      "passed": true
+    },
+    {
+      "name": "current-three-stage-live-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-current-three-stage-complete",
+      "passed": true
+    },
+    {
+      "name": "current-three-stage-finished-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-next-keeps-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "current-next-festival-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-declared-current-revision",
+      "passed": true
+    },
+    {
+      "name": "tractor-mesh-and-authoritative-state-agree",
+      "passed": true
+    },
+    {
+      "name": "tractor-conversion-kit-and-signs",
+      "passed": true
+    },
+    {
+      "name": "tractor-current-optional-barn-inactive-opaque-body",
+      "passed": true
+    },
+    {
+      "name": "tractor-current-optional-barn-inactive-retained-cab-glass",
+      "passed": true
+    },
+    {
+      "name": "current-optional-barn-inactive-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "tractor-legacy-zero-has-no-phantom-tractor",
+      "passed": true
+    }
+  ]
+}
