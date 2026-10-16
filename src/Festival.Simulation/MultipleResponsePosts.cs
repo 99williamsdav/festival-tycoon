@@ -35,12 +35,7 @@ public sealed partial class GameSession
     {
         var baseline=role==ResponseRole.Medic?_medical?.MedicId:_disorder?.SecurityId;
         var posts=PlacedResponsePosts(_preparation,role).ToArray();
-        if(posts.Length==0)return null;
-        // The baseline worker keeps the first post; the rest take the next ones in id order, so a third hire
-        // would staff a third post rather than doubling up on the second.
-        var order=GetResponseStaff().Where(w=>w.Role==role).Select(w=>w.AgentId).OrderBy(w=>w!=baseline).ThenBy(w=>w).ToList();
-        var rank=Math.Max(0,order.IndexOf(id));
-        return posts[rank<posts.Length?rank:posts.Length==1?0:1+(rank-1)%(posts.Length-1)].Id;
+        return posts.Length==0?null:posts[id!=baseline && posts.Length>1?1:0].Id;
     }
     private static bool ResponseGroundReserved(PreparationSnapshot? p,GridCell cell)
     {
