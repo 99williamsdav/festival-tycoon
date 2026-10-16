@@ -1,0 +1,26 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Info: Total files 0 | Changed 0 | Failed 0
+Info: Saved "blue_tractor_B_v1.blend"
+08:30:24 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+08:30:25 | INFO: Starting glTF 2.0 export
+08:30:25 | INFO: Extracting primitive: Cube
+08:30:25 | INFO: Primitives created: 8
+08:30:25 | INFO: Extracting primitive: Cube.188
+08:30:25 | INFO: Primitives created: 5
+08:30:25 | INFO: Extracting primitive: FrontWheel_-1 tyre
+08:30:25 | INFO: Primitives created: 5
+08:30:25 | INFO: Extracting primitive: FrontWheel_1 tyre
+08:30:25 | INFO: Primitives created: 5
+08:30:25 | INFO: Extracting primitive: RearWheel_-1 tyre
+08:30:25 | INFO: Primitives created: 5
+08:30:25 | INFO: Extracting primitive: RearWheel_1 tyre
+08:30:25 | INFO: Primitives created: 5
+08:30:25 | INFO: Extracting primitive: Windscreen
+08:30:25 | INFO: Primitives created: 1
+08:30:25 | INFO: Finished glTF 2.0 export in 0.07578635215759277 s
+
+TRACTOR BUILD COMPLETE
+
+Blender quit

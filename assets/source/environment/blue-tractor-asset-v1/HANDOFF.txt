@@ -1,0 +1,50 @@
+BLUE TRACTOR B — STATIC ASSET HANDOFF v1
+16 October 2026. User selected/approved concept B; built under that approval. For coordinator inspection before Builder integration. No additional concept approval gate requested. No runtime/game repository files modified.
+
+FILES
+source/blue_tractor_B_v1.blend — editable standalone tractor; no review barn/camera/light geometry inside.
+runtime/blue_tractor_B_v1.glb — final static game asset.
+build.py — deterministic geometry/material authoring and export script, Blender4.1.1.
+review.py — GLB reimport verification and actual mesh renders using imported current barn.
+source/review-barn.blend — separate review-only setup; never export/integrate as tractor.
+references/approved-B.png and approved-B-prompt.txt — exact selected concept preserved.
+source/materials-linear-rgba.json — reproducible shader colours; build.py stores original sRGB palette.
+No external image textures: all materials are native glTF PBR constant colours. No logos or downloaded meshes.
+
+MATCH TO APPROVED B
+Blue cabbed workhorse, cream overhanging bevelled roof, enclosed framed cab and visible seat, long blue bonnet, cream rectangular grille with square lamps, front ballast weights, exhaust, rear blue mudguards, small front blue mudguards, cream wheel hubs, large rear/small front agricultural tyres and stepped access.
+Geometry is original, authored to the approved concept. Micro-engine details and paint scratches are simplified to a few broad scuffs. No A open-seat substitution, attachment, driver, animation, rig or tractor gameplay. Concept's estimated dimensions were a guide; actual mesh dimensions below are authoritative.
+
+MEASURED ASSET
+Godot axes: +Y up; FRONT +Z (Blender front -Y). Ground-centred origin(0,0,0); scale1. Wheel tread bottoms atY0.
+Godot bounds: min(-1.127,0,-1.860), max(1.127,2.7545,2.190) metres.
+Size: width2.254, height2.7545, length4.050m.
+Root is BlueTractor_B; seven semantic mesh nodes: body, cab, glazing and four wheel assemblies. All static. No extras, skins, animations, cameras, lights or external URIs in GLB. 14,962 triangles;12 materials; transparent glazing is the only alpha material. Material surfaces and bytes are recorded in manifest.json. Cost is for ONE static prop, not a benchmark for large populations; no LOD claimed.
+All source mesh coordinates and transforms are baked with identity local transforms, wheel geometry exactly grounded; root identity. Wheels are not rigged for driving.
+
+BARN PLACEMENT / CLEARANCE
+Current barn reference copied read-only from game/assets/environment/barn-stage-v1/lwf_barn_stage_v1.glb. Ordinary-state rendering excludes Barn_SignBacking, Barn_Name, Barn_ExitSign and Barn_Lamp_* exactly as current Main.BarnStage; no riser, speakers, generator, stage lamps or performers imported.
+Recommended tractor barn-local position(0,0,2.1), yaw0, scale1. Front+Z faces main entrance. Barn world origin(0,0,-23), yaw0 => tractor world(0,0,-20.9).
+Placed raw XZ footprint: X[-1.127,1.127], Z[0.240,4.290] in barn coordinates. Actual interior X[-9.5429,9.5429],Z[-5.5733,5.5733]. Front remains1.2833m inside interior front limit; top2.7545m below conservative5.2m entry height. Main opening7.8m wide comfortably clears2.254m asset. Secondary exit atX-7.65 unaffected.
+Authoritative mesh envelope includes wheel tread/hubs and ballast, not only body width. Coordinates and proposed blocker also in placement.json.
+
+PHYSICAL BLOCKING / CONVERSION CONTRACT — BUILDER WORK
+Require an authoritative static navigation obstacle covering full tyre/body/weight envelope while unconverted; visual mesh/picking collider alone does not block simulated attendees.
+Raw 2D asset-local rectangle: X[-1.127,1.127], Z[-1.860,2.190]. Centre(0,.165) inXZ, dimensions2.254x4.05.
+Suggested collision box centre(0,1.37725,.165), dimensions(2.254,2.7545,4.05) inGodot. This is conservative box geometry, not imported physics.
+Optional geometric safety margin.15m gives local rectangle X[-1.277,1.277],Z[-2.010,2.340]; placed barn rectangleX[-1.277,1.277],Z[.090,4.440]. This margin is NOT a substitute for simulation agent-radius clearance: Builder must apply actual radius/reservations and grid rasterization, avoiding double inflation. Check saved-load/state rebuild.
+Show tractor and activate its blocker only for the ordinary/unconverted barn. When existing conversion state becomes active, remove/hide tractor AND remove its authoritative blocker together. Use established conversion state, do not invent tier/unlock rules. No change to stage footprint/doorway or existing barn assets.
+A4m tractor does not physically occupy the whole19x11m barn: it communicates storage and blocks its own footprint. It is not a claim that all interior routes are blocked or that new whole-barn access policy is implemented.
+
+VISIBILITY / RENDER EVIDENCE
+review/isolated-0..3.png: GLB reimport rendered from four actual camera headings45/135/225/315 at depression38.85degrees.
+review/barn-solid-0..3.png and barn-faded-0..3.png: same tractor within actual current unconverted barn at four game angles. Horizontal framing32m corresponds to Godot minimum vertical zoom18 at16:9; a close framing may clip barn roof extremes, as expected at near zoom. Full tractor remains within model.
+review/barn-default62-faded.png: honest default zoom62 (horizontal110.22m) readability check. Tractor becomes very small at default site view.
+These are actual Blender Cycles mesh renders, not imagegen composites or native Godot screenshots. Roof/wall/door/truss fade approximated with alpha.17; native shader/lighting can differ. Small review-only area fill helps interior lighting; it is not a runtime lamp.
+Solid barn roof/eaves hide most of tractor from some angles; front bonnet is visible through main entrance in South view. Faded state is needed for complete interior view. Keep tractor body opaque when barn shell fades; its cab glass still uses alpha. Test native glass sorting against barn fade during integration. No guarantee of exact Godot appearance until Builder checks.
+Normal roof occlusion is documented, not solved by modifying barn. Do not enlarge tractor or doorway to disguise it.
+
+VALIDATION
+GLB reimport bounds match source within1e-5m. Zero nonfinite vertices and zero zero-area/degenerate faces after cleanup. Wheel minimumY=0 for all four assemblies. Source and export geometry triangle counts match. GLB parsed for extras, animations, skins, cameras, external dependencies; none. Full evidence verification/glb-reimport.json.
+No driving/physics behavior, runtime navigation tests, Godot render verification or independent Builder review claimed. Builder owns integration/testing/review.
+

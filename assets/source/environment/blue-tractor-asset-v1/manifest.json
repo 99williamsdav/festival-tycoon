@@ -1,0 +1,213 @@
+{
+  "approved_concept": "B cabbed workhorse",
+  "status": "Built and validated; ready for coordinator inspection and Builder integration",
+  "runtime": "runtime/blue_tractor_B_v1.glb",
+  "editable": "source/blue_tractor_B_v1.blend",
+  "triangles": 14962,
+  "mesh_nodes": 7,
+  "material_count": 12,
+  "surfaces": 34,
+  "bytes": 1113944,
+  "bounds": [
+    [
+      -1.1269999742507935,
+      0.0,
+      -1.8600000143051147
+    ],
+    [
+      1.1269999742507935,
+      2.754500150680542,
+      2.190000057220459
+    ]
+  ],
+  "root_and_mesh_transforms": [
+    {
+      "name": "Tractor_Body",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_Cab",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_FrontWheel_-1",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_FrontWheel_1",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_RearWheel_-1",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_RearWheel_1",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tractor_Windows",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "BlueTractor_B",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "source_and_barn_reference_hashes_preserved": true,
+  "geometry_authorship": "Original deterministic Blender script; no downloaded meshes. Approved concept was imagegen; runtime model is geometry/PBR materials, not generated textures.",
+  "textures": 0,
+  "review_render_count": 13,
+  "files": {
+    "APPROVAL.txt": "a7aad2ba0eb04e816a7ddd01d8d1c1980fcdc8228cdf837735be03cf658750a5",
+    "build.py": "467fdd3908cc010147f871c01d7a06c7fd178ed763a908238de7fdb1573df48e",
+    "finalize.py": "5ddbbb429d83264b8272ea6d8b7f604f29efae08ecd99ac1b2b3953c9f754e95",
+    "HANDOFF.txt": "fb3f186b6629203599551715dbc2e14d4becfb8d672ddf2965cfe52276b9a8ea",
+    "placement.json": "28640c3ee70554b8b6aacead13fe81bd0c9936a5dec9cd3f6315b27f420715e1",
+    "review.html": "60e33b551e904375059263a2980974538274a806fd72463f4c387daa09873faa",
+    "review.py": "d5b9e35f50db4d073fb173e5be82a56948d9e2852e1581d6a0ddcefd5111348d",
+    "references/approved-B-prompt.txt": "832f306e4a076be69733a8cbc0fc7582465ef5976ec76315f8fcf2a7442b2069",
+    "references/approved-B.png": "52dac8f1f83a7ea749c8a8449b84a3a3be516c7d7f7924e715a3c795e814b105",
+    "references/barn-anchors.json": "e2d3aa11bd9b4f2ff45c83fccb7f4d830c63154733e894822895a31169489338",
+    "references/lwf_barn_stage_v1.glb": "8d690770edd4a2ff4d039d5b43d50f3c0b0726afe847e96a001628535e8b82b1",
+    "review/barn-default62-faded.png": "2d8b546fb16dcf856689e58507783c8a239c99cc94f01df1d3ba6ede2b4a6da4",
+    "review/barn-faded-0.png": "24384e2567bf8c0fa2abe7ee5517a4e8ddb53781282c148134a6d8dfc9da05d3",
+    "review/barn-faded-1.png": "e9daf38040cad933e2e9add2b263d46f0972454cd2a61f3b104dbfe337af5ee4",
+    "review/barn-faded-2.png": "51ca427bb701f7be6716d7f338e6c912378185de33d76084c1a470c542ac596d",
+    "review/barn-faded-3.png": "4c8e11db172d68e7e7aa900abb21cb0c7158fef3e82595aeb03a95c5d2a35839",
+    "review/barn-solid-0.png": "6d03bdf183840e188dabe522e97145ded866941004d98ae21c458b767309ab26",
+    "review/barn-solid-1.png": "34e01020bb114c7410d68de80aa664a393c87dc7cebcccfa885ba20f2b282222",
+    "review/barn-solid-2.png": "cc72b4c6cd6c9a381c0b86d3ce67ff64e3ceba766723e3e2fa4e3533a092781a",
+    "review/barn-solid-3.png": "faf53047213ba6d8bc9ed6082f78310793bb854cb14be82476ca6d9ceafaa0ba",
+    "review/isolated-0.png": "5a619eb8a083c9d80810e34cb965948d58aa2a388f19901367e9f2b03f202f1b",
+    "review/isolated-1.png": "198ce44f682a762531ec5366f5d653a5cee0249de885f7172fc71b12e4eb73e2",
+    "review/isolated-2.png": "21206a9a2ff0a992e69c8c445be9555993130b5d5acab75fc117ccd143e453e6",
+    "review/isolated-3.png": "9b45ef0f13171694e087046dbad81648d54d1d9bdaafc0845e9392609e7d768d",
+    "runtime/blue_tractor_B_v1.glb": "2c501b42d2b440f8f5623281f4f3426fdd6261e3f1fa04e56db74a0b557a187d",
+    "source/blue_tractor_B_v1.blend": "6148a780ed6c79e7b5d9408b43f870337d3b0fe3c468832d1618fec9613f86ec",
+    "source/materials-linear-rgba.json": "aab525e18cd900b4cc1514ce798d7852299df918bebb7a74bddbe1e3907450c8",
+    "source/review-barn.blend": "5a8307a674206f24d60cf7b7c35dce00b6562d389343a3b0eee37347e54404b1",
+    "verification/glb-reimport.json": "ccf22c05882e3eb1835d2a86cb5ccc8460b70ee5c92092b3d716769ac79e1581",
+    "verification/review-settings.json": "ba11a62e91bc66ec8639462a13851dcaa566df8eea11cd72b3804e27e6f9b793"
+  }
+}

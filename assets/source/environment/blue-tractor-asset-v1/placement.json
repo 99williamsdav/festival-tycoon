@@ -1,0 +1,86 @@
+{
+  "units": "metres",
+  "axes": "Godot +Y up, front +Z",
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "bounds": {
+    "min": [
+      -1.127,
+      0,
+      -1.86
+    ],
+    "max": [
+      1.127,
+      2.7545,
+      2.19
+    ]
+  },
+  "barnLocal": {
+    "position": [
+      0,
+      0,
+      2.1
+    ],
+    "yawDegrees": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "world": {
+    "position": [
+      0,
+      0,
+      -20.9
+    ],
+    "yawDegrees": 0
+  },
+  "rawFootprintLocal": {
+    "x": [
+      -1.127,
+      1.127
+    ],
+    "z": [
+      -1.86,
+      2.19
+    ]
+  },
+  "rawFootprintBarn": {
+    "x": [
+      -1.127,
+      1.127
+    ],
+    "z": [
+      0.24,
+      4.29
+    ]
+  },
+  "suggestedBox": {
+    "centre": [
+      0,
+      1.37725,
+      0.165
+    ],
+    "size": [
+      2.254,
+      2.7545,
+      4.05
+    ]
+  },
+  "optionalMargin": 0.15,
+  "marginFootprintBarn": {
+    "x": [
+      -1.277,
+      1.277
+    ],
+    "z": [
+      0.09,
+      4.44
+    ]
+  },
+  "requirement": "Builder must add actual agent radius/grid clearance and remove authoritative blocker with tractor on existing conversion state. No runtime integration in this package."
+}

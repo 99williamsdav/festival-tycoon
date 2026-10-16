@@ -1,0 +1,28 @@
+{
+  "camera_yaws": [
+    45,
+    135,
+    225,
+    315
+  ],
+  "depression_degrees": 38.853374340353334,
+  "barn_view_horizontal_width_m": 32,
+  "godot_equivalent_vertical_zoom": 18,
+  "fade_alpha": 0.17,
+  "tractor_barn_local_godot": [
+    0,
+    0,
+    2.1
+  ],
+  "conversion_nodes_hidden": [
+    "Barn_Lamp_1",
+    "Barn_Lamp_3",
+    "Barn_Lamp_4",
+    "Barn_Name",
+    "Barn_Lamp_0",
+    "Barn_Lamp_2",
+    "Barn_SignBacking",
+    "Barn_ExitSign"
+  ],
+  "notes": "Blender Cycles approximation of runtime fade, not Godot shader. No stage kit imported; review fill is not runtime lamp."
+}

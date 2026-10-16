@@ -1,0 +1,119 @@
+{
+  "source": {
+    "blender_bounds": [
+      [
+        -1.1269999742507935,
+        -2.190000057220459,
+        0.0
+      ],
+      [
+        1.1269999742507935,
+        1.8600000143051147,
+        2.754500150680542
+      ]
+    ],
+    "godot_bounds": [
+      [
+        -1.1269999742507935,
+        0.0,
+        -1.8600000143051147
+      ],
+      [
+        1.1269999742507935,
+        2.754500150680542,
+        2.190000057220459
+      ]
+    ],
+    "dimensions_godot": [
+      2.253999948501587,
+      2.754500150680542,
+      4.050000071525574
+    ],
+    "triangles": 14962,
+    "mesh_nodes": 7,
+    "materials": [
+      "Tractor_Amber",
+      "Tractor_Blue",
+      "Tractor_BlueDark",
+      "Tractor_BlueLight",
+      "Tractor_Cream",
+      "Tractor_Glass",
+      "Tractor_Iron",
+      "Tractor_Lamp",
+      "Tractor_Rubber",
+      "Tractor_Seat",
+      "Tractor_Steel",
+      "Tractor_Tread"
+    ],
+    "nonfinite_vertices": [],
+    "degenerate_faces": [],
+    "wheel_floor_min": {
+      "Tractor_RearWheel_-1": 0.0,
+      "Tractor_FrontWheel_-1": 0.0,
+      "Tractor_RearWheel_1": 0.0,
+      "Tractor_FrontWheel_1": 0.0
+    }
+  },
+  "reimport": {
+    "blender_bounds": [
+      [
+        -1.1269999742507935,
+        -2.190000057220459,
+        0.0
+      ],
+      [
+        1.1269999742507935,
+        1.8600000143051147,
+        2.754500150680542
+      ]
+    ],
+    "godot_bounds": [
+      [
+        -1.1269999742507935,
+        0.0,
+        -1.8600000143051147
+      ],
+      [
+        1.1269999742507935,
+        2.754500150680542,
+        2.190000057220459
+      ]
+    ],
+    "dimensions_godot": [
+      2.253999948501587,
+      2.754500150680542,
+      4.050000071525574
+    ],
+    "triangles": 14962,
+    "mesh_nodes": 7,
+    "materials": [
+      "Tractor_Amber",
+      "Tractor_Blue",
+      "Tractor_BlueDark",
+      "Tractor_BlueLight",
+      "Tractor_Cream",
+      "Tractor_Glass",
+      "Tractor_Iron",
+      "Tractor_Lamp",
+      "Tractor_Rubber",
+      "Tractor_Seat",
+      "Tractor_Steel",
+      "Tractor_Tread"
+    ],
+    "nonfinite_vertices": [],
+    "degenerate_faces": [],
+    "wheel_floor_min": {
+      "Tractor_FrontWheel_1": 0.0,
+      "Tractor_RearWheel_-1": 0.0,
+      "Tractor_RearWheel_1": 0.0,
+      "Tractor_FrontWheel_-1": 0.0
+    }
+  },
+  "bounds_match": true,
+  "glb_extras": [],
+  "animations": 0,
+  "skins": 0,
+  "cameras": 0,
+  "external_uris": [],
+  "bytes": 1113944
+}
