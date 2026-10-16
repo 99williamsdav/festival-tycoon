@@ -310,9 +310,12 @@ public sealed partial class GameSession
         var offsets=bedside ? new (int X,int Z)[] { (1,0),(-1,0),(0,1),(0,-1),(0,0),(1,1),(-1,1),(1,-1),(-1,-1) }
             : [(4,0),(-4,0),(0,4),(0,-4),(3,2),(-3,2),(3,-2),(-3,-2),(2,3),(-2,3),(2,-3),(-2,-3)];
         if(bedside)offsets=offsets.OrderBy(offset=>{var centre=TraversalGrid.CellCentre(new(cell.X+offset.X,cell.Z+offset.Z));var dx=(long)centre.XMillimetres-patient.XMillimetres;var dz=(long)centre.ZMillimetres-patient.ZMillimetres;return Math.Abs(dx*dx+dz*dz-250_000);}).ToArray();
+        // At a bedside, a cell nobody is standing on comes first: someone parked on it would hold the medic off for good.
+        for (var pass = bedside ? 0 : 1; pass < 2; pass++)
         foreach (var (dx, dz) in offsets)
         {
             var candidate = new GridCell(cell.X + dx, cell.Z + dz);
+            if (pass == 0 && _traversalGrid!.Contains(candidate) && CellHeldByStander(candidate, medicId)) continue;
             if (!_traversalGrid!.Contains(candidate) || WaterPoints().Any(point =>
                     CaptureWaterQueueCells(point.Id).Contains(candidate)) ||
                 !_traversalGrid.Get(candidate).IsWalkable || !MedicalRouteExists(medicId, candidate)) continue;
@@ -347,7 +350,10 @@ public sealed partial class GameSession
         var medic=_navigationAgents[new(medicId)];var patient=_navigationAgents[new(patientId)];
         if(medic.Destination is not { } cell || !_traversalGrid!.Get(cell).IsWalkable || medic.Action==AgentNavigationAction.NoRoute)return false;
         var centre=TraversalGrid.CellCentre(cell);var dx=(long)centre.XMillimetres-patient.XMillimetres;var dz=(long)centre.ZMillimetres-patient.ZMillimetres;
-        return dx*dx+dz*dz is >=90_000 and <=562_500 && TraversalSweep.IsWalkable(_traversalGrid,centre.XMillimetres,centre.ZMillimetres,patient.XMillimetres,patient.ZMillimetres);
+        return dx*dx+dz*dz is >=90_000 and <=562_500 && TraversalSweep.IsWalkable(_traversalGrid,centre.XMillimetres,centre.ZMillimetres,patient.XMillimetres,patient.ZMillimetres) &&
+            // Someone standing on it (a fighter, a queuer) would keep the medic a step away for good; while the medic is
+            // still on the way, a free cell beside the patient serves instead.
+            !(medic.Action == AgentNavigationAction.Travelling && CellHeldByStander(cell, medicId) && MedicalResponseCell(medicId, patientId) is { } free && free != cell);
     }
 
     private CommandResult? ValidateMedicalCommand(EntityId? target, MedicalCommand command)
