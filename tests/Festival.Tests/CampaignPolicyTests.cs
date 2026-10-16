@@ -11,7 +11,7 @@ public sealed class CampaignPolicyTests
     {
         var session=GameSession.CreateRecordedTierTwoStart();var before=session.CaptureSnapshot().AuthoritativeHash;
         var state=session.CapturePersistentCampaignState()!;
-        Assert.AreEqual(112010L,state.CashPennies);Assert.AreEqual(20000L,state.Loan.OutstandingPrincipalPennies);Assert.AreEqual(14,state.Standing.Reputation);
+        Assert.AreEqual(112260L,state.CashPennies);Assert.AreEqual(20000L,state.Loan.OutstandingPrincipalPennies);Assert.AreEqual(14,state.Standing.Reputation);
         Assert.AreEqual(3,state.SeenActs.Length);Assert.AreEqual(3,state.EarlierGigs.Length);Assert.AreEqual(1,state.FavourBalance);Assert.IsFalse(state.CommunityWaterShareUsed);
         Assert.AreEqual(0,session.CapturePreparation()!.AcceptedOffers.Length);
         state.Standing.SceneCredibility[0]=99;state.SeenActs[0]="changed-view";

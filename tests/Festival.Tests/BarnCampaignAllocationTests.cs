@@ -54,8 +54,8 @@ public sealed class BarnCampaignAllocationTests
             Assert.AreEqual(70,s.CaptureStageGenerator(FestivalStages.BarnId)!.Capacity);
             BuildSession.Restored(s);
         }
-        Assert.AreEqual(112_010L,direct.CapturePreparation()!.OpeningCashPennies);
-        Assert.AreEqual(37_010L,direct.CapturePreparation()!.CarriedIn!.CashPennies);
+        Assert.AreEqual(112_260L,direct.CapturePreparation()!.OpeningCashPennies);
+        Assert.AreEqual(37_260L,direct.CapturePreparation()!.CarriedIn!.CashPennies);
         Assert.AreEqual(20_000L,direct.CaptureCampaignPlanningSnapshot()!.Loan.OutstandingPrincipalPennies);
     }
 

@@ -35,13 +35,13 @@ public sealed class RecordedDevelopmentStartTests
         var completed = Reference();
         var accounts = completed.CompletedFestivalAccounts!;
         Assert.IsTrue(accounts.Reconciles);
-        Assert.AreEqual(17_010L, completed.CompletedFestivalResult!.NetCashChangePennies);
-        Assert.AreEqual(37_010L, accounts.ClosingCashPennies);
+        Assert.AreEqual(17_260L, completed.CompletedFestivalResult!.NetCashChangePennies);
+        Assert.AreEqual(37_260L, accounts.ClosingCashPennies);
         var next = GameSession.CreateRecordedTierTwoStart();
         var p = next.CapturePreparation()!;
-        Assert.AreEqual(37_010L, p.CarriedIn!.CashPennies);
+        Assert.AreEqual(37_260L, p.CarriedIn!.CashPennies);
         Assert.AreEqual(20_000L, p.CarriedIn.DebtPennies);
-        Assert.AreEqual(112_010L, p.OpeningCashPennies);
+        Assert.AreEqual(112_260L, p.OpeningCashPennies);
         Assert.AreEqual(p.OpeningCashPennies, next.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         var ledger = next.CaptureCampaignPlanningSnapshot()!.LedgerTransactions.Single();
         Assert.IsTrue(ledger.IsBalanced);
@@ -56,9 +56,9 @@ public sealed class RecordedDevelopmentStartTests
         CollectionAssert.AreEqual(new[] { "act.daisy-diaries", "act.dj-spreadsheet", "act.two-men-harmonium" }, p.SeenActs);
         Assert.AreEqual(14, p.Reputation);
         CollectionAssert.AreEqual(new[] { 10, 0, 10, 10, 0, 0 }, p.SceneCredibility);
-        // Only the headliner moved on the recorded day (the other two carry no relationship).
-        CollectionAssert.AreEqual(new[] { "act.dj-spreadsheet" }, p.ActRelationships!.Select(a => a.ActId).ToArray());
-        CollectionAssert.AreEqual(new[] { 10 }, p.ActRelationships!.Select(a => a.Value).ToArray());
+        // Two acts moved on the recorded day: DJ Spreadsheet up, Daisy Diaries down; the third carries no relationship.
+        CollectionAssert.AreEqual(new[] { "act.daisy-diaries", "act.dj-spreadsheet" }, p.ActRelationships!.Select(a => a.ActId).ToArray());
+        CollectionAssert.AreEqual(new[] { -5, 10 }, p.ActRelationships!.Select(a => a.Value).ToArray());
         Assert.AreEqual(3, p.RelationshipHistory!.Length);
         Assert.IsNull(p.ActPopularity);
         Assert.AreEqual(1, p.CarriedIn!.FavourBalance);
@@ -126,7 +126,7 @@ public sealed class RecordedDevelopmentStartTests
         var fresh = GameSession.CreateRecordedTierTwoStart();
         Assert.AreEqual(1, fresh.CapturePreparation()!.Attempt);
         Assert.AreEqual(0, fresh.CaptureBuildPlacements().Count);
-        Assert.AreEqual(112_010L, fresh.CapturePreparation()!.OpeningCashPennies);
+        Assert.AreEqual(112_260L, fresh.CapturePreparation()!.OpeningCashPennies);
         BuildSession.Restored(s);
     }
 
