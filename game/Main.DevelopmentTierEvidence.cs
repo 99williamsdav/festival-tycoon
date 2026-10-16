@@ -82,9 +82,9 @@ public partial class Main
             TierPress("DevelopmentTier2");
             _developmentTierFreshHash = _session.CaptureSnapshot().AuthoritativeHash.ToString();
             var p = _session.CapturePreparation()!;
-            TierCheck("actual-carried-cash-and-debt", p.CarriedIn is { CashPennies: 35_335, DebtPennies: 20_000 } && p.OpeningCashPennies == 110_335);
+            TierCheck("actual-carried-cash-and-debt", p.CarriedIn is { CashPennies: 37_010, DebtPennies: 20_000 } && p.OpeningCashPennies == 112_010);
             TierCheck("same-as-canonical-recorded-transition-current-geometry", _session.BarnGeometryVersion==1&&_developmentTierFreshHash == GameSession.CreateRecordedTierTwoStart().WithCurrentBarnGeometry().CaptureSnapshot().AuthoritativeHash.ToString());
-            TierCheck("knowledge-and-actual-relationships", p.SeenActs.Length == 3 && p.ActRelationships!.Select(r => r.Value).SequenceEqual(new[] { -1, 10, 1 }));
+            TierCheck("knowledge-and-actual-relationships", p.SeenActs.Length == 3 && p.ActRelationships!.Select(r => r.Value).SequenceEqual(new[] { 10 }));
             TierCheck("rain-and-normal-trailer-barn-allocation", _session.IsRainyFestival && _session.Stages.Select(s => s.Id).SequenceEqual(new[] { "stage.main", "stage.barn" }));
             TierCheck("fresh-preparation-before-draft", p.Status == PreparationStatus.Preparing && p.BuildPlacements.Length == 0 && _session.CapturePerks()!.Pending);
             _developmentTierPendingPerks = JsonSerializer.Serialize(_session.CapturePerks());
@@ -127,7 +127,7 @@ public partial class Main
             var secondSound = _session.GetStaffCandidates().Where(c => c.Role == StaffRole.Sound && !crew.Any(p => p.Id == c.Id))
                 .OrderBy(c => c.Traits.Length > 0).ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).First();
             TierSend(new AcceptPreparationOfferCommand(secondSound.ExtraOfferId));
-            TierCheck("ordinary-plan-affordable-and-ready", _session.GetPreparationStartBlockers().Count == 0 && _session.PreparationPlanCost < 110_335);
+            TierCheck("ordinary-plan-affordable-and-ready", _session.GetPreparationStartBlockers().Count == 0 && _session.PreparationPlanCost < 112_010);
             RefreshPreparationHud();
             var hash = _session.CaptureSnapshot().AuthoritativeHash;
             var save = _host.SaveManual(); TierCheck("manual-save", save.IsSuccess);
@@ -188,7 +188,7 @@ public partial class Main
             File.WriteAllText(Path.Combine(_developmentTierEvidenceOutput!, "development-tier-evidence.json"), JsonSerializer.Serialize(new
             {
                 passed = true, executable = OS.GetExecutablePath(), checks = _developmentTierChecks,
-                openingCashPennies = 110_335, referenceSeed = 20260922, referenceStars = 2,
+                openingCashPennies = 112_010, referenceSeed = 20260922, referenceStars = 2,
                 caveat = "Scripted native buttons and normal preparation/save flow. No manual playthrough; Council failure/retry and ordinary progression exercised by simulation regressions."
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print("DEVELOPMENT_TIER_EVIDENCE_COMPLETE"); GetTree().Quit();

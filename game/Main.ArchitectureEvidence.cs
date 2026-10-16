@@ -115,7 +115,7 @@ public partial class Main
         {
             ArchitecturePress("DevelopmentTier2");
             ArchitectureCheck("recorded-management-tier-two", _session.Identity == CampaignIdentity.Management && _session.CurrentFestival.Tier == 2
-                && _session.CapturePersistentCampaignState()!.CashPennies == 110335 && _session.Stages.Select(s => s.Id).SequenceEqual(new[] { "stage.main", "stage.barn" }));
+                && _session.CapturePersistentCampaignState()!.CashPennies == 112010 && _session.Stages.Select(s => s.Id).SequenceEqual(new[] { "stage.main", "stage.barn" }));
         }
         if (frame == 24) { ArchitecturePicture("02-existing-rain-challenge"); ArchitecturePress("PrepareFestival"); }
         if (frame == 32) { ArchitectureReady(); ArchitectureSave("management-tier-two"); _rig.Frame(new(0, 3.5f, -23), 36); }

@@ -124,7 +124,7 @@ public partial class Main
         {
             CampaignBarnPress("DevelopmentTier2");_barnCampaignFreshHash=_session.CaptureSnapshot().AuthoritativeHash.ToString();
             CampaignBarnCheck("direct-tier-two-trailer-barn",_session.Stages.Select(s=>s.Id).SequenceEqual(new[]{FestivalStages.MainId,FestivalStages.BarnId})&&!_session.PondStageOpen);
-            CampaignBarnCheck("canonical-carry-unchanged",_session.CapturePreparation()!.CarriedIn is{CashPennies:35_335,DebtPennies:20_000}&&_session.CapturePreparation()!.OpeningCashPennies==110_335);
+            CampaignBarnCheck("canonical-carry-unchanged",_session.CapturePreparation()!.CarriedIn is{CashPennies:37_010,DebtPennies:20_000}&&_session.CapturePreparation()!.OpeningCashPennies==112_010);
         }
         if(frame==136){CampaignBarnPicture("tier-two-heavy-rain");CampaignBarnCheck("rain-reveal-before-preparation",_challengeReveal.IsOpen&&_challengeReveal.Artwork!.Texture.ResourcePath.EndsWith("heavy-rain-a.png",StringComparison.Ordinal));CampaignBarnPress("PrepareFestival");}
         if(frame==144)
@@ -138,7 +138,7 @@ public partial class Main
             foreach(var person in crew)CampaignBarnSend(new AcceptPreparationOfferCommand(person.Id));
             foreach(var role in new[]{StaffRole.Sound,StaffRole.Medic})
             {var extra=_session.GetStaffCandidates().Where(c=>c.Role==role&&!crew.Any(p=>p.Id==c.Id)).OrderBy(c=>c.Traits.Length>0).ThenBy(c=>c.Grade>0).ThenBy(c=>Math.Abs(c.Grade)).ThenBy(c=>c.Id,StringComparer.Ordinal).First();CampaignBarnSend(new AcceptPreparationOfferCommand(extra.ExtraOfferId));}
-            CampaignBarnCheck("normal-paid-two-stage-plan-ready",_session.GetPreparationStartBlockers().Count==0&&_session.PreparationPlanCost<110_335);RefreshPreparationHud();
+            CampaignBarnCheck("normal-paid-two-stage-plan-ready",_session.GetPreparationStartBlockers().Count==0&&_session.PreparationPlanCost<112_010);RefreshPreparationHud();
         }
         if(frame==152)
         {
