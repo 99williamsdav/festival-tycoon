@@ -1,0 +1,29 @@
+[
+  {
+    "asset": "ft_hay_bale_h1_v1",
+    "image_size": [
+      112,
+      8
+    ],
+    "image_loaded": true,
+    "packed": true,
+    "mesh_material": "Dining_SinglePalette.001",
+    "uv_layers": [
+      "UVMap"
+    ]
+  },
+  {
+    "asset": "ft_picnic_aframe_p1_v1",
+    "image_size": [
+      112,
+      8
+    ],
+    "image_loaded": true,
+    "packed": true,
+    "mesh_material": "Dining_SinglePalette.001",
+    "uv_layers": [
+      "UVMap",
+      "UVMap.001"
+    ]
+  }
+]

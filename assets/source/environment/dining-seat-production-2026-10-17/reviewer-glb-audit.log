@@ -1,0 +1,220 @@
+[
+  {
+    "file": "ft_hay_bale_h1_v1.glb",
+    "sha256": "642d91afe7808986bac05b38476bee786917373618f7cd92c0ec299eac75ed09",
+    "header_valid": true,
+    "nodes": [
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_H1_01",
+        "translation": [
+          -0.28600001335144043,
+          0.44999998807907104,
+          -0.23499999940395355
+        ]
+      },
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_H1_02",
+        "translation": [
+          0.28600001335144043,
+          0.44999998807907104,
+          -0.23499999940395355
+        ]
+      },
+      {
+        "mesh": 0,
+        "name": "ft_hay_bale_h1_v1"
+      }
+    ],
+    "meshes": 1,
+    "skins": 0,
+    "animations": 0,
+    "cameras": 0,
+    "materials": [
+      {
+        "doubleSided": true,
+        "name": "Dining_SinglePalette",
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "metallicFactor": 0,
+          "roughnessFactor": 0.8700000047683716
+        }
+      }
+    ],
+    "images": [
+      {
+        "bufferView": 4,
+        "mimeType": "image/png",
+        "name": "dining_palette"
+      }
+    ],
+    "textures": [
+      {
+        "sampler": 0,
+        "source": 0
+      }
+    ],
+    "primitives": [
+      {
+        "vertices": 1504,
+        "triangles": 566,
+        "position_min": [
+          -0.6011115312576294,
+          0.0,
+          -0.30000001192092896
+        ],
+        "position_max": [
+          0.6002871990203857,
+          0.45500001311302185,
+          0.30000001192092896
+        ],
+        "material": 0,
+        "attributes": [
+          "POSITION",
+          "NORMAL",
+          "TEXCOORD_0"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ft_picnic_aframe_p1_v1.glb",
+    "sha256": "ded217a490181b3fd4e87941b78b0d2ae9d623e346248404d815c1e93872cf9a",
+    "header_valid": true,
+    "nodes": [
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_P1_North_West",
+        "translation": [
+          -0.3720000088214874,
+          0.44999998807907104,
+          0.5649999976158142
+        ]
+      },
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_P1_North_East",
+        "translation": [
+          0.3720000088214874,
+          0.44999998807907104,
+          0.5649999976158142
+        ]
+      },
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_P1_South_West",
+        "rotation": [
+          0,
+          -1,
+          0,
+          4.371138828673793e-08
+        ],
+        "translation": [
+          -0.3720000088214874,
+          0.44999998807907104,
+          -0.5649999976158142
+        ]
+      },
+      {
+        "extras": {
+          "seat_surface_z": 0.45,
+          "facing_local_axis": "Blender +Y; Godot -Z",
+          "review_only_pose": true
+        },
+        "name": "Seat_P1_South_East",
+        "rotation": [
+          0,
+          -1,
+          0,
+          4.371138828673793e-08
+        ],
+        "translation": [
+          0.3720000088214874,
+          0.44999998807907104,
+          -0.5649999976158142
+        ]
+      },
+      {
+        "mesh": 0,
+        "name": "ft_picnic_aframe_p1_v1"
+      }
+    ],
+    "meshes": 1,
+    "skins": 0,
+    "animations": 0,
+    "cameras": 0,
+    "materials": [
+      {
+        "doubleSided": true,
+        "name": "Dining_SinglePalette",
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0,
+            "texCoord": 1
+          },
+          "metallicFactor": 0,
+          "roughnessFactor": 0.8700000047683716
+        }
+      }
+    ],
+    "images": [
+      {
+        "bufferView": 5,
+        "mimeType": "image/png",
+        "name": "dining_palette"
+      }
+    ],
+    "textures": [
+      {
+        "sampler": 0,
+        "source": 0
+      }
+    ],
+    "primitives": [
+      {
+        "vertices": 2336,
+        "triangles": 1196,
+        "position_min": [
+          -0.9800000190734863,
+          0.0,
+          -0.8560000658035278
+        ],
+        "position_max": [
+          0.9800000190734863,
+          0.7539999485015869,
+          0.8560000061988831
+        ],
+        "material": 0,
+        "attributes": [
+          "POSITION",
+          "NORMAL",
+          "TEXCOORD_0",
+          "TEXCOORD_1"
+        ]
+      }
+    ]
+  }
+]

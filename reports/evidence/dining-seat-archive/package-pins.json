@@ -1,0 +1,322 @@
+[
+  {
+    "path": "ACTIVE-BRIEF.md",
+    "sha256": "7C7B410B380DCC0A4BDE276938EEAF768838A140B9F0FA2CE33A74C07E4B2C32"
+  },
+  {
+    "path": "build-both.log",
+    "sha256": "D766E41C602E1DA5666D5627024E05ED57365482BDFBA0FB24304CAF7B1E5A31"
+  },
+  {
+    "path": "build-hay.log",
+    "sha256": "4C057E8DD507199369DE82E242E31C3A011E13DFB6D2A8E7A039658E62C4522C"
+  },
+  {
+    "path": "build-picnic.log",
+    "sha256": "2FCC5D0E939E3FC5A2622CEC66782EA1B1538259459B16B32A9535A1488FF711"
+  },
+  {
+    "path": "build.py",
+    "sha256": "A9EF9AC3320F8513CD4E5A60DA6911A5E9E2FD0911A3F8503A85B97769735801"
+  },
+  {
+    "path": "check-both.log",
+    "sha256": "CEC5DAC3E7E6C80A07EF594C42E92226BA9ABFA009BA2C8FFDC0FC2399B1B3BA"
+  },
+  {
+    "path": "check-hair.log",
+    "sha256": "E8EC1458AA5F1A1661C1D2EFA38D1D51E0E15B9EF4CD65DB14EF4AF54ECEE51C"
+  },
+  {
+    "path": "check-hay.log",
+    "sha256": "4039B2532256DFAB597127CAFD74E8AF8C8C07A7401D08E1D46D182E78BE4BC8"
+  },
+  {
+    "path": "check-picnic.log",
+    "sha256": "03D562D72FCE82E81074F2EBD8C68173F04527204F0EB11FFD05925F208BAF87"
+  },
+  {
+    "path": "diagnose_hair.py",
+    "sha256": "E9B643C2F1EBADC23718E5399956949756C3C0531ED5541009A0C231C07A8745"
+  },
+  {
+    "path": "final-check.log",
+    "sha256": "22E64A7835427FEB1934208FE9C69DF801B788EE6913EFF0E740CD2D699A6836"
+  },
+  {
+    "path": "FINAL-CHECKPOINT.md",
+    "sha256": "952227FDFCE743BF860009A5EFC8AD0416C07C92A096874DD13DB4163D081255"
+  },
+  {
+    "path": "HANDOFF.md",
+    "sha256": "DE668949BEFF034F968F05BF42A0181230378D27401F234D2D4D5E3F4484C1A4"
+  },
+  {
+    "path": "inspect_rigs.py",
+    "sha256": "3E27FD0452229227B077897D37C7A8E29BCE5F9200C9B8DEA1C2F3B2DF95DB0C"
+  },
+  {
+    "path": "make_gallery.py",
+    "sha256": "02A0AD3BFEED391A06E1D71E7DEF05DFA0498001C470D9676BA69A672F2DE147"
+  },
+  {
+    "path": "manifest-hay.json",
+    "sha256": "71A9CA49CD3F93A97BCCA53C26BDC5DE4D6DD922CB38B6CF79692730CBBA2F1F"
+  },
+  {
+    "path": "manifest-picnic.json",
+    "sha256": "C5B43BEBC40DE334CD2CF6BEBCBA3602D6CC46432E107BC103EC2FE856E2AB41"
+  },
+  {
+    "path": "PROVENANCE-sha256.json",
+    "sha256": "0E47012C9340CFE0C89BC4564E400F8E310C9BBB4A9DAA4407B99107C43DB6C0"
+  },
+  {
+    "path": "review.html",
+    "sha256": "355A16361EC38C663840B737579F2D52276EF060D5D959CF0218D22BA9FFB0AB"
+  },
+  {
+    "path": "REVIEW.md",
+    "sha256": "116D51BED92977435AFFC0E4FA9287B0A5B1B7F28BDC90DD597DC6CE79AFBCAF"
+  },
+  {
+    "path": "reviewer_blender_audit.py",
+    "sha256": "8C436050F005440EFDFD7C256DD273963E2CDBFA92093CF312F1B7B0EA34BCCC"
+  },
+  {
+    "path": "reviewer_glb_audit.py",
+    "sha256": "B07BCB6E59A0B416B06907DB60D2965F9188336F994A7FAF376B807F26AED7CA"
+  },
+  {
+    "path": "reviewer_roundtrip.py",
+    "sha256": "AF4808D15DF6E9E755E1FFB8E7C1196AD48CE1171FC1C64346B16E9EE5AEB012"
+  },
+  {
+    "path": "reviewer-blender-audit.log",
+    "sha256": "BEDACF8006B8D4938ED5803B7112554A066AFD7D3F67743CB2DB6071BD2E86CE"
+  },
+  {
+    "path": "reviewer-glb-audit.log",
+    "sha256": "B7DF771B393630C51CDFA16DEC6C4E1F8F6B5A7F535AB428A11433D9CD7F17C1"
+  },
+  {
+    "path": "reviewer-roundtrip.log",
+    "sha256": "DCD5E5D3E12A4AEA6A4768BD60477F7E6A91E03C6FF82C4249780E5BE154BB42"
+  },
+  {
+    "path": "rig-inspection.json",
+    "sha256": "B4FE63A641DB04469B64C38326456883A8E171B12FD3F064C069F47B69144932"
+  },
+  {
+    "path": "SEATING-AND-AXES.md",
+    "sha256": "A2E3AFDC2049915C1A828632D830ED754E17227C96286127816BFAC4174ACCAF"
+  },
+  {
+    "path": "verify_exports.py",
+    "sha256": "DCE44FC2551770662B6EC1AE5C8BA3C8E89423E50F6AEE75252B402CA22CBCCD"
+  },
+  {
+    "path": "verify-exports.log",
+    "sha256": "0A235B49674824EABF9FD4194F3C482349123B5EDD8ADA553B7E89989E9F2CB9"
+  },
+  {
+    "path": "references/approved-H1.png",
+    "sha256": "FDE93BCDB3EB2B406690ABACE6E7E9997ACD20C7EF2FC0AFC7785DBC56E3F1C9"
+  },
+  {
+    "path": "references/approved-P1.png",
+    "sha256": "26AE118E1B14D3B3374476DD909423F13909D74AE2EFF44461F3F941EE622B0A"
+  },
+  {
+    "path": "renders/hay-01-close.png",
+    "sha256": "9817AD80EEDB2ED4906FEA2794222D1774C947CEFC67C78B1E58ADD3D58313EF"
+  },
+  {
+    "path": "renders/hay-02-rear.png",
+    "sha256": "2EC1E5A741E5185D2B8AC71376968EE1CE4BA9AD9789756044F6CDF946138296"
+  },
+  {
+    "path": "renders/hay-03-above.png",
+    "sha256": "7C84A879F371F7DDE129B50B9485B9C7B95B6A5D462846BB2FD7B65CD5AF5AD3"
+  },
+  {
+    "path": "renders/hay-04-occupied.png",
+    "sha256": "B0372703CBF2906368D6CECA737EA77F12D24C25098107E165E3E9DA22436CD9"
+  },
+  {
+    "path": "renders/hay-05-occupied-rear.png",
+    "sha256": "1E9B5D3D8803AB2B5FF3D6D343D300F054D5952F8FFA0B55965A7B648787EF14"
+  },
+  {
+    "path": "renders/hay-06-contact-side.png",
+    "sha256": "77EDA152F7FF126958E92338AE460D09064EE4A7760000B7F48511B78B8E4735"
+  },
+  {
+    "path": "renders/hay-07-gameplay-min18.png",
+    "sha256": "EB04C9539D73EC7E59BD111464E1AA171E7598533F6C2C79FDDEE80BA07776C7"
+  },
+  {
+    "path": "renders/hay-08-gameplay-default62.png",
+    "sha256": "46AF889BBC47163657B0E397D8B1D21E9C24AC740F04B6087CB1186A7468A99D"
+  },
+  {
+    "path": "renders/hay-09-gameplay-empty-min18.png",
+    "sha256": "2FB99C16199BE805D371221EA0D5EE95218F783AF739EF4EED50DA1F9E47EAD5"
+  },
+  {
+    "path": "renders/picnic-01-close.png",
+    "sha256": "E64D88853D3FDE1F99F2979FB92C8D1C3CCA750FADD60875D81C0770A66F0BE3"
+  },
+  {
+    "path": "renders/picnic-02-rear.png",
+    "sha256": "0C38FA36038A0D333B0583F7C7F24D70BC23476B44D418FFACAAD9BDE8013DFE"
+  },
+  {
+    "path": "renders/picnic-03-above.png",
+    "sha256": "45AE2645FC710B3AF85B4F0157E80F13FDC925E042A5A2253656BE9BC9F20FCD"
+  },
+  {
+    "path": "renders/picnic-04-occupied.png",
+    "sha256": "2C40FB7FB05DC21FB2E19B92DBDB883AE0A46223078E791F55439658DB518942"
+  },
+  {
+    "path": "renders/picnic-05-occupied-rear.png",
+    "sha256": "FFB5A2EC710310AE6598C018D6BCA6570FA43984D19FADCDAC69D0EFEF124B8C"
+  },
+  {
+    "path": "renders/picnic-06-contact-side.png",
+    "sha256": "3B8D84E257FAE7F09765C21184CD6490B2358DD841FFED2AEB896B3C1CA23489"
+  },
+  {
+    "path": "renders/picnic-07-gameplay-min18.png",
+    "sha256": "E7020D85E4604344E02C1F97F81A883664989A29405BDA33DA7ABC8335EB8AA5"
+  },
+  {
+    "path": "renders/picnic-08-gameplay-default62.png",
+    "sha256": "4F3956FB4E204D3D6FF380C23808D6DB4983950C126E872A33C7E4EA116D1443"
+  },
+  {
+    "path": "renders/picnic-09-gameplay-empty-min18.png",
+    "sha256": "5413C81E3C8B7CE13D67EB815D919791132F33FAC69D987C95DFF36F6E8B86FB"
+  },
+  {
+    "path": "runtime/ft_hay_bale_h1_v1.glb",
+    "sha256": "642D91AFE7808986BAC05B38476BEE786917373618F7CD92C0EC299EAC75ED09"
+  },
+  {
+    "path": "runtime/ft_picnic_aframe_p1_v1.glb",
+    "sha256": "DED217A490181B3FD4E87941B78B0D2AE9D623E346248404D815C1E93872CF9A"
+  },
+  {
+    "path": "source/dining_palette.png",
+    "sha256": "6E6D2A9ACD07A2BF61809DE9CBBD0B9D124BC9393655EDC875442EF2D51883A5"
+  },
+  {
+    "path": "source/ft_hay_bale_h1_v1_occupied_review.blend",
+    "sha256": "5FDBBE50E2C2503DECEF856A67037540EC3FF3845855E47E9D980EFC17328F15"
+  },
+  {
+    "path": "source/ft_hay_bale_h1_v1.blend",
+    "sha256": "5D278A5174E83DFA1EF7D2E6AAAFA46C155DCC72FA31DD255035A245DA31210A"
+  },
+  {
+    "path": "source/ft_picnic_aframe_p1_v1_occupied_review.blend",
+    "sha256": "DB8D6C62A6FB7A658819FB2DA97F053EA386BAEE1171792F6D23914B42CA241C"
+  },
+  {
+    "path": "source/ft_picnic_aframe_p1_v1.blend",
+    "sha256": "E1C84EA93027BACC6D4B4DFC7F449CD2EF830EED721CAE33E8A6ECBCADCFC2EA"
+  },
+  {
+    "path": "verification/export-verification.json",
+    "sha256": "E28D26458D79553BD546C5FD0550A11F3849BF3A132DA974E1987BED6D260D4D"
+  },
+  {
+    "path": "verification/hair-diagnostic.json",
+    "sha256": "251F5714FA5547B7063F063F17771790CAAB2DDEB18B2A9115BE56D6813F1588"
+  },
+  {
+    "path": "verification/hay-metrics.json",
+    "sha256": "ED1E34EB997A198790DB3E862563CF97F291F4C970AFF2A535792A593E819E4B"
+  },
+  {
+    "path": "verification/hay-neighbor-checks.json",
+    "sha256": "9B7123CD632C8E1B1B2ED6F6E1860C91B51BA25F3BB27ABF0E0D65D4F5F4F414"
+  },
+  {
+    "path": "verification/independent-blender-audit.json",
+    "sha256": "9342D1BE6C8EB23997CC62EDAF2AA8A2283C45E356FF07D7E6E3EE081C411EBC"
+  },
+  {
+    "path": "verification/independent-glb-audit.json",
+    "sha256": "81D4A4ED0D83A1E9F04261E347CDDB50EC320B2D278CDE025E4809B33072352F"
+  },
+  {
+    "path": "verification/independent-hay-glb-roundtrip.png",
+    "sha256": "8562BCC59DAB1F444BBB25530A2116794209A124D3E1F74508EE1E1489845C7E"
+  },
+  {
+    "path": "verification/independent-picnic-glb-roundtrip.png",
+    "sha256": "0780E5FA1E3E6440C95355FA98F1A9EC0F8E38088D5082EA6AE0428A4A184CFC"
+  },
+  {
+    "path": "verification/independent-roundtrip.json",
+    "sha256": "463CA282EF1580C2E2109BCA356A8BDF2E01C48D2F3F620AF6BF03250BCE15CB"
+  },
+  {
+    "path": "verification/picnic-metrics.json",
+    "sha256": "281BAFABDB65EC74E3A7FD1B53AD219DD4D56F2A1F60C7AB8E481E1B45249404"
+  },
+  {
+    "path": "verification/picnic-neighbor-checks.json",
+    "sha256": "0C9BF47FFC5EF50EB2A3AB0B7558FE7BE0A36CE9134ECEAEDDB2588FE438D7AC"
+  },
+  {
+    "path": "verification/Seat_H1_01-contact-patch.json",
+    "sha256": "86451C49BD0146B7BDFACC0318DB7D41FDA263B60C87EB66FBD300CBDD0DEA89"
+  },
+  {
+    "path": "verification/Seat_H1_01-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  },
+  {
+    "path": "verification/Seat_H1_02-contact-patch.json",
+    "sha256": "CFA5D28E354F6DB53BAB72614883213705099AB971F98A4E8C83066FA94870BE"
+  },
+  {
+    "path": "verification/Seat_H1_02-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  },
+  {
+    "path": "verification/Seat_P1_North_East-contact-patch.json",
+    "sha256": "480A75BDA500797976FE2C2D738F05C2A2B62CE25DA7EF93F29BD8DA39E24849"
+  },
+  {
+    "path": "verification/Seat_P1_North_East-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  },
+  {
+    "path": "verification/Seat_P1_North_West-contact-patch.json",
+    "sha256": "9B22F54161D1170C3AB273EAA190646ECDC11C7260C0D4A3A9D64368BA5D68A6"
+  },
+  {
+    "path": "verification/Seat_P1_North_West-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  },
+  {
+    "path": "verification/Seat_P1_South_East-contact-patch.json",
+    "sha256": "66D2260593C0F389658C96EA367C9C884D4A26E3B3D8502358D6AC449B601F15"
+  },
+  {
+    "path": "verification/Seat_P1_South_East-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  },
+  {
+    "path": "verification/Seat_P1_South_West-contact-patch.json",
+    "sha256": "E00C4F9CCD03C1C8F328C2010A55C2AAECC3BFABFC0616626AD61284430B1371"
+  },
+  {
+    "path": "verification/Seat_P1_South_West-intersection-detail.json",
+    "sha256": "44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A"
+  }
+]

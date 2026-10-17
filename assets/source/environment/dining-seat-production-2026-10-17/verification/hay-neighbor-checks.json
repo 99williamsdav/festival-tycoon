@@ -1,0 +1,12 @@
+[
+  {
+    "seats": [
+      "Seat_H1_01",
+      "Seat_H1_02"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.07456
+  }
+]

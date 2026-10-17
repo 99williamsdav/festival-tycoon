@@ -1,0 +1,62 @@
+[
+  {
+    "seats": [
+      "Seat_P1_North_West",
+      "Seat_P1_North_East"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.22795
+  },
+  {
+    "seats": [
+      "Seat_P1_North_West",
+      "Seat_P1_South_West"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.25619
+  },
+  {
+    "seats": [
+      "Seat_P1_North_West",
+      "Seat_P1_South_East"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.55644
+  },
+  {
+    "seats": [
+      "Seat_P1_North_East",
+      "Seat_P1_South_West"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.55644
+  },
+  {
+    "seats": [
+      "Seat_P1_North_East",
+      "Seat_P1_South_East"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.15832
+  },
+  {
+    "seats": [
+      "Seat_P1_South_West",
+      "Seat_P1_South_East"
+    ],
+    "body_body_triangles": 0,
+    "food_food_triangles": 0,
+    "food_neighbor_body_triangles": 0,
+    "nearest_body_vertex_surface_gap_m": 0.24298
+  }
+]

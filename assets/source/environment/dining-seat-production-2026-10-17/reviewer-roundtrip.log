@@ -1,0 +1,42 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\source\ft_hay_bale_h1_v1.blend"
+Fra:1 Mem:22.73M (Peak 23.79M) | Time:00:03.01 | Syncing REVIEW sun
+Fra:1 Mem:22.73M (Peak 23.79M) | Time:00:03.01 | Syncing REVIEW fill
+Fra:1 Mem:22.73M (Peak 23.79M) | Time:00:03.01 | Syncing REVIEW grass ground
+Fra:1 Mem:22.80M (Peak 23.79M) | Time:00:04.22 | Syncing REVIEW camera
+Fra:1 Mem:22.80M (Peak 23.79M) | Time:00:04.22 | Syncing Seat_H1_01
+Fra:1 Mem:22.80M (Peak 23.79M) | Time:00:04.22 | Syncing Seat_H1_02
+Fra:1 Mem:22.80M (Peak 23.79M) | Time:00:04.22 | Syncing ft_hay_bale_h1_v1
+Fra:1 Mem:22.90M (Peak 23.79M) | Time:00:05.12 | Rendering 1 / 96 samples
+Fra:1 Mem:22.86M (Peak 23.79M) | Time:00:06.18 | Rendering 26 / 96 samples
+Fra:1 Mem:22.86M (Peak 23.79M) | Time:00:06.25 | Rendering 51 / 96 samples
+Fra:1 Mem:22.86M (Peak 23.79M) | Time:00:06.33 | Rendering 76 / 96 samples
+Fra:1 Mem:22.86M (Peak 23.79M) | Time:00:06.38 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\verification\independent-hay-glb-roundtrip.png'
+Time: 00:06.99 (Saving: 00:00.59)
+
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\source\ft_picnic_aframe_p1_v1.blend"
+Fra:1 Mem:23.04M (Peak 23.04M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:1 Mem:23.04M (Peak 23.04M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:1 Mem:23.04M (Peak 23.04M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing Seat_P1_North_West
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing Seat_P1_North_East
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing Seat_P1_South_West
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing Seat_P1_South_East
+Fra:1 Mem:23.05M (Peak 23.05M) | Time:00:00.00 | Syncing ft_picnic_aframe_p1_v1
+Fra:1 Mem:23.25M (Peak 23.25M) | Time:00:00.85 | Rendering 1 / 96 samples
+Fra:1 Mem:23.14M (Peak 23.25M) | Time:00:00.92 | Rendering 26 / 96 samples
+Fra:1 Mem:23.14M (Peak 23.25M) | Time:00:00.98 | Rendering 51 / 96 samples
+Fra:1 Mem:23.14M (Peak 23.25M) | Time:00:01.04 | Rendering 76 / 96 samples
+Fra:1 Mem:23.14M (Peak 23.25M) | Time:00:01.08 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\verification\independent-picnic-glb-roundtrip.png'
+Time: 00:01.42 (Saving: 00:00.32)
+
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+
+Blender quit

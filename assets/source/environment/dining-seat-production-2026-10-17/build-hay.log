@@ -1,0 +1,843 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Info: Total files 1 | Changed 1 | Failed 0
+Fra:1 Mem:41.91M (Peak 42.97M) | Time:00:02.50 | Syncing H1 compressed irregular straw cor
+Fra:1 Mem:41.96M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet
+Fra:1 Mem:41.97M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.001
+Fra:1 Mem:41.98M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.002
+Fra:1 Mem:41.99M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.003
+Fra:1 Mem:42.00M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.004
+Fra:1 Mem:42.00M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.005
+Fra:1 Mem:42.01M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.006
+Fra:1 Mem:42.02M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.007
+Fra:1 Mem:42.03M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.008
+Fra:1 Mem:42.04M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.009
+Fra:1 Mem:42.05M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.010
+Fra:1 Mem:42.06M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.011
+Fra:1 Mem:42.07M (Peak 42.97M) | Time:00:03.19 | Syncing H1 broad top straw facet.012
+Fra:1 Mem:42.07M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.013
+Fra:1 Mem:42.08M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.014
+Fra:1 Mem:42.09M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.015
+Fra:1 Mem:42.10M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.016
+Fra:1 Mem:42.11M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.017
+Fra:1 Mem:42.12M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.018
+Fra:1 Mem:42.13M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.019
+Fra:1 Mem:42.13M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.020
+Fra:1 Mem:42.14M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.021
+Fra:1 Mem:42.15M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.022
+Fra:1 Mem:42.16M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.023
+Fra:1 Mem:42.17M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.024
+Fra:1 Mem:42.18M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.025
+Fra:1 Mem:42.19M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.026
+Fra:1 Mem:42.19M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.027
+Fra:1 Mem:42.20M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.028
+Fra:1 Mem:42.21M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.029
+Fra:1 Mem:42.22M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.030
+Fra:1 Mem:42.23M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.031
+Fra:1 Mem:42.24M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.032
+Fra:1 Mem:42.25M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.033
+Fra:1 Mem:42.26M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.034
+Fra:1 Mem:42.26M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.035
+Fra:1 Mem:42.27M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.036
+Fra:1 Mem:42.28M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.037
+Fra:1 Mem:42.29M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.038
+Fra:1 Mem:42.30M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.039
+Fra:1 Mem:42.31M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.040
+Fra:1 Mem:42.32M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.041
+Fra:1 Mem:42.32M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.042
+Fra:1 Mem:42.33M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.043
+Fra:1 Mem:42.34M (Peak 42.97M) | Time:00:03.20 | Syncing H1 broad top straw facet.044
+Fra:1 Mem:42.35M (Peak 42.97M) | Time:00:03.20 | Syncing H1 integrated broad straw side
+Fra:1 Mem:42.38M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.38M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.39M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.40M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.41M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.42M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.43M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.44M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.44M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.45M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.46M (Peak 42.97M) | Time:00:03.20 | Syncing H1 integrated broad straw side.00
+Fra:1 Mem:42.49M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.51M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.52M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.53M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.54M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.55M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.56M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.57M (Peak 42.97M) | Time:00:03.20 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.58M (Peak 42.97M) | Time:00:03.20 | Syncing H1 integrated broad end grain
+Fra:1 Mem:42.59M (Peak 42.97M) | Time:00:03.20 | Syncing H1 integrated broad end grain.001
+Fra:1 Mem:42.61M (Peak 42.97M) | Time:00:03.20 | Syncing H1 continuous twine band
+Fra:1 Mem:42.62M (Peak 42.97M) | Time:00:03.20 | Syncing H1 continuous twine band.001
+Fra:1 Mem:42.62M (Peak 42.97M) | Time:00:03.20 | Syncing REVIEW sun
+Fra:1 Mem:42.62M (Peak 42.97M) | Time:00:03.20 | Syncing REVIEW fill
+Fra:1 Mem:42.63M (Peak 42.97M) | Time:00:03.20 | Syncing REVIEW grass ground
+Fra:1 Mem:42.67M (Peak 42.97M) | Time:00:03.71 | Syncing REVIEW camera
+Fra:1 Mem:42.59M (Peak 42.97M) | Time:00:03.71 | Rendering 1 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.97M) | Time:00:04.42 | Rendering 26 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.97M) | Time:00:04.53 | Rendering 51 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.97M) | Time:00:04.65 | Rendering 76 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.97M) | Time:00:04.74 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-01-close.png'
+Time: 00:05.30 (Saving: 00:00.54)
+
+Fra:1 Mem:42.02M (Peak 42.02M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:1 Mem:42.04M (Peak 42.04M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:1 Mem:42.05M (Peak 42.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:1 Mem:42.05M (Peak 42.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:1 Mem:42.06M (Peak 42.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:1 Mem:42.07M (Peak 42.07M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:1 Mem:42.08M (Peak 42.08M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:1 Mem:42.09M (Peak 42.09M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:1 Mem:42.10M (Peak 42.10M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:1 Mem:42.11M (Peak 42.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:1 Mem:42.12M (Peak 42.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:1 Mem:42.12M (Peak 42.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:1 Mem:42.13M (Peak 42.13M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:1 Mem:42.14M (Peak 42.14M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:1 Mem:42.15M (Peak 42.15M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:1 Mem:42.16M (Peak 42.16M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:1 Mem:42.17M (Peak 42.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:1 Mem:42.18M (Peak 42.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:1 Mem:42.18M (Peak 42.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:1 Mem:42.19M (Peak 42.19M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:1 Mem:42.20M (Peak 42.20M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:1 Mem:42.21M (Peak 42.21M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:1 Mem:42.22M (Peak 42.22M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:1 Mem:42.23M (Peak 42.23M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:1 Mem:42.24M (Peak 42.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:1 Mem:42.24M (Peak 42.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:1 Mem:42.25M (Peak 42.25M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:1 Mem:42.26M (Peak 42.26M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:1 Mem:42.27M (Peak 42.27M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:1 Mem:42.28M (Peak 42.28M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:1 Mem:42.29M (Peak 42.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:1 Mem:42.30M (Peak 42.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:1 Mem:42.30M (Peak 42.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:1 Mem:42.31M (Peak 42.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:1 Mem:42.32M (Peak 42.32M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:1 Mem:42.33M (Peak 42.33M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:1 Mem:42.34M (Peak 42.34M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:1 Mem:42.35M (Peak 42.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:1 Mem:42.36M (Peak 42.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:1 Mem:42.36M (Peak 42.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:1 Mem:42.37M (Peak 42.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:1 Mem:42.38M (Peak 42.38M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:1 Mem:42.39M (Peak 42.39M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:1 Mem:42.40M (Peak 42.40M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:1 Mem:42.41M (Peak 42.41M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:1 Mem:42.42M (Peak 42.42M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:1 Mem:42.43M (Peak 42.43M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:1 Mem:42.44M (Peak 42.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.45M (Peak 42.45M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.46M (Peak 42.46M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.47M (Peak 42.47M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.48M (Peak 42.48M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.49M (Peak 42.49M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.50M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.50M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.51M (Peak 42.51M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.52M (Peak 42.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.53M (Peak 42.53M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:1 Mem:42.55M (Peak 42.55M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.56M (Peak 42.56M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.57M (Peak 42.57M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.58M (Peak 42.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.58M (Peak 42.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.59M (Peak 42.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.60M (Peak 42.60M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.61M (Peak 42.61M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.62M (Peak 42.62M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.63M (Peak 42.63M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.64M (Peak 42.64M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:1 Mem:42.65M (Peak 42.65M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:1 Mem:42.66M (Peak 42.66M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:1 Mem:42.67M (Peak 42.67M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:1 Mem:42.69M (Peak 42.69M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:1 Mem:42.60M (Peak 42.69M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.25 | Rendering 51 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.37 | Rendering 76 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.46 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-02-rear.png'
+Time: 00:00.83 (Saving: 00:00.35)
+
+Fra:1 Mem:42.02M (Peak 42.02M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:1 Mem:42.04M (Peak 42.04M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:1 Mem:42.05M (Peak 42.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:1 Mem:42.05M (Peak 42.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:1 Mem:42.06M (Peak 42.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:1 Mem:42.07M (Peak 42.07M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:1 Mem:42.08M (Peak 42.08M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:1 Mem:42.09M (Peak 42.09M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:1 Mem:42.10M (Peak 42.10M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:1 Mem:42.11M (Peak 42.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:1 Mem:42.12M (Peak 42.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:1 Mem:42.12M (Peak 42.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:1 Mem:42.13M (Peak 42.13M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:1 Mem:42.14M (Peak 42.14M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:1 Mem:42.15M (Peak 42.15M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:1 Mem:42.16M (Peak 42.16M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:1 Mem:42.17M (Peak 42.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:1 Mem:42.18M (Peak 42.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:1 Mem:42.18M (Peak 42.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:1 Mem:42.19M (Peak 42.19M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:1 Mem:42.20M (Peak 42.20M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:1 Mem:42.21M (Peak 42.21M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:1 Mem:42.22M (Peak 42.22M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:1 Mem:42.23M (Peak 42.23M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:1 Mem:42.24M (Peak 42.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:1 Mem:42.24M (Peak 42.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:1 Mem:42.25M (Peak 42.25M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:1 Mem:42.26M (Peak 42.26M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:1 Mem:42.27M (Peak 42.27M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:1 Mem:42.28M (Peak 42.28M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:1 Mem:42.29M (Peak 42.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:1 Mem:42.30M (Peak 42.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:1 Mem:42.30M (Peak 42.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:1 Mem:42.31M (Peak 42.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:1 Mem:42.32M (Peak 42.32M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:1 Mem:42.33M (Peak 42.33M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:1 Mem:42.34M (Peak 42.34M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:1 Mem:42.35M (Peak 42.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:1 Mem:42.36M (Peak 42.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:1 Mem:42.36M (Peak 42.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:1 Mem:42.37M (Peak 42.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:1 Mem:42.38M (Peak 42.38M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:1 Mem:42.39M (Peak 42.39M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:1 Mem:42.40M (Peak 42.40M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:1 Mem:42.41M (Peak 42.41M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:1 Mem:42.42M (Peak 42.42M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:1 Mem:42.43M (Peak 42.43M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:1 Mem:42.44M (Peak 42.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.45M (Peak 42.45M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.46M (Peak 42.46M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.47M (Peak 42.47M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.48M (Peak 42.48M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.49M (Peak 42.49M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.50M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.50M (Peak 42.50M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.51M (Peak 42.51M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.52M (Peak 42.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.53M (Peak 42.53M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:1 Mem:42.55M (Peak 42.55M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.56M (Peak 42.56M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.57M (Peak 42.57M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.58M (Peak 42.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.58M (Peak 42.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.59M (Peak 42.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.60M (Peak 42.60M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.61M (Peak 42.61M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.62M (Peak 42.62M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.63M (Peak 42.63M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:1 Mem:42.64M (Peak 42.64M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:1 Mem:42.65M (Peak 42.65M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:1 Mem:42.66M (Peak 42.66M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:1 Mem:42.67M (Peak 42.67M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:1 Mem:42.68M (Peak 42.68M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:1 Mem:42.69M (Peak 42.69M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:1 Mem:42.60M (Peak 42.69M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.25 | Rendering 51 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.36 | Rendering 76 / 96 samples
+Fra:1 Mem:42.55M (Peak 42.69M) | Time:00:00.45 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-03-above.png'
+Time: 00:00.83 (Saving: 00:00.36)
+
+08:25:40 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+08:25:41 | INFO: Starting glTF 2.0 export
+08:25:41 | INFO: Extracting primitive: H1 compressed irregular straw core.001
+08:25:41 | INFO: Primitives created: 1
+08:25:41 | INFO: Finished glTF 2.0 export in 0.008048295974731445 s
+
+Info: Saved "ft_hay_bale_h1_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+SEAT_METRICS {"asset": "ft_hay_bale_h1_v1", "triangles": 750, "mesh_vertices_blender": 656, "material_count": 1, "bounds_blender": [[-0.597907, -0.299, 0.0], [0.598368, 0.299, 0.455]], "source_components": 72, "anchors": [{"name": "Seat_H1_01", "blender_local_surface_position": [-0.28600001335144043, 0.23499999940395355, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [-0.28600001335144043, 0.44999998807907104, -0.23499999940395355], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_H1_02", "blender_local_surface_position": [0.28600001335144043, 0.23499999940395355, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [0.28600001335144043, 0.44999998807907104, -0.23499999940395355], "godot_facing": [-0.0, 0, -1.0]}], "seating_verification": [{"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_H1_01", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.42192, 0.39046, 1e-05], [-0.30584, 0.67191, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.26616, 0.39046, 1e-05], [-0.15008, 0.67191, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.211, 0.46, 0.6772], [-0.061, 0.633, 0.7152]], "table_underside_thigh_gap_m": null, "body_bounds": [[-0.555941, 0.138518, 1.2e-05], [0.005061, 0.671906, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_H1_02", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.15107, 0.44145, 0.0], [0.26631, 0.72084, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.30569, 0.44145, 0.0], [0.42093, 0.72084, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000685, "review_grip_lift_m": 0.005, "food_bounds": [[0.3445, 0.4735, 0.69], [0.5275, 0.5965, 0.750851]], "table_underside_thigh_gap_m": null, "body_bounds": [[0.036783, 0.13659, 2e-06], [0.553278, 0.720839, 1.360364]]}]}
+Fra:31 Mem:53.23M (Peak 53.23M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:53.24M (Peak 53.24M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:53.25M (Peak 53.25M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:53.26M (Peak 53.26M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:53.27M (Peak 53.27M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:53.28M (Peak 53.28M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:53.29M (Peak 53.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:53.29M (Peak 53.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:53.30M (Peak 53.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:53.31M (Peak 53.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:53.32M (Peak 53.32M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:53.33M (Peak 53.33M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:53.34M (Peak 53.34M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:53.35M (Peak 53.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:53.35M (Peak 53.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:53.36M (Peak 53.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:53.37M (Peak 53.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:53.38M (Peak 53.38M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:53.39M (Peak 53.39M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:53.40M (Peak 53.40M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:53.41M (Peak 53.41M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:53.41M (Peak 53.41M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:53.42M (Peak 53.42M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:53.43M (Peak 53.43M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:53.44M (Peak 53.44M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:53.45M (Peak 53.45M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:53.46M (Peak 53.46M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:53.47M (Peak 53.47M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:53.47M (Peak 53.47M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:53.48M (Peak 53.48M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:53.49M (Peak 53.49M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:53.50M (Peak 53.50M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:53.51M (Peak 53.51M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:53.52M (Peak 53.52M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:53.53M (Peak 53.53M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:53.54M (Peak 53.54M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:53.54M (Peak 53.54M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:53.55M (Peak 53.55M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:53.56M (Peak 53.56M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:53.57M (Peak 53.57M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:53.58M (Peak 53.58M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:53.59M (Peak 53.59M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:53.60M (Peak 53.60M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:53.60M (Peak 53.60M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:53.61M (Peak 53.61M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:53.62M (Peak 53.62M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:53.63M (Peak 53.63M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:53.65M (Peak 53.65M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.66M (Peak 53.66M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.67M (Peak 53.67M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.68M (Peak 53.68M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.68M (Peak 53.68M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.69M (Peak 53.69M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.70M (Peak 53.70M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.71M (Peak 53.71M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.72M (Peak 53.72M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.73M (Peak 53.73M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.74M (Peak 53.74M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:53.75M (Peak 53.75M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.76M (Peak 53.76M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.77M (Peak 53.77M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.78M (Peak 53.78M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.79M (Peak 53.79M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.80M (Peak 53.80M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.81M (Peak 53.81M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.83M (Peak 53.83M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.84M (Peak 53.84M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:53.86M (Peak 53.86M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:53.87M (Peak 53.87M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:53.88M (Peak 53.88M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:53.88M (Peak 53.88M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:53.88M (Peak 53.88M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_rig
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:53.90M (Peak 53.90M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_body
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing LWF_Hair_Default
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:54.14M (Peak 54.14M) | Time:00:00.71 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:54.20M (Peak 54.20M) | Time:00:00.71 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:54.20M (Peak 54.20M) | Time:00:00.72 | Syncing REVIEW_hay_1_female_native_rig
+Fra:31 Mem:54.20M (Peak 54.20M) | Time:00:00.72 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:54.20M (Peak 54.20M) | Time:00:00.72 | Syncing REVIEW_hay_1_female_native_body
+Fra:31 Mem:54.39M (Peak 54.39M) | Time:00:00.72 | Syncing LWF_Hair_Default.001
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:54.55M (Peak 54.55M) | Time:00:00.72 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:54.50M (Peak 54.55M) | Time:00:00.72 | Rendering 1 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.55M) | Time:00:00.86 | Rendering 26 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.55M) | Time:00:00.97 | Rendering 51 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.55M) | Time:00:01.09 | Rendering 76 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.55M) | Time:00:01.18 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-04-occupied.png'
+Time: 00:01.56 (Saving: 00:00.35)
+
+Fra:31 Mem:53.43M (Peak 53.43M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:53.45M (Peak 53.45M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:53.45M (Peak 53.45M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:53.46M (Peak 53.46M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:53.47M (Peak 53.47M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:53.48M (Peak 53.48M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:53.49M (Peak 53.49M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:53.50M (Peak 53.50M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:53.51M (Peak 53.51M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:53.51M (Peak 53.51M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:53.52M (Peak 53.52M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:53.53M (Peak 53.53M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:53.54M (Peak 53.54M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:53.55M (Peak 53.55M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:53.56M (Peak 53.56M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:53.57M (Peak 53.57M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:53.57M (Peak 53.57M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:53.58M (Peak 53.58M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:53.59M (Peak 53.59M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:53.60M (Peak 53.60M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:53.61M (Peak 53.61M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:53.62M (Peak 53.62M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:53.63M (Peak 53.63M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:53.63M (Peak 53.63M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:53.64M (Peak 53.64M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:53.65M (Peak 53.65M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:53.66M (Peak 53.66M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:53.67M (Peak 53.67M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:53.68M (Peak 53.68M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:53.69M (Peak 53.69M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:53.69M (Peak 53.69M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:53.70M (Peak 53.70M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:53.71M (Peak 53.71M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:53.72M (Peak 53.72M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:53.73M (Peak 53.73M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:53.74M (Peak 53.74M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:53.75M (Peak 53.75M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:53.76M (Peak 53.76M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:53.76M (Peak 53.76M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:53.77M (Peak 53.77M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:53.78M (Peak 53.78M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:53.79M (Peak 53.79M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:53.80M (Peak 53.80M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:53.81M (Peak 53.81M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:53.83M (Peak 53.83M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:53.85M (Peak 53.85M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.86M (Peak 53.86M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.87M (Peak 53.87M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.88M (Peak 53.88M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.90M (Peak 53.90M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.91M (Peak 53.91M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.92M (Peak 53.92M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.93M (Peak 53.93M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.94M (Peak 53.94M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:53.96M (Peak 53.96M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.97M (Peak 53.97M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.97M (Peak 53.97M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.98M (Peak 53.98M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.99M (Peak 53.99M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.00M (Peak 54.00M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.01M (Peak 54.01M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.02M (Peak 54.02M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.03M (Peak 54.03M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.04M (Peak 54.04M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.04M (Peak 54.04M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:54.06M (Peak 54.06M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:54.07M (Peak 54.07M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_rig
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:54.10M (Peak 54.10M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_body
+Fra:31 Mem:54.25M (Peak 54.25M) | Time:00:00.00 | Syncing LWF_Hair_Default
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:54.27M (Peak 54.27M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_rig
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:54.32M (Peak 54.32M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_body
+Fra:31 Mem:54.47M (Peak 54.47M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:54.57M (Peak 54.57M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:54.50M (Peak 54.57M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.26 | Rendering 51 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.38 | Rendering 76 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.47 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-05-occupied-rear.png'
+Time: 00:00.83 (Saving: 00:00.34)
+
+Fra:31 Mem:53.43M (Peak 53.43M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:53.45M (Peak 53.45M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:53.45M (Peak 53.45M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:53.46M (Peak 53.46M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:53.47M (Peak 53.47M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:53.48M (Peak 53.48M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:53.49M (Peak 53.49M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:53.50M (Peak 53.50M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:53.51M (Peak 53.51M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:53.51M (Peak 53.51M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:53.52M (Peak 53.52M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:53.53M (Peak 53.53M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:53.54M (Peak 53.54M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:53.55M (Peak 53.55M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:53.56M (Peak 53.56M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:53.57M (Peak 53.57M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:53.57M (Peak 53.57M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:53.58M (Peak 53.58M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:53.59M (Peak 53.59M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:53.60M (Peak 53.60M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:53.61M (Peak 53.61M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:53.62M (Peak 53.62M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:53.63M (Peak 53.63M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:53.63M (Peak 53.63M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:53.64M (Peak 53.64M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:53.65M (Peak 53.65M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:53.66M (Peak 53.66M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:53.67M (Peak 53.67M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:53.68M (Peak 53.68M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:53.69M (Peak 53.69M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:53.69M (Peak 53.69M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:53.70M (Peak 53.70M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:53.71M (Peak 53.71M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:53.72M (Peak 53.72M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:53.73M (Peak 53.73M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:53.74M (Peak 53.74M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:53.75M (Peak 53.75M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:53.76M (Peak 53.76M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:53.76M (Peak 53.76M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:53.77M (Peak 53.77M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:53.78M (Peak 53.78M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:53.79M (Peak 53.79M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:53.80M (Peak 53.80M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:53.81M (Peak 53.81M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:53.82M (Peak 53.82M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:53.83M (Peak 53.83M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:53.85M (Peak 53.85M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.86M (Peak 53.86M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.87M (Peak 53.87M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.88M (Peak 53.88M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.89M (Peak 53.89M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.90M (Peak 53.90M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.91M (Peak 53.91M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.92M (Peak 53.92M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.93M (Peak 53.93M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.94M (Peak 53.94M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:53.96M (Peak 53.96M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.97M (Peak 53.97M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.97M (Peak 53.97M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.98M (Peak 53.98M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:53.99M (Peak 53.99M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.00M (Peak 54.00M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.01M (Peak 54.01M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.02M (Peak 54.02M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.03M (Peak 54.03M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.04M (Peak 54.04M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:54.04M (Peak 54.04M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:54.06M (Peak 54.06M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:54.07M (Peak 54.07M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:54.08M (Peak 54.08M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_rig
+Fra:31 Mem:54.09M (Peak 54.09M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:54.10M (Peak 54.10M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_body
+Fra:31 Mem:54.25M (Peak 54.25M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:54.27M (Peak 54.27M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_rig
+Fra:31 Mem:54.31M (Peak 54.31M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:54.32M (Peak 54.32M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_body
+Fra:31 Mem:54.47M (Peak 54.47M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:54.57M (Peak 54.57M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:54.50M (Peak 54.57M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.25 | Rendering 51 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.37 | Rendering 76 / 96 samples
+Fra:31 Mem:54.11M (Peak 54.57M) | Time:00:00.46 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-06-contact-side.png'
+Time: 00:00.85 (Saving: 00:00.36)
+
+Fra:31 Mem:50.99M (Peak 50.99M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:51.00M (Peak 51.00M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:51.01M (Peak 51.01M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:51.02M (Peak 51.02M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:51.03M (Peak 51.03M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:51.04M (Peak 51.04M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:51.05M (Peak 51.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:51.06M (Peak 51.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:51.06M (Peak 51.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:51.07M (Peak 51.07M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:51.08M (Peak 51.08M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:51.09M (Peak 51.09M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:51.10M (Peak 51.10M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:51.11M (Peak 51.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:51.12M (Peak 51.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:51.12M (Peak 51.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:51.13M (Peak 51.13M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:51.14M (Peak 51.14M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:51.15M (Peak 51.15M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:51.16M (Peak 51.16M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:51.17M (Peak 51.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:51.18M (Peak 51.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:51.18M (Peak 51.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:51.19M (Peak 51.19M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:51.20M (Peak 51.20M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:51.21M (Peak 51.21M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:51.22M (Peak 51.22M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:51.23M (Peak 51.23M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:51.24M (Peak 51.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:51.24M (Peak 51.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:51.25M (Peak 51.25M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:51.26M (Peak 51.26M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:51.27M (Peak 51.27M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:51.28M (Peak 51.28M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:51.29M (Peak 51.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:51.30M (Peak 51.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:51.31M (Peak 51.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:51.31M (Peak 51.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:51.32M (Peak 51.32M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:51.33M (Peak 51.33M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:51.34M (Peak 51.34M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:51.35M (Peak 51.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:51.36M (Peak 51.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:51.37M (Peak 51.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:51.37M (Peak 51.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:51.38M (Peak 51.38M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:51.39M (Peak 51.39M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:51.41M (Peak 51.41M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.42M (Peak 51.42M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.43M (Peak 51.43M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.44M (Peak 51.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.44M (Peak 51.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.45M (Peak 51.45M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.46M (Peak 51.46M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.47M (Peak 51.47M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.48M (Peak 51.48M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.49M (Peak 51.49M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.50M (Peak 51.50M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:51.52M (Peak 51.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.52M (Peak 51.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.53M (Peak 51.53M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.54M (Peak 51.54M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.55M (Peak 51.55M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.56M (Peak 51.56M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.57M (Peak 51.57M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.58M (Peak 51.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.59M (Peak 51.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.59M (Peak 51.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.60M (Peak 51.60M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:51.62M (Peak 51.62M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:51.63M (Peak 51.63M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_rig
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:51.66M (Peak 51.66M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_body
+Fra:31 Mem:51.80M (Peak 51.80M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:51.83M (Peak 51.83M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_rig
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:51.88M (Peak 51.88M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_body
+Fra:31 Mem:52.02M (Peak 52.02M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:52.12M (Peak 52.12M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:52.06M (Peak 52.12M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.13 | Rendering 26 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.23 | Rendering 51 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.34 | Rendering 76 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.42 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-07-gameplay-min18.png'
+Time: 00:00.75 (Saving: 00:00.31)
+
+Fra:31 Mem:50.99M (Peak 50.99M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:51.00M (Peak 51.00M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:51.01M (Peak 51.01M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:51.02M (Peak 51.02M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:51.03M (Peak 51.03M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:51.04M (Peak 51.04M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:51.05M (Peak 51.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:51.06M (Peak 51.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:51.06M (Peak 51.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:51.07M (Peak 51.07M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:51.08M (Peak 51.08M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:51.09M (Peak 51.09M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:51.10M (Peak 51.10M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:51.11M (Peak 51.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:51.12M (Peak 51.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:51.12M (Peak 51.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:51.13M (Peak 51.13M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:51.14M (Peak 51.14M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:51.15M (Peak 51.15M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:51.16M (Peak 51.16M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:51.17M (Peak 51.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:51.18M (Peak 51.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:51.18M (Peak 51.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:51.19M (Peak 51.19M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:51.20M (Peak 51.20M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:51.21M (Peak 51.21M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:51.22M (Peak 51.22M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:51.23M (Peak 51.23M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:51.24M (Peak 51.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:51.24M (Peak 51.24M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:51.25M (Peak 51.25M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:51.26M (Peak 51.26M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:51.27M (Peak 51.27M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:51.28M (Peak 51.28M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:51.29M (Peak 51.29M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:51.30M (Peak 51.30M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:51.31M (Peak 51.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:51.31M (Peak 51.31M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:51.32M (Peak 51.32M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:51.33M (Peak 51.33M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:51.34M (Peak 51.34M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:51.35M (Peak 51.35M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:51.36M (Peak 51.36M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:51.37M (Peak 51.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:51.37M (Peak 51.37M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:51.38M (Peak 51.38M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:51.39M (Peak 51.39M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:51.41M (Peak 51.41M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.42M (Peak 51.42M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.43M (Peak 51.43M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.44M (Peak 51.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.44M (Peak 51.44M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.45M (Peak 51.45M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.46M (Peak 51.46M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.47M (Peak 51.47M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.48M (Peak 51.48M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.49M (Peak 51.49M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.50M (Peak 51.50M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:51.52M (Peak 51.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.52M (Peak 51.52M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.53M (Peak 51.53M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.54M (Peak 51.54M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.55M (Peak 51.55M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.56M (Peak 51.56M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.57M (Peak 51.57M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.58M (Peak 51.58M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.59M (Peak 51.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.59M (Peak 51.59M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:51.60M (Peak 51.60M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:51.62M (Peak 51.62M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:51.63M (Peak 51.63M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:51.64M (Peak 51.64M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_rig
+Fra:31 Mem:51.65M (Peak 51.65M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:51.66M (Peak 51.66M) | Time:00:00.00 | Syncing REVIEW_hay_0_male_native_body
+Fra:31 Mem:51.80M (Peak 51.80M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:51.83M (Peak 51.83M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_rig
+Fra:31 Mem:51.87M (Peak 51.87M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:51.88M (Peak 51.88M) | Time:00:00.00 | Syncing REVIEW_hay_1_female_native_body
+Fra:31 Mem:52.02M (Peak 52.02M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:52.12M (Peak 52.12M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:52.06M (Peak 52.12M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.12 | Rendering 26 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.22 | Rendering 51 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.31 | Rendering 76 / 96 samples
+Fra:31 Mem:51.67M (Peak 52.12M) | Time:00:00.39 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-08-gameplay-default62.png'
+Time: 00:00.70 (Saving: 00:00.29)
+
+Fra:31 Mem:49.80M (Peak 49.80M) | Time:00:00.00 | Syncing H1 compressed irregular straw cor
+Fra:31 Mem:49.82M (Peak 49.82M) | Time:00:00.00 | Syncing H1 broad top straw facet
+Fra:31 Mem:49.83M (Peak 49.83M) | Time:00:00.00 | Syncing H1 broad top straw facet.001
+Fra:31 Mem:49.84M (Peak 49.84M) | Time:00:00.00 | Syncing H1 broad top straw facet.002
+Fra:31 Mem:49.85M (Peak 49.85M) | Time:00:00.00 | Syncing H1 broad top straw facet.003
+Fra:31 Mem:49.86M (Peak 49.86M) | Time:00:00.00 | Syncing H1 broad top straw facet.004
+Fra:31 Mem:49.86M (Peak 49.86M) | Time:00:00.00 | Syncing H1 broad top straw facet.005
+Fra:31 Mem:49.87M (Peak 49.87M) | Time:00:00.00 | Syncing H1 broad top straw facet.006
+Fra:31 Mem:49.88M (Peak 49.88M) | Time:00:00.00 | Syncing H1 broad top straw facet.007
+Fra:31 Mem:49.89M (Peak 49.89M) | Time:00:00.00 | Syncing H1 broad top straw facet.008
+Fra:31 Mem:49.90M (Peak 49.90M) | Time:00:00.00 | Syncing H1 broad top straw facet.009
+Fra:31 Mem:49.91M (Peak 49.91M) | Time:00:00.00 | Syncing H1 broad top straw facet.010
+Fra:31 Mem:49.92M (Peak 49.92M) | Time:00:00.00 | Syncing H1 broad top straw facet.011
+Fra:31 Mem:49.92M (Peak 49.92M) | Time:00:00.00 | Syncing H1 broad top straw facet.012
+Fra:31 Mem:49.93M (Peak 49.93M) | Time:00:00.00 | Syncing H1 broad top straw facet.013
+Fra:31 Mem:49.94M (Peak 49.94M) | Time:00:00.00 | Syncing H1 broad top straw facet.014
+Fra:31 Mem:49.95M (Peak 49.95M) | Time:00:00.00 | Syncing H1 broad top straw facet.015
+Fra:31 Mem:49.96M (Peak 49.96M) | Time:00:00.00 | Syncing H1 broad top straw facet.016
+Fra:31 Mem:49.97M (Peak 49.97M) | Time:00:00.00 | Syncing H1 broad top straw facet.017
+Fra:31 Mem:49.98M (Peak 49.98M) | Time:00:00.00 | Syncing H1 broad top straw facet.018
+Fra:31 Mem:49.98M (Peak 49.98M) | Time:00:00.00 | Syncing H1 broad top straw facet.019
+Fra:31 Mem:49.99M (Peak 49.99M) | Time:00:00.00 | Syncing H1 broad top straw facet.020
+Fra:31 Mem:50.00M (Peak 50.00M) | Time:00:00.00 | Syncing H1 broad top straw facet.021
+Fra:31 Mem:50.01M (Peak 50.01M) | Time:00:00.00 | Syncing H1 broad top straw facet.022
+Fra:31 Mem:50.02M (Peak 50.02M) | Time:00:00.00 | Syncing H1 broad top straw facet.023
+Fra:31 Mem:50.03M (Peak 50.03M) | Time:00:00.00 | Syncing H1 broad top straw facet.024
+Fra:31 Mem:50.04M (Peak 50.04M) | Time:00:00.00 | Syncing H1 broad top straw facet.025
+Fra:31 Mem:50.04M (Peak 50.04M) | Time:00:00.00 | Syncing H1 broad top straw facet.026
+Fra:31 Mem:50.05M (Peak 50.05M) | Time:00:00.00 | Syncing H1 broad top straw facet.027
+Fra:31 Mem:50.06M (Peak 50.06M) | Time:00:00.00 | Syncing H1 broad top straw facet.028
+Fra:31 Mem:50.07M (Peak 50.07M) | Time:00:00.00 | Syncing H1 broad top straw facet.029
+Fra:31 Mem:50.08M (Peak 50.08M) | Time:00:00.00 | Syncing H1 broad top straw facet.030
+Fra:31 Mem:50.09M (Peak 50.09M) | Time:00:00.00 | Syncing H1 broad top straw facet.031
+Fra:31 Mem:50.10M (Peak 50.10M) | Time:00:00.00 | Syncing H1 broad top straw facet.032
+Fra:31 Mem:50.11M (Peak 50.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.033
+Fra:31 Mem:50.11M (Peak 50.11M) | Time:00:00.00 | Syncing H1 broad top straw facet.034
+Fra:31 Mem:50.12M (Peak 50.12M) | Time:00:00.00 | Syncing H1 broad top straw facet.035
+Fra:31 Mem:50.13M (Peak 50.13M) | Time:00:00.00 | Syncing H1 broad top straw facet.036
+Fra:31 Mem:50.14M (Peak 50.14M) | Time:00:00.00 | Syncing H1 broad top straw facet.037
+Fra:31 Mem:50.15M (Peak 50.15M) | Time:00:00.00 | Syncing H1 broad top straw facet.038
+Fra:31 Mem:50.16M (Peak 50.16M) | Time:00:00.00 | Syncing H1 broad top straw facet.039
+Fra:31 Mem:50.17M (Peak 50.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.040
+Fra:31 Mem:50.17M (Peak 50.17M) | Time:00:00.00 | Syncing H1 broad top straw facet.041
+Fra:31 Mem:50.18M (Peak 50.18M) | Time:00:00.00 | Syncing H1 broad top straw facet.042
+Fra:31 Mem:50.19M (Peak 50.19M) | Time:00:00.00 | Syncing H1 broad top straw facet.043
+Fra:31 Mem:50.20M (Peak 50.20M) | Time:00:00.00 | Syncing H1 broad top straw facet.044
+Fra:31 Mem:50.21M (Peak 50.21M) | Time:00:00.00 | Syncing H1 integrated broad straw side
+Fra:31 Mem:50.23M (Peak 50.23M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.24M (Peak 50.24M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.24M (Peak 50.24M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.25M (Peak 50.25M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.26M (Peak 50.26M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.27M (Peak 50.27M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.28M (Peak 50.28M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.29M (Peak 50.29M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.30M (Peak 50.30M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.31M (Peak 50.31M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.31M (Peak 50.31M) | Time:00:00.00 | Syncing H1 integrated broad straw side.00
+Fra:31 Mem:50.33M (Peak 50.33M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.34M (Peak 50.34M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.35M (Peak 50.35M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.36M (Peak 50.36M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.37M (Peak 50.37M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.38M (Peak 50.38M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.38M (Peak 50.38M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.39M (Peak 50.39M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.40M (Peak 50.40M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.41M (Peak 50.41M) | Time:00:00.00 | Syncing H1 shallow torn perimeter cluster
+Fra:31 Mem:50.42M (Peak 50.42M) | Time:00:00.00 | Syncing H1 integrated broad end grain
+Fra:31 Mem:50.43M (Peak 50.43M) | Time:00:00.00 | Syncing H1 integrated broad end grain.001
+Fra:31 Mem:50.45M (Peak 50.45M) | Time:00:00.00 | Syncing H1 continuous twine band
+Fra:31 Mem:50.46M (Peak 50.46M) | Time:00:00.00 | Syncing H1 continuous twine band.001
+Fra:31 Mem:50.46M (Peak 50.46M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:50.46M (Peak 50.46M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:50.47M (Peak 50.47M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:50.47M (Peak 50.47M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:50.39M (Peak 50.47M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:50.34M (Peak 50.47M) | Time:00:00.12 | Rendering 26 / 96 samples
+Fra:31 Mem:50.34M (Peak 50.47M) | Time:00:00.22 | Rendering 51 / 96 samples
+Fra:31 Mem:50.34M (Peak 50.47M) | Time:00:00.32 | Rendering 76 / 96 samples
+Fra:31 Mem:50.34M (Peak 50.47M) | Time:00:00.40 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\hay-09-gameplay-empty-min18.png'
+Time: 00:00.72 (Saving: 00:00.30)
+
+Info: Saved "ft_hay_bale_h1_v1_occupied_review.blend"
+DINING_PRODUCTION_COMPLETE
+
+Blender quit

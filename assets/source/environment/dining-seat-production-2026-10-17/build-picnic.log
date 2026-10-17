@@ -1,0 +1,744 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Info: Total files 1 | Changed 1 | Failed 0
+Fra:1 Mem:40.62M (Peak 41.68M) | Time:00:02.55 | Syncing P1 tabletop plank 00
+Fra:1 Mem:40.66M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop plank 01
+Fra:1 Mem:40.68M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop plank 02
+Fra:1 Mem:40.69M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop plank 03
+Fra:1 Mem:40.70M (Peak 41.68M) | Time:00:03.29 | Syncing P1 attached bench plank
+Fra:1 Mem:40.72M (Peak 41.68M) | Time:00:03.29 | Syncing P1 attached bench plank.001
+Fra:1 Mem:40.73M (Peak 41.68M) | Time:00:03.29 | Syncing P1 attached bench plank.002
+Fra:1 Mem:40.74M (Peak 41.68M) | Time:00:03.29 | Syncing P1 attached bench plank.003
+Fra:1 Mem:40.76M (Peak 41.68M) | Time:00:03.29 | Syncing P1 dark splayed A-frame leg
+Fra:1 Mem:40.77M (Peak 41.68M) | Time:00:03.29 | Syncing P1 visible leg bolt
+Fra:1 Mem:40.78M (Peak 41.68M) | Time:00:03.29 | Syncing P1 dark splayed A-frame leg.001
+Fra:1 Mem:40.79M (Peak 41.68M) | Time:00:03.29 | Syncing P1 visible leg bolt.001
+Fra:1 Mem:40.80M (Peak 41.68M) | Time:00:03.29 | Syncing P1 under-table transverse bearer
+Fra:1 Mem:40.81M (Peak 41.68M) | Time:00:03.29 | Syncing P1 transverse bench bearer
+Fra:1 Mem:40.82M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt
+Fra:1 Mem:40.83M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.001
+Fra:1 Mem:40.84M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.002
+Fra:1 Mem:40.86M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.003
+Fra:1 Mem:40.87M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt
+Fra:1 Mem:40.88M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.001
+Fra:1 Mem:40.89M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.004
+Fra:1 Mem:40.90M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.005
+Fra:1 Mem:40.91M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.006
+Fra:1 Mem:40.92M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.007
+Fra:1 Mem:40.93M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.002
+Fra:1 Mem:40.94M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.003
+Fra:1 Mem:40.96M (Peak 41.68M) | Time:00:03.29 | Syncing P1 dark splayed A-frame leg.002
+Fra:1 Mem:40.96M (Peak 41.68M) | Time:00:03.29 | Syncing P1 visible leg bolt.002
+Fra:1 Mem:40.98M (Peak 41.68M) | Time:00:03.29 | Syncing P1 dark splayed A-frame leg.003
+Fra:1 Mem:40.99M (Peak 41.68M) | Time:00:03.29 | Syncing P1 visible leg bolt.003
+Fra:1 Mem:41.00M (Peak 41.68M) | Time:00:03.29 | Syncing P1 under-table transverse bearer.
+Fra:1 Mem:41.01M (Peak 41.68M) | Time:00:03.29 | Syncing P1 transverse bench bearer.001
+Fra:1 Mem:41.02M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.008
+Fra:1 Mem:41.03M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.009
+Fra:1 Mem:41.05M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.010
+Fra:1 Mem:41.06M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.011
+Fra:1 Mem:41.07M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.004
+Fra:1 Mem:41.08M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.005
+Fra:1 Mem:41.09M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.012
+Fra:1 Mem:41.10M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.013
+Fra:1 Mem:41.11M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.014
+Fra:1 Mem:41.12M (Peak 41.68M) | Time:00:03.29 | Syncing P1 tabletop bolt.015
+Fra:1 Mem:41.13M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.006
+Fra:1 Mem:41.14M (Peak 41.68M) | Time:00:03.29 | Syncing P1 bench bolt.007
+Fra:1 Mem:41.16M (Peak 41.68M) | Time:00:03.29 | Syncing P1 longitudinal centre stretcher
+Fra:1 Mem:41.17M (Peak 41.68M) | Time:00:03.29 | Syncing P1 broad timber grain
+Fra:1 Mem:41.18M (Peak 41.68M) | Time:00:03.29 | Syncing P1 light timber facet
+Fra:1 Mem:41.19M (Peak 41.68M) | Time:00:03.29 | Syncing P1 broad timber grain.001
+Fra:1 Mem:41.19M (Peak 41.68M) | Time:00:03.29 | Syncing P1 light timber facet.001
+Fra:1 Mem:41.20M (Peak 41.68M) | Time:00:03.29 | Syncing P1 broad timber grain.002
+Fra:1 Mem:41.21M (Peak 41.68M) | Time:00:03.29 | Syncing P1 light timber facet.002
+Fra:1 Mem:41.22M (Peak 41.68M) | Time:00:03.29 | Syncing P1 broad timber grain.003
+Fra:1 Mem:41.23M (Peak 41.68M) | Time:00:03.29 | Syncing P1 light timber facet.003
+Fra:1 Mem:41.23M (Peak 41.68M) | Time:00:03.29 | Syncing REVIEW sun
+Fra:1 Mem:41.23M (Peak 41.68M) | Time:00:03.29 | Syncing REVIEW fill
+Fra:1 Mem:41.24M (Peak 41.68M) | Time:00:03.29 | Syncing REVIEW grass ground
+Fra:1 Mem:41.28M (Peak 41.68M) | Time:00:03.82 | Syncing REVIEW camera
+Fra:1 Mem:41.22M (Peak 41.68M) | Time:00:03.83 | Rendering 1 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.68M) | Time:00:04.55 | Rendering 26 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.68M) | Time:00:04.66 | Rendering 51 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.68M) | Time:00:04.78 | Rendering 76 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.68M) | Time:00:04.87 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-01-close.png'
+Time: 00:05.50 (Saving: 00:00.61)
+
+Fra:1 Mem:40.75M (Peak 40.75M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:1 Mem:40.76M (Peak 40.76M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:1 Mem:40.78M (Peak 40.78M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:1 Mem:40.79M (Peak 40.79M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:1 Mem:40.80M (Peak 40.80M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:1 Mem:40.81M (Peak 40.81M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:1 Mem:40.82M (Peak 40.82M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:1 Mem:40.83M (Peak 40.83M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:1 Mem:40.84M (Peak 40.84M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:1 Mem:40.85M (Peak 40.85M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:1 Mem:40.86M (Peak 40.86M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:1 Mem:40.87M (Peak 40.87M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:1 Mem:40.88M (Peak 40.88M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:1 Mem:40.89M (Peak 40.89M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:1 Mem:40.91M (Peak 40.91M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:1 Mem:40.92M (Peak 40.92M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:1 Mem:40.93M (Peak 40.93M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:1 Mem:40.94M (Peak 40.94M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:1 Mem:40.95M (Peak 40.95M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:1 Mem:40.96M (Peak 40.96M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:1 Mem:40.97M (Peak 40.97M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:1 Mem:40.98M (Peak 40.98M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:1 Mem:40.99M (Peak 40.99M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:1 Mem:41.00M (Peak 41.00M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:1 Mem:41.01M (Peak 41.01M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:1 Mem:41.02M (Peak 41.02M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:1 Mem:41.03M (Peak 41.03M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:1 Mem:41.04M (Peak 41.04M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:1 Mem:41.05M (Peak 41.05M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:1 Mem:41.06M (Peak 41.06M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:1 Mem:41.07M (Peak 41.07M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:1 Mem:41.08M (Peak 41.08M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:1 Mem:41.09M (Peak 41.09M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:1 Mem:41.10M (Peak 41.10M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:1 Mem:41.11M (Peak 41.11M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:1 Mem:41.12M (Peak 41.12M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:1 Mem:41.13M (Peak 41.13M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:1 Mem:41.14M (Peak 41.14M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:1 Mem:41.15M (Peak 41.15M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:1 Mem:41.16M (Peak 41.16M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:1 Mem:41.17M (Peak 41.17M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:1 Mem:41.18M (Peak 41.18M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:1 Mem:41.19M (Peak 41.19M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:1 Mem:41.20M (Peak 41.20M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:1 Mem:41.21M (Peak 41.21M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:1 Mem:41.22M (Peak 41.22M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:1 Mem:41.23M (Peak 41.23M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:1 Mem:41.24M (Peak 41.24M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:1 Mem:41.25M (Peak 41.25M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:1 Mem:41.26M (Peak 41.26M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:1 Mem:41.26M (Peak 41.26M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:1 Mem:41.27M (Peak 41.27M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:1 Mem:41.28M (Peak 41.28M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:1 Mem:41.30M (Peak 41.30M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:1 Mem:41.23M (Peak 41.30M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.15 | Rendering 26 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.27 | Rendering 51 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.39 | Rendering 76 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.49 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-02-rear.png'
+Time: 00:00.94 (Saving: 00:00.42)
+
+Fra:1 Mem:40.75M (Peak 40.75M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:1 Mem:40.76M (Peak 40.76M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:1 Mem:40.78M (Peak 40.78M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:1 Mem:40.79M (Peak 40.79M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:1 Mem:40.80M (Peak 40.80M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:1 Mem:40.81M (Peak 40.81M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:1 Mem:40.82M (Peak 40.82M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:1 Mem:40.83M (Peak 40.83M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:1 Mem:40.84M (Peak 40.84M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:1 Mem:40.85M (Peak 40.85M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:1 Mem:40.86M (Peak 40.86M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:1 Mem:40.87M (Peak 40.87M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:1 Mem:40.88M (Peak 40.88M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:1 Mem:40.89M (Peak 40.89M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:1 Mem:40.91M (Peak 40.91M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:1 Mem:40.92M (Peak 40.92M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:1 Mem:40.93M (Peak 40.93M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:1 Mem:40.94M (Peak 40.94M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:1 Mem:40.95M (Peak 40.95M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:1 Mem:40.96M (Peak 40.96M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:1 Mem:40.97M (Peak 40.97M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:1 Mem:40.98M (Peak 40.98M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:1 Mem:40.99M (Peak 40.99M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:1 Mem:41.00M (Peak 41.00M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:1 Mem:41.01M (Peak 41.01M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:1 Mem:41.02M (Peak 41.02M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:1 Mem:41.03M (Peak 41.03M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:1 Mem:41.04M (Peak 41.04M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:1 Mem:41.05M (Peak 41.05M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:1 Mem:41.06M (Peak 41.06M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:1 Mem:41.07M (Peak 41.07M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:1 Mem:41.08M (Peak 41.08M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:1 Mem:41.09M (Peak 41.09M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:1 Mem:41.10M (Peak 41.10M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:1 Mem:41.11M (Peak 41.11M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:1 Mem:41.12M (Peak 41.12M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:1 Mem:41.13M (Peak 41.13M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:1 Mem:41.14M (Peak 41.14M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:1 Mem:41.15M (Peak 41.15M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:1 Mem:41.16M (Peak 41.16M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:1 Mem:41.17M (Peak 41.17M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:1 Mem:41.18M (Peak 41.18M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:1 Mem:41.19M (Peak 41.19M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:1 Mem:41.20M (Peak 41.20M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:1 Mem:41.21M (Peak 41.21M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:1 Mem:41.22M (Peak 41.22M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:1 Mem:41.23M (Peak 41.23M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:1 Mem:41.24M (Peak 41.24M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:1 Mem:41.25M (Peak 41.25M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:1 Mem:41.26M (Peak 41.26M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:1 Mem:41.26M (Peak 41.26M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:1 Mem:41.27M (Peak 41.27M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:1 Mem:41.28M (Peak 41.28M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:1 Mem:41.29M (Peak 41.29M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:1 Mem:41.30M (Peak 41.30M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:1 Mem:41.23M (Peak 41.30M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.27 | Rendering 51 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.39 | Rendering 76 / 96 samples
+Fra:1 Mem:41.15M (Peak 41.30M) | Time:00:00.49 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-03-above.png'
+Time: 00:00.93 (Saving: 00:00.42)
+
+08:26:17 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+08:26:18 | INFO: Starting glTF 2.0 export
+08:26:18 | INFO: Extracting primitive: Cube.013
+08:26:18 | INFO: Primitives created: 1
+08:26:18 | INFO: Finished glTF 2.0 export in 0.011027812957763672 s
+
+Info: Saved "ft_picnic_aframe_p1_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+SEAT_METRICS {"asset": "ft_picnic_aframe_p1_v1", "triangles": 1420, "mesh_vertices_blender": 824, "material_count": 1, "bounds_blender": [[-0.98, -0.856, 0.0], [0.98, 0.856, 0.754]], "source_components": 53, "anchors": [{"name": "Seat_P1_North_West", "blender_local_surface_position": [-0.3720000088214874, -0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [-0.3720000088214874, 0.44999998807907104, 0.5649999976158142], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_P1_North_East", "blender_local_surface_position": [0.3720000088214874, -0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [0.3720000088214874, 0.44999998807907104, 0.5649999976158142], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_P1_South_West", "blender_local_surface_position": [-0.3720000088214874, 0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 3.1415927410125732, "godot_local_surface_position": [-0.3720000088214874, 0.44999998807907104, -0.5649999976158142], "godot_facing": [0.0, 0, 1.0]}, {"name": "Seat_P1_South_East", "blender_local_surface_position": [0.3720000088214874, 0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 3.1415927410125732, "godot_local_surface_position": [0.3720000088214874, 0.44999998807907104, -0.5649999976158142], "godot_facing": [0.0, 0, 1.0]}], "seating_verification": [{"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_North_West", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.50792, -0.40954, 1e-05], [-0.39184, -0.12809, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.35216, -0.40954, 1e-05], [-0.23608, -0.12809, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.297, -0.34, 0.8372], [-0.147, -0.167, 0.8752]], "table_underside_thigh_gap_m": 0.13988, "body_bounds": [[-0.641941, -0.661482, 1.2e-05], [-0.063219, -0.128094, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_North_East", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.23707, -0.35855, 0.0], [0.35231, -0.07916, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.39169, -0.35855, 0.0], [0.50693, -0.07916, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000685, "review_grip_lift_m": 0.005, "food_bounds": [[0.4305, -0.3265, 0.85], [0.6135, -0.2035, 0.910852]], "table_underside_thigh_gap_m": 0.14424, "body_bounds": [[0.122783, -0.66341, 2e-06], [0.659254, -0.079161, 1.360364]]}, {"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_South_West", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.35216, 0.12809, 1e-05], [-0.23608, 0.40954, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.50792, 0.12809, 1e-05], [-0.39184, 0.40954, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.597, 0.167, 0.8372], [-0.447, 0.34, 0.8752]], "table_underside_thigh_gap_m": 0.13988, "body_bounds": [[-0.680781, 0.128094, 1.2e-05], [-0.102059, 0.661482, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_South_East", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.39169, 0.07916, 0.0], [0.50693, 0.35855, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.23707, 0.07916, 0.0], [0.35231, 0.35855, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "evaluated_body_or_food_vertices_inside_solid_furniture": {}, "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_or_hand_nearest_vertex_surface_gap_m": 0.000685, "review_grip_lift_m": 0.005, "food_bounds": [[0.1305, 0.2035, 0.85], [0.3135, 0.3265, 0.910852]], "table_underside_thigh_gap_m": 0.14424, "body_bounds": [[0.084746, 0.079161, 2e-06], [0.621217, 0.66341, 1.360364]]}]}
+Fra:31 Mem:63.01M (Peak 63.01M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:63.02M (Peak 63.02M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:63.04M (Peak 63.04M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:63.05M (Peak 63.05M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:63.06M (Peak 63.06M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:63.07M (Peak 63.07M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:63.08M (Peak 63.08M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:63.09M (Peak 63.09M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:63.11M (Peak 63.11M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:63.11M (Peak 63.11M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:63.12M (Peak 63.12M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:63.13M (Peak 63.13M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:63.14M (Peak 63.14M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:63.16M (Peak 63.16M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:63.17M (Peak 63.17M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:63.18M (Peak 63.18M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:63.19M (Peak 63.19M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:63.20M (Peak 63.20M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:63.21M (Peak 63.21M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:63.22M (Peak 63.22M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:63.23M (Peak 63.23M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:63.24M (Peak 63.24M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:63.25M (Peak 63.25M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:63.26M (Peak 63.26M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:63.27M (Peak 63.27M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:63.28M (Peak 63.28M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:63.29M (Peak 63.29M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:63.30M (Peak 63.30M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:63.31M (Peak 63.31M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:63.32M (Peak 63.32M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:63.33M (Peak 63.33M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:63.34M (Peak 63.34M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:63.35M (Peak 63.35M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:63.36M (Peak 63.36M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:63.37M (Peak 63.37M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:63.38M (Peak 63.38M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:63.39M (Peak 63.39M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:63.40M (Peak 63.40M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:63.41M (Peak 63.41M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:63.42M (Peak 63.42M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:63.43M (Peak 63.43M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:63.44M (Peak 63.44M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:63.45M (Peak 63.45M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:63.46M (Peak 63.46M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:63.47M (Peak 63.47M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:63.48M (Peak 63.48M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:63.49M (Peak 63.49M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:63.50M (Peak 63.50M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:63.51M (Peak 63.51M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:63.52M (Peak 63.52M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:63.53M (Peak 63.53M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:63.53M (Peak 63.53M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:63.54M (Peak 63.54M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:63.55M (Peak 63.55M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:63.55M (Peak 63.55M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:63.55M (Peak 63.55M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_rig
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_body
+Fra:31 Mem:63.74M (Peak 63.74M) | Time:00:00.01 | Syncing LWF_Hair_Default
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:63.80M (Peak 63.80M) | Time:00:00.73 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:63.86M (Peak 63.86M) | Time:00:00.73 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:63.86M (Peak 63.86M) | Time:00:00.73 | Syncing REVIEW_picnic_1_female_native_rig
+Fra:31 Mem:63.86M (Peak 63.86M) | Time:00:00.73 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:63.87M (Peak 63.87M) | Time:00:00.73 | Syncing REVIEW_picnic_1_female_native_bod
+Fra:31 Mem:64.05M (Peak 64.05M) | Time:00:00.73 | Syncing LWF_Hair_Default.001
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.22M (Peak 64.22M) | Time:00:00.74 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:64.26M (Peak 64.26M) | Time:00:00.74 | Syncing LWF_RightHand_Food.002
+Fra:31 Mem:64.26M (Peak 64.26M) | Time:00:00.74 | Syncing REVIEW_picnic_2_male_native_rig
+Fra:31 Mem:64.26M (Peak 64.26M) | Time:00:00.74 | Syncing LWF_RightHand_Cup.002
+Fra:31 Mem:64.26M (Peak 64.26M) | Time:00:00.74 | Syncing REVIEW_picnic_2_male_native_body
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.74 | Syncing LWF_Hair_Default.002
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.49M (Peak 64.49M) | Time:00:00.74 | Syncing LWF_PizzaPlateV1.001
+Fra:31 Mem:64.54M (Peak 64.54M) | Time:00:00.74 | Syncing LWF_RightHand_Food.003
+Fra:31 Mem:64.54M (Peak 64.54M) | Time:00:00.74 | Syncing REVIEW_picnic_3_female_native_rig
+Fra:31 Mem:64.54M (Peak 64.54M) | Time:00:00.74 | Syncing LWF_RightHand_Cup.003
+Fra:31 Mem:64.55M (Peak 64.55M) | Time:00:00.74 | Syncing REVIEW_picnic_3_female_native_bod
+Fra:31 Mem:64.73M (Peak 64.73M) | Time:00:00.74 | Syncing LWF_Hair_Default.003
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.90M (Peak 64.90M) | Time:00:00.74 | Syncing LWF_ChipsTrayV1.001
+Fra:31 Mem:64.89M (Peak 64.90M) | Time:00:00.74 | Rendering 1 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.90M) | Time:00:00.88 | Rendering 26 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.90M) | Time:00:01.00 | Rendering 51 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.90M) | Time:00:01.12 | Rendering 76 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.90M) | Time:00:01.22 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-04-occupied.png'
+Time: 00:01.61 (Saving: 00:00.37)
+
+Fra:31 Mem:63.40M (Peak 63.40M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:63.41M (Peak 63.41M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:63.42M (Peak 63.42M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:63.43M (Peak 63.43M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:63.44M (Peak 63.44M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:63.46M (Peak 63.46M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:63.47M (Peak 63.47M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:63.48M (Peak 63.48M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:63.49M (Peak 63.49M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:63.50M (Peak 63.50M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:63.51M (Peak 63.51M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:63.52M (Peak 63.52M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:63.53M (Peak 63.53M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:63.54M (Peak 63.54M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:63.55M (Peak 63.55M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:63.57M (Peak 63.57M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:63.58M (Peak 63.58M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:63.59M (Peak 63.59M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:63.60M (Peak 63.60M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:63.61M (Peak 63.61M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:63.62M (Peak 63.62M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:63.63M (Peak 63.63M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:63.64M (Peak 63.64M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:63.65M (Peak 63.65M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:63.66M (Peak 63.66M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:63.67M (Peak 63.67M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:63.68M (Peak 63.68M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:63.69M (Peak 63.69M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:63.70M (Peak 63.70M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:63.71M (Peak 63.71M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:63.72M (Peak 63.72M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:63.73M (Peak 63.73M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:63.74M (Peak 63.74M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:63.75M (Peak 63.75M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:63.76M (Peak 63.76M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:63.77M (Peak 63.77M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:63.78M (Peak 63.78M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:63.79M (Peak 63.79M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:63.80M (Peak 63.80M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:63.82M (Peak 63.82M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:63.83M (Peak 63.83M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:63.84M (Peak 63.84M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:63.85M (Peak 63.85M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:63.86M (Peak 63.86M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:63.87M (Peak 63.87M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:63.88M (Peak 63.88M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:63.88M (Peak 63.88M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:63.89M (Peak 63.89M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:63.90M (Peak 63.90M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:63.91M (Peak 63.91M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:63.92M (Peak 63.92M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_rig
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:63.95M (Peak 63.95M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_body
+Fra:31 Mem:64.09M (Peak 64.09M) | Time:00:00.00 | Syncing LWF_Hair_Default
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.12M (Peak 64.12M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_rig
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_bod
+Fra:31 Mem:64.31M (Peak 64.31M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.41M (Peak 64.41M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.00 | Syncing LWF_RightHand_Food.002
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.00 | Syncing REVIEW_picnic_2_male_native_rig
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.002
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.00 | Syncing REVIEW_picnic_2_male_native_body
+Fra:31 Mem:64.59M (Peak 64.59M) | Time:00:00.00 | Syncing LWF_Hair_Default.002
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.62M (Peak 64.62M) | Time:00:00.01 | Syncing LWF_PizzaPlateV1.001
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing LWF_RightHand_Food.003
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_rig
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.003
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_bod
+Fra:31 Mem:64.81M (Peak 64.81M) | Time:00:00.01 | Syncing LWF_Hair_Default.003
+Fra:31 Mem:64.91M (Peak 64.91M) | Time:00:00.01 | Syncing LWF_ChipsTrayV1.001
+GPUTexture: Blender Texture Not Loaded!
+Fra:31 Mem:64.90M (Peak 64.91M) | Time:00:00.01 | Rendering 1 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.26 | Rendering 51 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.39 | Rendering 76 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.48 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-05-occupied-rear.png'
+Time: 00:00.90 (Saving: 00:00.40)
+
+Fra:31 Mem:63.40M (Peak 63.40M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:63.41M (Peak 63.41M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:63.42M (Peak 63.42M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:63.43M (Peak 63.43M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:63.44M (Peak 63.44M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:63.46M (Peak 63.46M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:63.47M (Peak 63.47M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:63.48M (Peak 63.48M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:63.49M (Peak 63.49M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:63.50M (Peak 63.50M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:63.51M (Peak 63.51M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:63.52M (Peak 63.52M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:63.53M (Peak 63.53M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:63.54M (Peak 63.54M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:63.55M (Peak 63.55M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:63.56M (Peak 63.56M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:63.57M (Peak 63.57M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:63.58M (Peak 63.58M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:63.59M (Peak 63.59M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:63.60M (Peak 63.60M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:63.61M (Peak 63.61M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:63.62M (Peak 63.62M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:63.63M (Peak 63.63M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:63.64M (Peak 63.64M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:63.65M (Peak 63.65M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:63.66M (Peak 63.66M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:63.67M (Peak 63.67M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:63.68M (Peak 63.68M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:63.69M (Peak 63.69M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:63.70M (Peak 63.70M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:63.71M (Peak 63.71M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:63.72M (Peak 63.72M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:63.73M (Peak 63.73M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:63.74M (Peak 63.74M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:63.75M (Peak 63.75M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:63.76M (Peak 63.76M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:63.77M (Peak 63.77M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:63.78M (Peak 63.78M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:63.79M (Peak 63.79M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:63.80M (Peak 63.80M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:63.82M (Peak 63.82M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:63.83M (Peak 63.83M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:63.84M (Peak 63.84M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:63.85M (Peak 63.85M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:63.86M (Peak 63.86M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:63.87M (Peak 63.87M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:63.88M (Peak 63.88M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:63.88M (Peak 63.88M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:63.89M (Peak 63.89M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:63.90M (Peak 63.90M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:63.91M (Peak 63.91M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:63.92M (Peak 63.92M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:63.93M (Peak 63.93M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_rig
+Fra:31 Mem:63.94M (Peak 63.94M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:63.95M (Peak 63.95M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_body
+Fra:31 Mem:64.09M (Peak 64.09M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:64.12M (Peak 64.12M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_rig
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:64.16M (Peak 64.16M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_bod
+Fra:31 Mem:64.31M (Peak 64.31M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:64.41M (Peak 64.41M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.01 | Syncing LWF_RightHand_Food.002
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.01 | Syncing REVIEW_picnic_2_male_native_rig
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.002
+Fra:31 Mem:64.44M (Peak 64.44M) | Time:00:00.01 | Syncing REVIEW_picnic_2_male_native_body
+Fra:31 Mem:64.59M (Peak 64.59M) | Time:00:00.01 | Syncing LWF_Hair_Default.002
+Fra:31 Mem:64.62M (Peak 64.62M) | Time:00:00.01 | Syncing LWF_PizzaPlateV1.001
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing LWF_RightHand_Food.003
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_rig
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.003
+Fra:31 Mem:64.66M (Peak 64.66M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_bod
+Fra:31 Mem:64.81M (Peak 64.81M) | Time:00:00.01 | Syncing LWF_Hair_Default.003
+Fra:31 Mem:64.91M (Peak 64.91M) | Time:00:00.01 | Syncing LWF_ChipsTrayV1.001
+Fra:31 Mem:64.90M (Peak 64.91M) | Time:00:00.01 | Rendering 1 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.15 | Rendering 26 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.27 | Rendering 51 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.39 | Rendering 76 / 96 samples
+Fra:31 Mem:64.12M (Peak 64.91M) | Time:00:00.49 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-06-contact-side.png'
+Time: 00:00.95 (Saving: 00:00.43)
+
+Fra:31 Mem:60.95M (Peak 60.95M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:60.97M (Peak 60.97M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:60.98M (Peak 60.98M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:60.99M (Peak 60.99M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:61.00M (Peak 61.00M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:61.01M (Peak 61.01M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:61.03M (Peak 61.03M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:61.04M (Peak 61.04M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:61.05M (Peak 61.05M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:61.06M (Peak 61.06M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:61.07M (Peak 61.07M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:61.08M (Peak 61.08M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:61.09M (Peak 61.09M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:61.10M (Peak 61.10M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:61.11M (Peak 61.11M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:61.12M (Peak 61.12M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:61.13M (Peak 61.13M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:61.14M (Peak 61.14M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:61.15M (Peak 61.15M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:61.16M (Peak 61.16M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:61.17M (Peak 61.17M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:61.18M (Peak 61.18M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:61.19M (Peak 61.19M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:61.20M (Peak 61.20M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:61.21M (Peak 61.21M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:61.22M (Peak 61.22M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:61.23M (Peak 61.23M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:61.24M (Peak 61.24M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:61.25M (Peak 61.25M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:61.26M (Peak 61.26M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:61.27M (Peak 61.27M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:61.28M (Peak 61.28M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:61.29M (Peak 61.29M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:61.30M (Peak 61.30M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:61.31M (Peak 61.31M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:61.32M (Peak 61.32M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:61.33M (Peak 61.33M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:61.34M (Peak 61.34M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:61.35M (Peak 61.35M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:61.36M (Peak 61.36M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:61.37M (Peak 61.37M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:61.38M (Peak 61.38M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:61.39M (Peak 61.39M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:61.40M (Peak 61.40M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:61.41M (Peak 61.41M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:61.43M (Peak 61.43M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:61.43M (Peak 61.43M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:61.44M (Peak 61.44M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:61.45M (Peak 61.45M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:61.46M (Peak 61.46M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:61.47M (Peak 61.47M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:61.48M (Peak 61.48M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_rig
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_body
+Fra:31 Mem:61.65M (Peak 61.65M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:61.68M (Peak 61.68M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_rig
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_bod
+Fra:31 Mem:61.87M (Peak 61.87M) | Time:00:00.00 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:61.97M (Peak 61.97M) | Time:00:00.00 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.00 | Syncing LWF_RightHand_Food.002
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.00 | Syncing REVIEW_picnic_2_male_native_rig
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.002
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.00 | Syncing REVIEW_picnic_2_male_native_body
+Fra:31 Mem:62.15M (Peak 62.15M) | Time:00:00.01 | Syncing LWF_Hair_Default.002
+Fra:31 Mem:62.18M (Peak 62.18M) | Time:00:00.01 | Syncing LWF_PizzaPlateV1.001
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing LWF_RightHand_Food.003
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_rig
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.003
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_bod
+Fra:31 Mem:62.37M (Peak 62.37M) | Time:00:00.01 | Syncing LWF_Hair_Default.003
+Fra:31 Mem:62.47M (Peak 62.47M) | Time:00:00.01 | Syncing LWF_ChipsTrayV1.001
+Fra:31 Mem:62.45M (Peak 62.47M) | Time:00:00.01 | Rendering 1 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.25 | Rendering 51 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.36 | Rendering 76 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.45 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-07-gameplay-min18.png'
+Time: 00:00.87 (Saving: 00:00.39)
+
+Fra:31 Mem:60.95M (Peak 60.95M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:60.97M (Peak 60.97M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:60.98M (Peak 60.98M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:60.99M (Peak 60.99M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:61.00M (Peak 61.00M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:61.01M (Peak 61.01M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:61.03M (Peak 61.03M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:61.04M (Peak 61.04M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:61.05M (Peak 61.05M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:61.06M (Peak 61.06M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:61.07M (Peak 61.07M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:61.08M (Peak 61.08M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:61.09M (Peak 61.09M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:61.10M (Peak 61.10M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:61.11M (Peak 61.11M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:61.12M (Peak 61.12M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:61.13M (Peak 61.13M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:61.14M (Peak 61.14M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:61.15M (Peak 61.15M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:61.16M (Peak 61.16M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:61.17M (Peak 61.17M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:61.18M (Peak 61.18M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:61.19M (Peak 61.19M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:61.20M (Peak 61.20M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:61.21M (Peak 61.21M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:61.22M (Peak 61.22M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:61.23M (Peak 61.23M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:61.24M (Peak 61.24M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:61.25M (Peak 61.25M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:61.26M (Peak 61.26M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:61.27M (Peak 61.27M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:61.28M (Peak 61.28M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:61.29M (Peak 61.29M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:61.30M (Peak 61.30M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:61.31M (Peak 61.31M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:61.32M (Peak 61.32M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:61.33M (Peak 61.33M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:61.34M (Peak 61.34M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:61.35M (Peak 61.35M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:61.36M (Peak 61.36M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:61.37M (Peak 61.37M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:61.38M (Peak 61.38M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:61.39M (Peak 61.39M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:61.40M (Peak 61.40M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:61.41M (Peak 61.41M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:61.43M (Peak 61.43M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:61.43M (Peak 61.43M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:61.44M (Peak 61.44M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:61.45M (Peak 61.45M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:61.46M (Peak 61.46M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:61.47M (Peak 61.47M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:61.48M (Peak 61.48M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:61.49M (Peak 61.49M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing LWF_RightHand_Food
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_rig
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing LWF_RightHand_Cup
+Fra:31 Mem:61.50M (Peak 61.50M) | Time:00:00.00 | Syncing REVIEW_picnic_0_male_native_body
+Fra:31 Mem:61.65M (Peak 61.65M) | Time:00:00.00 | Syncing LWF_Hair_Default
+Fra:31 Mem:61.68M (Peak 61.68M) | Time:00:00.00 | Syncing LWF_PizzaPlateV1
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing LWF_RightHand_Food.001
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_rig
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing LWF_RightHand_Cup.001
+Fra:31 Mem:61.72M (Peak 61.72M) | Time:00:00.00 | Syncing REVIEW_picnic_1_female_native_bod
+Fra:31 Mem:61.87M (Peak 61.87M) | Time:00:00.01 | Syncing LWF_Hair_Default.001
+Fra:31 Mem:61.97M (Peak 61.97M) | Time:00:00.01 | Syncing LWF_ChipsTrayV1
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.01 | Syncing LWF_RightHand_Food.002
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.01 | Syncing REVIEW_picnic_2_male_native_rig
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.002
+Fra:31 Mem:62.00M (Peak 62.00M) | Time:00:00.01 | Syncing REVIEW_picnic_2_male_native_body
+Fra:31 Mem:62.15M (Peak 62.15M) | Time:00:00.01 | Syncing LWF_Hair_Default.002
+Fra:31 Mem:62.18M (Peak 62.18M) | Time:00:00.01 | Syncing LWF_PizzaPlateV1.001
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing LWF_RightHand_Food.003
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_rig
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing LWF_RightHand_Cup.003
+Fra:31 Mem:62.22M (Peak 62.22M) | Time:00:00.01 | Syncing REVIEW_picnic_3_female_native_bod
+Fra:31 Mem:62.37M (Peak 62.37M) | Time:00:00.01 | Syncing LWF_Hair_Default.003
+Fra:31 Mem:62.47M (Peak 62.47M) | Time:00:00.01 | Syncing LWF_ChipsTrayV1.001
+Fra:31 Mem:62.45M (Peak 62.47M) | Time:00:00.01 | Rendering 1 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.14 | Rendering 26 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.24 | Rendering 51 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.35 | Rendering 76 / 96 samples
+Fra:31 Mem:61.68M (Peak 62.47M) | Time:00:00.44 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-08-gameplay-default62.png'
+Time: 00:00.89 (Saving: 00:00.42)
+
+Fra:31 Mem:58.57M (Peak 58.57M) | Time:00:00.00 | Syncing P1 tabletop plank 00
+Fra:31 Mem:58.58M (Peak 58.58M) | Time:00:00.00 | Syncing P1 tabletop plank 01
+Fra:31 Mem:58.59M (Peak 58.59M) | Time:00:00.00 | Syncing P1 tabletop plank 02
+Fra:31 Mem:58.60M (Peak 58.60M) | Time:00:00.00 | Syncing P1 tabletop plank 03
+Fra:31 Mem:58.62M (Peak 58.62M) | Time:00:00.00 | Syncing P1 attached bench plank
+Fra:31 Mem:58.63M (Peak 58.63M) | Time:00:00.00 | Syncing P1 attached bench plank.001
+Fra:31 Mem:58.64M (Peak 58.64M) | Time:00:00.00 | Syncing P1 attached bench plank.002
+Fra:31 Mem:58.65M (Peak 58.65M) | Time:00:00.00 | Syncing P1 attached bench plank.003
+Fra:31 Mem:58.66M (Peak 58.66M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg
+Fra:31 Mem:58.67M (Peak 58.67M) | Time:00:00.00 | Syncing P1 visible leg bolt
+Fra:31 Mem:58.68M (Peak 58.68M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.001
+Fra:31 Mem:58.69M (Peak 58.69M) | Time:00:00.00 | Syncing P1 visible leg bolt.001
+Fra:31 Mem:58.70M (Peak 58.70M) | Time:00:00.00 | Syncing P1 under-table transverse bearer
+Fra:31 Mem:58.71M (Peak 58.71M) | Time:00:00.00 | Syncing P1 transverse bench bearer
+Fra:31 Mem:58.72M (Peak 58.72M) | Time:00:00.00 | Syncing P1 tabletop bolt
+Fra:31 Mem:58.73M (Peak 58.73M) | Time:00:00.00 | Syncing P1 tabletop bolt.001
+Fra:31 Mem:58.74M (Peak 58.74M) | Time:00:00.00 | Syncing P1 tabletop bolt.002
+Fra:31 Mem:58.75M (Peak 58.75M) | Time:00:00.00 | Syncing P1 tabletop bolt.003
+Fra:31 Mem:58.76M (Peak 58.76M) | Time:00:00.00 | Syncing P1 bench bolt
+Fra:31 Mem:58.77M (Peak 58.77M) | Time:00:00.00 | Syncing P1 bench bolt.001
+Fra:31 Mem:58.78M (Peak 58.78M) | Time:00:00.00 | Syncing P1 tabletop bolt.004
+Fra:31 Mem:58.79M (Peak 58.79M) | Time:00:00.00 | Syncing P1 tabletop bolt.005
+Fra:31 Mem:58.80M (Peak 58.80M) | Time:00:00.00 | Syncing P1 tabletop bolt.006
+Fra:31 Mem:58.81M (Peak 58.81M) | Time:00:00.00 | Syncing P1 tabletop bolt.007
+Fra:31 Mem:58.82M (Peak 58.82M) | Time:00:00.00 | Syncing P1 bench bolt.002
+Fra:31 Mem:58.83M (Peak 58.83M) | Time:00:00.00 | Syncing P1 bench bolt.003
+Fra:31 Mem:58.84M (Peak 58.84M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.002
+Fra:31 Mem:58.85M (Peak 58.85M) | Time:00:00.00 | Syncing P1 visible leg bolt.002
+Fra:31 Mem:58.86M (Peak 58.86M) | Time:00:00.00 | Syncing P1 dark splayed A-frame leg.003
+Fra:31 Mem:58.87M (Peak 58.87M) | Time:00:00.00 | Syncing P1 visible leg bolt.003
+Fra:31 Mem:58.88M (Peak 58.88M) | Time:00:00.00 | Syncing P1 under-table transverse bearer.
+Fra:31 Mem:58.89M (Peak 58.89M) | Time:00:00.00 | Syncing P1 transverse bench bearer.001
+Fra:31 Mem:58.91M (Peak 58.91M) | Time:00:00.00 | Syncing P1 tabletop bolt.008
+Fra:31 Mem:58.92M (Peak 58.92M) | Time:00:00.00 | Syncing P1 tabletop bolt.009
+Fra:31 Mem:58.93M (Peak 58.93M) | Time:00:00.00 | Syncing P1 tabletop bolt.010
+Fra:31 Mem:58.94M (Peak 58.94M) | Time:00:00.00 | Syncing P1 tabletop bolt.011
+Fra:31 Mem:58.95M (Peak 58.95M) | Time:00:00.00 | Syncing P1 bench bolt.004
+Fra:31 Mem:58.96M (Peak 58.96M) | Time:00:00.00 | Syncing P1 bench bolt.005
+Fra:31 Mem:58.97M (Peak 58.97M) | Time:00:00.00 | Syncing P1 tabletop bolt.012
+Fra:31 Mem:58.98M (Peak 58.98M) | Time:00:00.00 | Syncing P1 tabletop bolt.013
+Fra:31 Mem:58.99M (Peak 58.99M) | Time:00:00.00 | Syncing P1 tabletop bolt.014
+Fra:31 Mem:59.00M (Peak 59.00M) | Time:00:00.00 | Syncing P1 tabletop bolt.015
+Fra:31 Mem:59.01M (Peak 59.01M) | Time:00:00.00 | Syncing P1 bench bolt.006
+Fra:31 Mem:59.02M (Peak 59.02M) | Time:00:00.00 | Syncing P1 bench bolt.007
+Fra:31 Mem:59.03M (Peak 59.03M) | Time:00:00.00 | Syncing P1 longitudinal centre stretcher
+Fra:31 Mem:59.04M (Peak 59.04M) | Time:00:00.00 | Syncing P1 broad timber grain
+Fra:31 Mem:59.05M (Peak 59.05M) | Time:00:00.00 | Syncing P1 light timber facet
+Fra:31 Mem:59.06M (Peak 59.06M) | Time:00:00.00 | Syncing P1 broad timber grain.001
+Fra:31 Mem:59.06M (Peak 59.06M) | Time:00:00.00 | Syncing P1 light timber facet.001
+Fra:31 Mem:59.07M (Peak 59.07M) | Time:00:00.00 | Syncing P1 broad timber grain.002
+Fra:31 Mem:59.08M (Peak 59.08M) | Time:00:00.00 | Syncing P1 light timber facet.002
+Fra:31 Mem:59.09M (Peak 59.09M) | Time:00:00.00 | Syncing P1 broad timber grain.003
+Fra:31 Mem:59.10M (Peak 59.10M) | Time:00:00.00 | Syncing P1 light timber facet.003
+Fra:31 Mem:59.10M (Peak 59.10M) | Time:00:00.00 | Syncing REVIEW sun
+Fra:31 Mem:59.10M (Peak 59.10M) | Time:00:00.00 | Syncing REVIEW fill
+Fra:31 Mem:59.11M (Peak 59.11M) | Time:00:00.00 | Syncing REVIEW grass ground
+Fra:31 Mem:59.11M (Peak 59.11M) | Time:00:00.00 | Syncing REVIEW camera
+Fra:31 Mem:59.05M (Peak 59.11M) | Time:00:00.00 | Rendering 1 / 96 samples
+Fra:31 Mem:58.96M (Peak 59.11M) | Time:00:00.13 | Rendering 26 / 96 samples
+Fra:31 Mem:58.96M (Peak 59.11M) | Time:00:00.23 | Rendering 51 / 96 samples
+Fra:31 Mem:58.96M (Peak 59.11M) | Time:00:00.34 | Rendering 76 / 96 samples
+Fra:31 Mem:58.96M (Peak 59.11M) | Time:00:00.43 | Rendering 96 / 96 samples
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\dining-seat-production-2026-10-17\renders\picnic-09-gameplay-empty-min18.png'
+Time: 00:00.86 (Saving: 00:00.41)
+
+Info: Saved "ft_picnic_aframe_p1_v1_occupied_review.blend"
+DINING_PRODUCTION_COMPLETE
+
+Blender quit

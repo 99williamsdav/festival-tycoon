@@ -1,0 +1,49 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Info: Total files 1 | Changed 1 | Failed 0
+08:24:49 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+08:24:50 | INFO: Starting glTF 2.0 export
+08:24:50 | INFO: Extracting primitive: H1 compressed irregular straw core.001
+08:24:50 | INFO: Primitives created: 1
+08:24:50 | INFO: Finished glTF 2.0 export in 0.007636308670043945 s
+
+Info: Saved "ft_hay_bale_h1_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+SEAT_METRICS {"asset": "ft_hay_bale_h1_v1", "triangles": 750, "mesh_vertices_blender": 656, "material_count": 1, "bounds_blender": [[-0.597907, -0.299, 0.0], [0.598368, 0.299, 0.455]], "source_components": 72, "anchors": [{"name": "Seat_H1_01", "blender_local_surface_position": [-0.28600001335144043, 0.23499999940395355, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [-0.28600001335144043, 0.44999998807907104, -0.23499999940395355], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_H1_02", "blender_local_surface_position": [0.28600001335144043, 0.23499999940395355, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [0.28600001335144043, 0.44999998807907104, -0.23499999940395355], "godot_facing": [-0.0, 0, -1.0]}], "seating_verification": [{"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_H1_01", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.42192, 0.39046, 1e-05], [-0.30584, 0.67191, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.26616, 0.39046, 1e-05], [-0.15008, 0.67191, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.211, 0.46, 0.6772], [-0.061, 0.633, 0.7152]], "table_underside_thigh_gap_m": null, "body_bounds": [[-0.555941, 0.138518, 1.2e-05], [0.005061, 0.671906, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_H1_02", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.15107, 0.44145, 0.0], [0.26631, 0.72084, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.30569, 0.44145, 0.0], [0.42093, 0.72084, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.009717, "review_grip_lift_m": 0.005, "food_bounds": [[0.3445, 0.4735, 0.69], [0.5275, 0.5965, 0.750851]], "table_underside_thigh_gap_m": null, "body_bounds": [[0.036783, 0.13659, 2e-06], [0.553278, 0.720839, 1.360364]]}]}
+Info: Total files 1 | Changed 1 | Failed 0
+Info: Saved "ft_hay_bale_h1_v1_occupied_review.blend"
+08:24:52 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+08:24:52 | INFO: Starting glTF 2.0 export
+08:24:52 | INFO: Extracting primitive: Cube.017
+08:24:52 | INFO: Primitives created: 1
+08:24:52 | INFO: Finished glTF 2.0 export in 0.010828256607055664 s
+
+Info: Saved "ft_picnic_aframe_p1_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+SEAT_METRICS {"asset": "ft_picnic_aframe_p1_v1", "triangles": 1548, "mesh_vertices_blender": 888, "material_count": 1, "bounds_blender": [[-0.98, -0.856, 0.00253], [0.98, 0.856, 0.754]], "source_components": 53, "anchors": [{"name": "Seat_P1_North_West", "blender_local_surface_position": [-0.3720000088214874, -0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [-0.3720000088214874, 0.44999998807907104, 0.5649999976158142], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_P1_North_East", "blender_local_surface_position": [0.3720000088214874, -0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 0.0, "godot_local_surface_position": [0.3720000088214874, 0.44999998807907104, 0.5649999976158142], "godot_facing": [-0.0, 0, -1.0]}, {"name": "Seat_P1_South_West", "blender_local_surface_position": [-0.3720000088214874, 0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 3.1415927410125732, "godot_local_surface_position": [-0.3720000088214874, 0.44999998807907104, -0.5649999976158142], "godot_facing": [0.0, 0, 1.0]}, {"name": "Seat_P1_South_East", "blender_local_surface_position": [0.3720000088214874, 0.5649999976158142, 0.44999998807907104], "blender_yaw_rad": 3.1415927410125732, "godot_local_surface_position": [0.3720000088214874, 0.44999998807907104, -0.5649999976158142], "godot_facing": [0.0, 0, 1.0]}], "seating_verification": [{"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_North_West", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.50792, -0.40954, 1e-05], [-0.39184, -0.12809, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.35216, -0.40954, 1e-05], [-0.23608, -0.12809, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.297, -0.34, 0.8372], [-0.147, -0.167, 0.8752]], "table_underside_thigh_gap_m": 0.25268, "body_bounds": [[-0.641941, -0.661482, 1.2e-05], [-0.063219, -0.128094, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_North_East", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.23707, -0.35855, 0.0], [0.35231, -0.07916, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.39169, -0.35855, 0.0], [0.50693, -0.07916, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.009717, "review_grip_lift_m": 0.005, "food_bounds": [[0.4305, -0.3265, 0.85], [0.6135, -0.2035, 0.910852]], "table_underside_thigh_gap_m": 0.25722, "body_bounds": [[0.122783, -0.66341, 2e-06], [0.659254, -0.079161, 1.360364]]}, {"sex": "male", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_South_West", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.35216, 0.12809, 1e-05], [-0.23608, 0.40954, 0.12403]]}, "Right": {"sole_min_z": 1.2e-05, "mesh_bounds": [[-0.50792, 0.12809, 1e-05], [-0.39184, 0.40954, 0.12403]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.000734, "review_grip_lift_m": 0.006, "food_bounds": [[-0.597, 0.167, 0.8372], [-0.447, 0.34, 0.8752]], "table_underside_thigh_gap_m": 0.25268, "body_bounds": [[-0.680781, 0.128094, 1.2e-05], [-0.102059, 0.661482, 1.398377]]}, {"sex": "female", "native_scale": [1.0, 1.0, 1.0], "anchor": "Seat_P1_South_East", "hips_contact_min_z": 0.451, "contact_gap_to_seat_m": 0.001, "feet": {"Left": {"sole_min_z": 2e-06, "mesh_bounds": [[0.39169, 0.07916, 0.0], [0.50693, 0.35855, 0.12312]]}, "Right": {"sole_min_z": 2e-06, "mesh_bounds": [[0.23707, 0.07916, 0.0], [0.35231, 0.35855, 0.12312]]}}, "body_asset_triangle_overlap_count": 0, "body_overlapping_triangle_centroids_NOT_contact_coordinates": [], "food_asset_triangle_overlap_count": 0, "food_body_triangle_overlap_count": 0, "food_body_overlap_vertex_group_votes": {}, "food_nearest_mesh_vertex_surface_gap_m": 0.009717, "review_grip_lift_m": 0.005, "food_bounds": [[0.1305, 0.2035, 0.85], [0.3135, 0.3265, 0.910852]], "table_underside_thigh_gap_m": 0.25722, "body_bounds": [[0.084746, 0.079161, 2e-06], [0.621217, 0.66341, 1.360364]]}]}
+Info: Saved "ft_picnic_aframe_p1_v1_occupied_review.blend"
+DINING_PRODUCTION_COMPLETE
+
+Blender quit

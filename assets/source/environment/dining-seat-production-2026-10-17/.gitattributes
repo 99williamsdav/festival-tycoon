@@ -1,0 +1,2 @@
+# Preserve the approved package's exact bytes, including text-file line endings.
+* -text

@@ -1,0 +1,213 @@
+{
+  "asset": "ft_hay_bale_h1_v1",
+  "triangles": 566,
+  "mesh_vertices_blender": 436,
+  "material_count": 1,
+  "bounds_blender": [
+    [
+      -0.601112,
+      -0.3,
+      0.0
+    ],
+    [
+      0.600287,
+      0.3,
+      0.455
+    ]
+  ],
+  "source_components": 48,
+  "anchors": [
+    {
+      "name": "Seat_H1_01",
+      "blender_local_surface_position": [
+        -0.28600001335144043,
+        0.23499999940395355,
+        0.44999998807907104
+      ],
+      "blender_yaw_rad": 0.0,
+      "godot_local_surface_position": [
+        -0.28600001335144043,
+        0.44999998807907104,
+        -0.23499999940395355
+      ],
+      "godot_facing": [
+        -0.0,
+        0,
+        -1.0
+      ]
+    },
+    {
+      "name": "Seat_H1_02",
+      "blender_local_surface_position": [
+        0.28600001335144043,
+        0.23499999940395355,
+        0.44999998807907104
+      ],
+      "blender_yaw_rad": 0.0,
+      "godot_local_surface_position": [
+        0.28600001335144043,
+        0.44999998807907104,
+        -0.23499999940395355
+      ],
+      "godot_facing": [
+        -0.0,
+        0,
+        -1.0
+      ]
+    }
+  ],
+  "seating_verification": [
+    {
+      "sex": "male",
+      "native_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "anchor": "Seat_H1_01",
+      "hips_contact_min_z": 0.451,
+      "contact_gap_to_seat_m": 0.001,
+      "feet": {
+        "Left": {
+          "sole_min_z": 1.2e-05,
+          "mesh_bounds": [
+            [
+              -0.42192,
+              0.39046,
+              1e-05
+            ],
+            [
+              -0.30584,
+              0.67191,
+              0.12403
+            ]
+          ]
+        },
+        "Right": {
+          "sole_min_z": 1.2e-05,
+          "mesh_bounds": [
+            [
+              -0.26616,
+              0.39046,
+              1e-05
+            ],
+            [
+              -0.15008,
+              0.67191,
+              0.12403
+            ]
+          ]
+        }
+      },
+      "body_asset_triangle_overlap_count": 0,
+      "body_overlapping_triangle_centroids_NOT_contact_coordinates": [],
+      "evaluated_body_or_food_vertices_inside_solid_furniture": {},
+      "food_asset_triangle_overlap_count": 0,
+      "food_body_triangle_overlap_count": 0,
+      "food_body_overlap_vertex_group_votes": {},
+      "food_or_hand_nearest_vertex_surface_gap_m": 0.000734,
+      "review_grip_lift_m": 0.006,
+      "food_bounds": [
+        [
+          -0.211,
+          0.46,
+          0.6772
+        ],
+        [
+          -0.061,
+          0.633,
+          0.7152
+        ]
+      ],
+      "table_underside_thigh_gap_m": null,
+      "body_bounds": [
+        [
+          -0.555941,
+          0.138518,
+          1.2e-05
+        ],
+        [
+          0.005061,
+          0.671906,
+          1.398377
+        ]
+      ]
+    },
+    {
+      "sex": "female",
+      "native_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "anchor": "Seat_H1_02",
+      "hips_contact_min_z": 0.451,
+      "contact_gap_to_seat_m": 0.001,
+      "feet": {
+        "Left": {
+          "sole_min_z": 2e-06,
+          "mesh_bounds": [
+            [
+              0.15107,
+              0.44145,
+              0.0
+            ],
+            [
+              0.26631,
+              0.72084,
+              0.12312
+            ]
+          ]
+        },
+        "Right": {
+          "sole_min_z": 2e-06,
+          "mesh_bounds": [
+            [
+              0.30569,
+              0.44145,
+              0.0
+            ],
+            [
+              0.42093,
+              0.72084,
+              0.12312
+            ]
+          ]
+        }
+      },
+      "body_asset_triangle_overlap_count": 0,
+      "body_overlapping_triangle_centroids_NOT_contact_coordinates": [],
+      "evaluated_body_or_food_vertices_inside_solid_furniture": {},
+      "food_asset_triangle_overlap_count": 0,
+      "food_body_triangle_overlap_count": 0,
+      "food_body_overlap_vertex_group_votes": {},
+      "food_or_hand_nearest_vertex_surface_gap_m": 0.000685,
+      "review_grip_lift_m": 0.005,
+      "food_bounds": [
+        [
+          0.3445,
+          0.4735,
+          0.69
+        ],
+        [
+          0.5275,
+          0.5965,
+          0.750851
+        ]
+      ],
+      "table_underside_thigh_gap_m": null,
+      "body_bounds": [
+        [
+          0.036783,
+          0.13659,
+          2e-06
+        ],
+        [
+          0.553278,
+          0.720839,
+          1.360364
+        ]
+      ]
+    }
+  ]
+}

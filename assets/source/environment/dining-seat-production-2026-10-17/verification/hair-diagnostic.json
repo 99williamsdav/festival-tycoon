@@ -1,0 +1,36 @@
+{
+  "LWF_Hair_Default": [
+    {
+      "material": "DirectionA adult shared recolour palette.001",
+      "nodes": [
+        {
+          "name": "Image Texture",
+          "image": "attendee-palette",
+          "path": "",
+          "packed": false,
+          "size": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "LWF_Hair_Default.001": [
+    {
+      "material": "DirectionA adult shared recolour palette.003",
+      "nodes": [
+        {
+          "name": "Image Texture",
+          "image": "attendee-palette.001",
+          "path": "",
+          "packed": false,
+          "size": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}
